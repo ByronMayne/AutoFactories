@@ -1,0 +1,1 @@
+"# Ninject.Extensions.AutoFactories" 
