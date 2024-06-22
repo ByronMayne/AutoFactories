@@ -20,6 +20,7 @@
     <PackageProjectUrl>https://github.com/ByronMayne/Ninject.Extensions.AutoFactories</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ByronMayne/Ninject.Extensions.AutoFactories</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <NoWarn>NU5128</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
@@ -28,16 +29,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
-
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
-
-    <PackageReference Include="Ninject" Version="4.0.0-beta.1" />
     <PackageReference Include="SourceGenerator.Foundations" Version="2.0.4" />
     <PackageReference Include="Vogen" Version="4.0.8" />
   </ItemGroup>
-
   <Target Name="Nuget_AppendContent">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).dll">
