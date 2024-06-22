@@ -21,7 +21,7 @@ namespace Ninject.AutoFactory.Templates
                     /// <summary>
                     /// Contains all the bindings for the generated type factories 
                     /// </summary>
-                    internal sealed class FactoryModule : global::Ninject.Modules.NinjectModule 
+                    internal sealed class AutoFactoriesModule : global::Ninject.Modules.NinjectModule 
                     {
                         public override void Load()
                         {

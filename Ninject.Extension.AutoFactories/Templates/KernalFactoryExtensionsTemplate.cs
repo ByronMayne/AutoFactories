@@ -1,12 +1,11 @@
-﻿using Ninject.AutoFactory.Models;
-using System.Collections.Immutable;
+﻿using Ninject.AutoFactory.Templates;
 
-namespace Ninject.AutoFactory.Templates
+namespace Ninject.Extension.AutoFactories.Templates
 {
     internal class KernalFactoryExtensionsTemplate : Template
     {
         public KernalFactoryExtensionsTemplate() : base("Ninject.KernalFactoryExtensions.g.cs")
-        {}
+        { }
 
         /// <inheritdoc cref="Template"/>
         protected override string Render()
@@ -24,7 +23,7 @@ namespace Ninject.AutoFactory.Templates
                         /// </summary
                         public static TKernel LoadFactories<TKernel>(this TKernel kernel) where TKernel : global::Ninject.IKernel
                         {
-                            kernel.Load(new FactoryModule());
+                            kernel.Load(new global::Ninject.AutoFactoriesModule());
                             return kernel;
                         }
                     }
