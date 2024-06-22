@@ -12,6 +12,9 @@
     <TargetsForTfmSpecificContentInPackage>Nuget_AppendContent</TargetsForTfmSpecificContentInPackage>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/ninject/ninject/raw/master/LICENSE.txt</licenseUrl>
+    <iconUrl>https://github.com/ninject/ninject/raw/master/logos/Ninject-Logo32.png</iconUrl>
     <Authors>Bryon Mayne</Authors>
     <Description>A source generator for Ninject to generate Factories for creating types at runtime that are compile time safe. This is also used to not expose NInject concepts to client code.</Description>
     <PackageProjectUrl>https://github.com/ByronMayne/Ninject.Extensions.AutoFactories</PackageProjectUrl>
