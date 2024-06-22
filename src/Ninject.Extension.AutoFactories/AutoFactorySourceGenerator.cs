@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactory.Mapping;
 using Ninject.AutoFactory.Models;
 using Ninject.AutoFactory.Templates;
+using Ninject.Extension.AutoFactories.Templates;
 using SGF;
 using System.Collections.Immutable;
 
@@ -26,8 +27,7 @@ namespace Ninject.AutoFactory
             // Add build int types 
             context.RegisterPostInitializationOutput(new FromFactoryAttributeTemplate().AddSource);
             context.RegisterPostInitializationOutput(new GenerateFactoryAttributeTemplate().AddSource);
-            context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource);
-
+            context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource); 
 
             var factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
                 "Ninject.GenerateFactoryAttribute",
@@ -41,7 +41,7 @@ namespace Ninject.AutoFactory
 
             //context.RegisterSourceOutput(factoryNames,
 
-            context.RegisterSourceOutput(factoryNamesProvider, GenerateNinjectModule);
+            context.RegisterSourceOutput(factoryNamesProvider, GenerateNinjectModule!);
             context.RegisterSourceOutput(factoriesProvider, GenerateFactories!); // Not null because of `is not null`
         }
 
