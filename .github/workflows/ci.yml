@@ -1,0 +1,38 @@
+name: Publish
+on:
+  release: 
+    types: [published]
+  pull_request: {}
+
+env:
+  Configuration: Release
+  ProjectDir: src\Ninject.Extension.AutoFactories\
+  ProjectName: Ninject.Extension.AutoFactories.csproj
+  SolutionPath: src\Ninject.Extension.AutoFactories.sln
+jobs:
+  publish:
+    name: build, bundle & publish
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore
+        run: dotnet tool restore 
+      - name: GitVersion
+        run: dotnet gitversion /output buildserver
+      - name: Build | Solution
+        run: dotnet build ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}} -p:PackageVersion=${{env.GitVersion_NuGetVersion}} 
+      - name: Test | Solution
+        run: dotnet test ${{env.SolutionPath}}
+      - name: Pack | Project
+        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_NuGetVersion}} 
+      # -- Release Only --
+      - name: Push NuGet
+        if: github.event_name == 'release' 
+        run: dotnet nuget push ${{env.ProjectDir}}bin\${{env.Configuration}}\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
