@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Ninject.AutoFactory": {
+      "commandName": "Project"
+    },
+    "Generate: Sandbox": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Ninject.Sandbox\\Ninject.Sandbox.csproj"
+    }
+  }
+}

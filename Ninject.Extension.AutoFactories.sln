@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34916.146
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Sandbox", "Ninject.Sandbox\Ninject.Sandbox.csproj", "{342B4A00-533C-4926-AFBB-1CEA5D53ABA7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFactories", "Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj", "{4087430E-9ADE-431E-86F4-FF59AB75C2CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{342B4A00-533C-4926-AFBB-1CEA5D53ABA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{342B4A00-533C-4926-AFBB-1CEA5D53ABA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{342B4A00-533C-4926-AFBB-1CEA5D53ABA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{342B4A00-533C-4926-AFBB-1CEA5D53ABA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D078DC23-3D4B-48DF-8587-E208AC4B40A3}
+	EndGlobalSection
+EndGlobal
