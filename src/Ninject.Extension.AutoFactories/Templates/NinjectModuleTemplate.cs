@@ -1,4 +1,5 @@
 ﻿using Ninject.AutoFactory.Models;
+using Ninject.Extension.AutoFactories;
 using System.Collections.Immutable;
 
 namespace Ninject.AutoFactory.Templates
@@ -16,12 +17,12 @@ namespace Ninject.AutoFactory.Templates
         protected override string Render()
         {
             return $$"""
-                namespace Ninject
+                namespace {{GeneratorSettings.NinjectModule.Namespace}}
                 {
                     /// <summary>
                     /// Contains all the bindings for the generated type factories 
                     /// </summary>
-                    internal sealed class AutoFactoriesModule : global::Ninject.Modules.NinjectModule 
+                    internal sealed class {{GeneratorSettings.NinjectModule.TypeName}} : global::Ninject.Modules.NinjectModule 
                     {
                         public override void Load()
                         {

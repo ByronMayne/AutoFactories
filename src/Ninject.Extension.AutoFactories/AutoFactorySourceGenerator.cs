@@ -9,13 +9,13 @@ using Ninject.Extension.AutoFactories.Templates;
 using SGF;
 using System.Collections.Immutable;
 
-namespace Ninject.AutoFactory
+namespace Ninject.Extension.AutoFactories
 {
 
     [SgfGenerator]
     internal class AutoFactorySourceGenerator : IncrementalGenerator
     {
-        private readonly IMapper<ClassDeclarationSyntax, FactoryModel> m_modelMapper;
+        private readonly FactoryMapper m_modelMapper;
 
         public AutoFactorySourceGenerator() : base("AutoFactory")
         {
@@ -27,32 +27,27 @@ namespace Ninject.AutoFactory
             // Add build int types 
             context.RegisterPostInitializationOutput(new FromFactoryAttributeTemplate().AddSource);
             context.RegisterPostInitializationOutput(new GenerateFactoryAttributeTemplate().AddSource);
-            context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource); 
+            context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource);
 
-            var factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
-                "Ninject.GenerateFactoryAttribute",
+            IncrementalValueProvider<ImmutableArray<FactoryModel?>> factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
+                GeneratorSettings.ClassAttribute.FullName,
                 predicate: FilterNodes,
                 transform: TransformNodes)
-                .Where(t => t is not null);
-
-            var factoryNamesProvider = factoriesProvider
+                .Where(t => t is not null)
                 .Collect();
 
-
-            //context.RegisterSourceOutput(factoryNames,
-
-            context.RegisterSourceOutput(factoryNamesProvider, GenerateNinjectModule!);
-            context.RegisterSourceOutput(factoriesProvider, GenerateFactories!); // Not null because of `is not null`
+            context.RegisterSourceOutput(factoriesProvider, GenerateNinjectModule!);
         }
 
         private void GenerateNinjectModule(SgfSourceProductionContext context, ImmutableArray<FactoryModel> models)
         {
+            // Generate ninject module that contains all the types
             new NinjectModuleTemplate(models).AddSource(context);
-        }
 
-        private void GenerateFactories(SgfSourceProductionContext context, FactoryModel args)
-        {
-            new GeneratorTemplate(args).AddSource(context);
+            foreach (FactoryModel model in models.Distinct())
+            {
+                new GeneratorTemplate(model).AddSource(context);
+            }
         }
 
         private FactoryModel? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
@@ -63,23 +58,22 @@ namespace Ninject.AutoFactory
             }
 
             ClassDeclarationSyntax classDeclaration = (ClassDeclarationSyntax)context.TargetNode;
-
-
-            ConstructorDeclarationSyntax[] constructors = classDeclaration
+            _ = classDeclaration
                 .DescendantNodes()
                 .OfType<ConstructorDeclarationSyntax>()
                 .ToArray();
 
-            FactoryModel model = m_modelMapper.Map(classDeclaration);
-
+            FactoryModel model = m_modelMapper.Map((context.SemanticModel, classDeclaration));
             return model;
         }
 
 
 
         private static bool FilterNodes(SyntaxNode node, CancellationToken token)
-            => node is ClassDeclarationSyntax classDeclaration &&
-                classDeclaration.AttributeLists.Count > 0 &&
-                classDeclaration.Modifiers.Any(m => !m.IsKind(SyntaxKind.AbstractKeyword));
+        {
+            return node is ClassDeclarationSyntax classDeclaration &&
+                        classDeclaration.AttributeLists.Count > 0 &&
+                        classDeclaration.Modifiers.Any(m => !m.IsKind(SyntaxKind.AbstractKeyword));
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ninject.Extension.AutoFactories;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,17 +13,17 @@ namespace Ninject.AutoFactory.Templates
         /// <inheritdoc cref="Template"/>
         protected override string Render()
         {
-            return """
+            return $$"""
                 using System;
 
-                namespace Ninject
+                namespace {{GeneratorSettings.ParameterAttribute.Namespace}}
                 {
                     /// <summary>
                     /// Applied to a parameter of a constructor or method to impley the factory
                     /// should provide this parameter rathen then the user.
                     /// </summary>
                     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)] 
-                    internal sealed class FromFactoryAttribute : Attribute
+                    internal sealed class {{GeneratorSettings.ParameterAttribute.TypeName}} : Attribute
                     {
                         public FromFactoryAttribute()
                         {}
