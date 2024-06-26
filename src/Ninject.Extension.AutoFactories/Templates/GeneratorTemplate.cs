@@ -44,6 +44,7 @@ namespace Ninject.AutoFactory.Templates
         {
             return $$"""
                 using System;
+                using Ninject;
                 using Ninject.Syntax;
                 using Ninject.Parameters;
                 
