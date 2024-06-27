@@ -43,6 +43,7 @@ namespace Ninject.AutoFactory.Templates
         protected override string Render()
         {
             return $$"""
+                #nullable enable
                 using System;
                 using Ninject;
                 using Ninject.Syntax;

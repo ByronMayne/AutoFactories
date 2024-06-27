@@ -11,7 +11,7 @@ namespace Ninject.AutoFactory.Templates
         protected override string Render()
         {
             return $$"""
-                #nullabe enable
+                #nullable enable
                 using System;
 
                 namespace {{GeneratorSettings.ClassAttribute.Namespace}}

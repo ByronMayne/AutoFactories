@@ -11,6 +11,8 @@ namespace Ninject.Extension.AutoFactories.Templates
         protected override string Render()
         {
             return $$"""
+                #nullable enable
+
                 namespace Ninject
                 {
                     /// <summary>

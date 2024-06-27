@@ -22,7 +22,7 @@ namespace Ninject.Extension.AutoFactories
             {
                 throw new FormatException("The string was not in the expected format");
             }
-            TypeName = match.Groups["name"].Value;
+            TypeName = match.Groups["ClassName"].Value;
             Namespace = match.Groups["Namespace"].Value;
             FullName = string.IsNullOrWhiteSpace(Namespace)
                 ? TypeName
