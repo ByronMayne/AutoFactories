@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Ninject.AutoFactories</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+    <PackageReference Include="Ninject" Version="3.3.6" />
+    <PackageReference Include="Verify" Version="25.0.4" />
+    <PackageReference Include="Verify.SourceGenerators" Version="2.2.0" />
+    <PackageReference Include="Verify.Xunit" Version="25.0.4" />
+    <PackageReference Include="xunit" Version="2.8.1" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <PackageReference Include="xunit.analyzers" Version="1.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj" />
+  </ItemGroup>
+
+</Project>
