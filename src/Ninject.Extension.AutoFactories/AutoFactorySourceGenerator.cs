@@ -2,16 +2,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Ninject.AutoFactory.Mapping;
-using Ninject.AutoFactory.Models;
-using Ninject.AutoFactory.Templates;
-using Ninject.Extension.AutoFactories;
-using Ninject.Extension.AutoFactories.Models;
-using Ninject.Extension.AutoFactories.Templates;
+using Ninject.AutoFactories.Mapping;
+using Ninject.AutoFactories.Models;
+using Ninject.AutoFactories.Templates;
 using SGF;
 using System.Collections.Immutable;
 
-namespace Ninject.AutoFactory
+namespace Ninject.AutoFactories
 {
 
     [SgfGenerator]
@@ -31,7 +28,7 @@ namespace Ninject.AutoFactory
             context.RegisterPostInitializationOutput(new GenerateFactoryAttributeTemplate().AddSource);
             context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource);
 
-            var factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
+            IncrementalValueProvider<ImmutableArray<ProductModel?>> factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
                 GeneratorSettings.ClassAttribute.FullName,
                 predicate: FilterNodes,
                 transform: TransformNodes)
@@ -45,7 +42,7 @@ namespace Ninject.AutoFactory
 
         private void Generate(SgfSourceProductionContext context, ImmutableArray<ProductModel> models)
         {
- 
+
 
             List<FactoryModel> factories = models
                 .GroupBy(m => m.FactoryType)
@@ -64,7 +61,7 @@ namespace Ninject.AutoFactory
                 new FactoryTemplate(factoryModel).AddSource(context);
             }
 
-           // new GeneratorTemplate(args).AddSource(context);
+            // new GeneratorTemplate(args).AddSource(context);
         }
 
         private ProductModel? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
@@ -75,9 +72,7 @@ namespace Ninject.AutoFactory
             }
 
             ClassDeclarationSyntax classDeclaration = (ClassDeclarationSyntax)context.TargetNode;
-
-
-            ConstructorDeclarationSyntax[] constructors = classDeclaration
+            _ = classDeclaration
                 .DescendantNodes()
                 .OfType<ConstructorDeclarationSyntax>()
                 .ToArray();
@@ -90,8 +85,10 @@ namespace Ninject.AutoFactory
 
 
         private static bool FilterNodes(SyntaxNode node, CancellationToken token)
-            => node is ClassDeclarationSyntax classDeclaration &&
-                classDeclaration.AttributeLists.Count > 0 &&
-                classDeclaration.Modifiers.Any(m => !m.IsKind(SyntaxKind.AbstractKeyword));
+        {
+            return node is ClassDeclarationSyntax classDeclaration &&
+                        classDeclaration.AttributeLists.Count > 0 &&
+                        classDeclaration.Modifiers.Any(m => !m.IsKind(SyntaxKind.AbstractKeyword));
+        }
     }
 }

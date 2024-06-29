@@ -1,9 +1,8 @@
 ﻿using Boxed.Mapping;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Ninject.AutoFactory.Models;
-using Ninject.Extension.AutoFactories.Models;
+using Ninject.AutoFactories.Models;
 
-namespace Ninject.AutoFactory.Mapping
+namespace Ninject.AutoFactories.Mapping
 {
     internal class ConstructorMapper : IMapper<ConstructorDeclarationSyntax, ConstructorModel>
     {

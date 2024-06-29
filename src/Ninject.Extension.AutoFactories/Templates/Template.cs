@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Text;
 using SGF;
 using System.Text;
 
-namespace Ninject.AutoFactory.Templates
+namespace Ninject.AutoFactories.Templates
 {
     internal abstract class Template
     {

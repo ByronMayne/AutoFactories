@@ -1,8 +1,8 @@
 ﻿using Boxed.Mapping;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Ninject.AutoFactory.Models;
+using Ninject.AutoFactories.Models;
 
-namespace Ninject.AutoFactory.Mapping
+namespace Ninject.AutoFactories.Mapping
 {
     internal class ParameterMapper : IMapper<ParameterSyntax, ParameterModel>
     {

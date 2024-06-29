@@ -1,11 +1,13 @@
-﻿namespace Ninject.Extension.AutoFactories
+﻿namespace Ninject.AutoFactories
 {
     internal static class Iterator
     {
         public record struct Item<T>(T Value, bool IsFirst, bool IsLast)
         {
             public static implicit operator T(Item<T> item)
-                => item.Value;
+            {
+                return item.Value;
+            }
         }
 
         public static IEnumerable<Item<T>> Create<T>(IEnumerable<T> enumerable)

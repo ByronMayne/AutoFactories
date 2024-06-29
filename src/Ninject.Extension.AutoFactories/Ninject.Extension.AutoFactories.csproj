@@ -21,6 +21,7 @@
     <RepositoryUrl>https://github.com/ByronMayne/Ninject.Extensions.AutoFactories</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NoWarn>NU5128</NoWarn>
+    <RootNamespace>Ninject.AutoFactories</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">

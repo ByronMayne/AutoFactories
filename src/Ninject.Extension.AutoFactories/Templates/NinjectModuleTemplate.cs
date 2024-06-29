@@ -1,9 +1,6 @@
-﻿using Ninject.AutoFactory.Models;
-using Ninject.Extension.AutoFactories;
-using Ninject.Extension.AutoFactories.Models;
-using System.Collections.Immutable;
+﻿using Ninject.AutoFactories.Models;
 
-namespace Ninject.AutoFactory.Templates
+namespace Ninject.AutoFactories.Templates
 {
     internal class NinjectModuleTemplate : Template
     {
@@ -38,11 +35,11 @@ namespace Ninject.AutoFactory.Templates
 
         private string WriteBindings()
         {
-            ClassWriter writer = new ClassWriter(3);
+            ClassWriter writer = new(3);
 
-            foreach(FactoryModel model in m_models)
+            foreach (FactoryModel model in m_models)
             {
-                writer.WriteLine($"Bind<global::{model.InterfaceType.FullName}>().To<global::{model.Type.FullName}>().InSingletonScope();");
+                _ = writer.WriteLine($"Bind<global::{model.InterfaceType.FullName}>().To<global::{model.Type.FullName}>().InSingletonScope();");
             }
 
             return writer.ToString();

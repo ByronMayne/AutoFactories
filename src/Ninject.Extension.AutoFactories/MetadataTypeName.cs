@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Ninject.Extension.AutoFactories
+namespace Ninject.AutoFactories
 {
     internal struct MetadataTypeName
     {
@@ -45,12 +45,7 @@ namespace Ninject.Extension.AutoFactories
                 return false;
             }
 
-            if (string.Equals(name, TypeName))
-            {
-                return true;
-            }
-
-            return string.Equals(name, m_shortName);
+            return string.Equals(name, TypeName) || string.Equals(name, m_shortName);
         }
 
         public override string ToString()

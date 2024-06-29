@@ -1,8 +1,6 @@
-﻿using Ninject.Extension.AutoFactories;
-using Ninject.Extension.AutoFactories.Models;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-namespace Ninject.AutoFactory.Models
+namespace Ninject.AutoFactories.Models
 {
     [DebuggerDisplay("{TypeName,nq}: {Constructors.Count}")]
     internal class ProductModel
@@ -16,7 +14,7 @@ namespace Ninject.AutoFactory.Models
 
         public ProductModel()
         {
-            Constructors = new List<ConstructorModel>();
+            Constructors = [];
             InterfaceAccessModifier = AccessModifier.Public;
             ClassAccessModifier = AccessModifier.Public;
         }

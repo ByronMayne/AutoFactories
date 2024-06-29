@@ -1,8 +1,6 @@
-﻿using Ninject.AutoFactory;
-using Ninject.AutoFactory.Models;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-namespace Ninject.Extension.AutoFactories.Models
+namespace Ninject.AutoFactories.Models
 {
     [DebuggerDisplay("{Type}")]
     internal class FactoryModel
@@ -18,12 +16,15 @@ namespace Ninject.Extension.AutoFactories.Models
             Type = type;
 
             string interfaceName = $"I{type.TypeName}";
-            if (!string.IsNullOrWhiteSpace(type.Namespace)) interfaceName = $"{type.Namespace}.{interfaceName}";
+            if (!string.IsNullOrWhiteSpace(type.Namespace))
+            {
+                interfaceName = $"{type.Namespace}.{interfaceName}";
+            }
 
             InterfaceType = new MetadataTypeName(interfaceName);
             AccessModifier = AccessModifier.Internal;
             InterfaceAccessModifier = AccessModifier.Public;
-            Products = new List<ProductModel>();
+            Products = [];
         }
     }
 }

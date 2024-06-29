@@ -1,11 +1,7 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.Immutable;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Ninject.AutoFactory
+namespace Ninject.AutoFactories
 {
     internal static class SyntaxHelpers
     {
@@ -28,15 +24,15 @@ namespace Ninject.AutoFactory
 
             foreach (AttributeListSyntax attributeList in syntax.AttributeLists)
             {
-                foreach(AttributeSyntax attribute in attributeList.Attributes)
+                foreach (AttributeSyntax attribute in attributeList.Attributes)
                 {
                     string text = attribute.Name.ToString();
-                    if(string.Equals(fullName, text, stringComparison) ||
+                    if (string.Equals(fullName, text, stringComparison) ||
                        string.Equals(alternativeName, text, stringComparison))
                     {
                         return true;
                     }
-                
+
                 }
             }
             return false;
@@ -54,9 +50,9 @@ namespace Ninject.AutoFactory
 
             // Keep moving "out" of nested classes etc until we get to a namespace
             // or until we run out of parents
-            while (potentialNamespaceParent != null &&
-                    potentialNamespaceParent is not NamespaceDeclarationSyntax
-                    && potentialNamespaceParent is not FileScopedNamespaceDeclarationSyntax)
+            while (potentialNamespaceParent is not null and
+                    not NamespaceDeclarationSyntax
+                    and not FileScopedNamespaceDeclarationSyntax)
             {
                 potentialNamespaceParent = potentialNamespaceParent.Parent;
             }
@@ -85,17 +81,27 @@ namespace Ninject.AutoFactory
             // return the final namespace
             return nameSpace;
         }
-    
+
         public static T GetArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T defaultValue)
         {
-            if (attribute == null) return defaultValue;
-            if (attribute.ArgumentList == null) return defaultValue;
+            if (attribute == null)
+            {
+                return defaultValue;
+            }
+
+            if (attribute.ArgumentList == null)
+            {
+                return defaultValue;
+            }
 
             foreach (AttributeArgumentSyntax value in attribute.ArgumentList.Arguments)
             {
-                if (value.NameEquals is not NameEqualsSyntax nameEquals) continue;
-            
-                if(string.Equals(nameEquals.Name.Identifier.Text, argumentName))
+                if (value.NameEquals is not NameEqualsSyntax nameEquals)
+                {
+                    continue;
+                }
+
+                if (string.Equals(nameEquals.Name.Identifier.Text, argumentName))
                 {
                     Optional<object?> constantValue = semanticModel.GetConstantValue(value.Expression);
 
