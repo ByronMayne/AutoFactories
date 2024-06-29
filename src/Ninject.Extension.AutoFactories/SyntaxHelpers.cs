@@ -85,5 +85,27 @@ namespace Ninject.AutoFactory
             // return the final namespace
             return nameSpace;
         }
+    
+        public static T GetArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T defaultValue)
+        {
+            if (attribute == null) return defaultValue;
+            if (attribute.ArgumentList == null) return defaultValue;
+
+            foreach (AttributeArgumentSyntax value in attribute.ArgumentList.Arguments)
+            {
+                if (value.NameEquals is not NameEqualsSyntax nameEquals) continue;
+            
+                if(string.Equals(nameEquals.Name.Identifier.Text, argumentName))
+                {
+                    Optional<object?> constantValue = semanticModel.GetConstantValue(value.Expression);
+
+                    if (constantValue.HasValue)
+                    {
+                        return (T)constantValue.Value!;
+                    }
+                }
+            }
+            return defaultValue;
+        }
     }
 }

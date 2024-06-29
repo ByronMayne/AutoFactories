@@ -11,6 +11,7 @@ namespace Ninject.Sandbox
     {
         public override void Load()
         {
+
             throw new NotImplementedException();
         }
     }

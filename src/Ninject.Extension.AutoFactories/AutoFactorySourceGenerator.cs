@@ -6,6 +6,7 @@ using Ninject.AutoFactory.Mapping;
 using Ninject.AutoFactory.Models;
 using Ninject.AutoFactory.Templates;
 using Ninject.Extension.AutoFactories;
+using Ninject.Extension.AutoFactories.Models;
 using Ninject.Extension.AutoFactories.Templates;
 using SGF;
 using System.Collections.Immutable;
@@ -16,11 +17,11 @@ namespace Ninject.AutoFactory
     [SgfGenerator]
     internal class AutoFactorySourceGenerator : IncrementalGenerator
     {
-        private readonly IMapper<ClassDeclarationSyntax, FactoryModel> m_modelMapper;
+        private readonly ProductMapper m_modelMapper;
 
         public AutoFactorySourceGenerator() : base("AutoFactory")
         {
-            m_modelMapper = new FactoryMapper();
+            m_modelMapper = new ProductMapper();
         }
 
         public override void OnInitialize(SgfInitializationContext context)
@@ -34,29 +35,39 @@ namespace Ninject.AutoFactory
                 GeneratorSettings.ClassAttribute.FullName,
                 predicate: FilterNodes,
                 transform: TransformNodes)
-                .Where(t => t is not null);
-
-            var factoryNamesProvider = factoriesProvider
+                .Where(t => t is not null)
                 .Collect();
-
 
             //context.RegisterSourceOutput(factoryNames,
 
-            context.RegisterSourceOutput(factoryNamesProvider, GenerateNinjectModule!);
-            context.RegisterSourceOutput(factoriesProvider, GenerateFactories!); // Not null because of `is not null`
+            context.RegisterSourceOutput(factoriesProvider, Generate!);
         }
 
-        private void GenerateNinjectModule(SgfSourceProductionContext context, ImmutableArray<FactoryModel> models)
+        private void Generate(SgfSourceProductionContext context, ImmutableArray<ProductModel> models)
         {
-            new NinjectModuleTemplate(models).AddSource(context);
+ 
+
+            List<FactoryModel> factories = models
+                .GroupBy(m => m.FactoryType)
+                .Select(g => new FactoryModel(g.Key)
+                {
+                    Products = g.ToList()
+                })
+                .ToList();
+
+
+            new NinjectModuleTemplate(factories).AddSource(context);
+
+
+            foreach (FactoryModel factoryModel in factories)
+            {
+                new FactoryTemplate(factoryModel).AddSource(context);
+            }
+
+           // new GeneratorTemplate(args).AddSource(context);
         }
 
-        private void GenerateFactories(SgfSourceProductionContext context, FactoryModel args)
-        {
-            new GeneratorTemplate(args).AddSource(context);
-        }
-
-        private FactoryModel? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+        private ProductModel? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -71,7 +82,7 @@ namespace Ninject.AutoFactory
                 .OfType<ConstructorDeclarationSyntax>()
                 .ToArray();
 
-            FactoryModel model = m_modelMapper.Map(classDeclaration);
+            ProductModel model = m_modelMapper.Map((context.SemanticModel, classDeclaration));
 
             return model;
         }

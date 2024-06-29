@@ -1,23 +1,29 @@
-﻿using System.Diagnostics;
+﻿using Ninject.AutoFactory;
+using Ninject.AutoFactory.Models;
+using System.Diagnostics;
 
-namespace Ninject.AutoFactory.Models
+namespace Ninject.Extension.AutoFactories.Models
 {
-    [DebuggerDisplay("{TypeName,nq}: {Methods.Count}")]
+    [DebuggerDisplay("{Type}")]
     internal class FactoryModel
     {
-        public string Namespace { get; set; } = "";
-        public string TypeName { get; set; } = "";
-        public string FactoryTypeName { get; set; } = "";
-        public string FactoryInterfaceTypeName { get; set; } = "";
-        public AccessModifier InterfaceAccessModifier { get; set; }
-        public AccessModifier ClassAccessModifier { get; set; }
-        public List<MethodModel> Methods { get; set; }
+        public MetadataTypeName Type { get; set; }
+        public AccessModifier AccessModifier { get; set; }
+        public MetadataTypeName InterfaceType { get; set; }
+        public AccessModifier InterfaceAccessModifier { get; }
+        public List<ProductModel> Products { get; set; }
 
-        public FactoryModel()
+        public FactoryModel(MetadataTypeName type)
         {
-            Methods = new List<MethodModel>();
+            Type = type;
+
+            string interfaceName = $"I{type.TypeName}";
+            if (!string.IsNullOrWhiteSpace(type.Namespace)) interfaceName = $"{type.Namespace}.{interfaceName}";
+
+            InterfaceType = new MetadataTypeName(interfaceName);
+            AccessModifier = AccessModifier.Internal;
             InterfaceAccessModifier = AccessModifier.Public;
-            ClassAccessModifier = AccessModifier.Public;
+            Products = new List<ProductModel>();
         }
     }
 }

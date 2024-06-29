@@ -5,8 +5,12 @@ using Ninject.Syntax;
 
 namespace Ninject.Sandbox
 {
+
+
+
+
     [GenerateFactory]
-    public class InputSystem
+    public class InputSystem : IUserInput
     {
         public InputSystem(
             string name,

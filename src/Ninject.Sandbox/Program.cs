@@ -17,7 +17,6 @@ namespace Ninject.Sandbox
 
             IEnumerable<INinjectModule> modules = kernel.GetModules();
             NinjectSettings settings = new NinjectSettings();
-            IInputSystemFactory factory = kernel.Get<IInputSystemFactory>();
         }
     }
 }

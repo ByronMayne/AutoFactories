@@ -1,14 +1,15 @@
 ﻿using Ninject.AutoFactory.Models;
 using Ninject.Extension.AutoFactories;
+using Ninject.Extension.AutoFactories.Models;
 using System.Collections.Immutable;
 
 namespace Ninject.AutoFactory.Templates
 {
     internal class NinjectModuleTemplate : Template
     {
-        private readonly IImmutableList<FactoryModel> m_models;
+        private readonly IReadOnlyList<FactoryModel> m_models;
 
-        public NinjectModuleTemplate(ImmutableArray<FactoryModel> models) : base("Ninject.FactoryModule.g.cs")
+        public NinjectModuleTemplate(IReadOnlyList<FactoryModel> models) : base("Ninject.FactoryModule.g.cs")
         {
             m_models = models;
         }
@@ -37,11 +38,11 @@ namespace Ninject.AutoFactory.Templates
 
         private string WriteBindings()
         {
-            ClassWriter writer = new ClassWriter(2);
+            ClassWriter writer = new ClassWriter(3);
 
             foreach(FactoryModel model in m_models)
             {
-                writer.WriteLine($"Bind<global::{model.Namespace}.{model.FactoryInterfaceTypeName}>().To<global::{model.Namespace}.{model.FactoryTypeName}>().InSingletonScope();");
+                writer.WriteLine($"Bind<global::{model.InterfaceType.FullName}>().To<global::{model.Type.FullName}>().InSingletonScope();");
             }
 
             return writer.ToString();
