@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="Ninject" Version="3.3.6" />
     <PackageReference Include="Verify" Version="25.0.4" />
     <PackageReference Include="Verify.SourceGenerators" Version="2.2.0" />
@@ -30,6 +31,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Snapshots\" />
   </ItemGroup>
 
 </Project>
