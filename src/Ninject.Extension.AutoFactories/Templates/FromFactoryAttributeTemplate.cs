@@ -1,14 +1,9 @@
-﻿using Ninject.Extension.AutoFactories;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ninject.AutoFactory.Templates
+﻿namespace Ninject.AutoFactories.Templates
 {
     internal class FromFactoryAttributeTemplate : Template
     {
         public FromFactoryAttributeTemplate() : base("Ninject.FromFactoryAttribute.g.cs")
-        {}
+        { }
 
         /// <inheritdoc cref="Template"/>
         protected override string Render()

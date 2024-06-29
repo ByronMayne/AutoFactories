@@ -1,6 +1,4 @@
-﻿using Ninject.AutoFactory.Templates;
-
-namespace Ninject.Extension.AutoFactories.Templates
+﻿namespace Ninject.AutoFactories.Templates
 {
     internal class KernalFactoryExtensionsTemplate : Template
     {

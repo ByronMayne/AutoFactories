@@ -1,9 +1,4 @@
-﻿using Ninject.AutoFactory.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ninject.Extension.AutoFactories.Models
+﻿namespace Ninject.AutoFactories.Models
 {
     internal class ConstructorModel
     {
@@ -14,7 +9,7 @@ namespace Ninject.Extension.AutoFactories.Models
         public ConstructorModel()
         {
             Name = "Create";
-            Parameters = Array.Empty<ParameterModel>(); 
+            Parameters = Array.Empty<ParameterModel>();
         }
     }
 }

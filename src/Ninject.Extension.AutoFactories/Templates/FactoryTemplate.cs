@@ -1,9 +1,6 @@
-﻿using Ninject.AutoFactory.Models;
-using Ninject.AutoFactory.Templates;
-using Ninject.Extension.AutoFactories.Models;
-using System.Net.Security;
+﻿using Ninject.AutoFactories.Models;
 
-namespace Ninject.Extension.AutoFactories.Templates
+namespace Ninject.AutoFactories.Templates
 {
     internal class FactoryTemplate : Template
     {
@@ -58,13 +55,13 @@ namespace Ninject.Extension.AutoFactories.Templates
                     indentSize: 4,
                     indentChar: ' ');
 
-            foreach (var method in Iterator.Create(m_model.Products))
+            foreach (Iterator.Item<ProductModel> method in Iterator.Create(m_model.Products))
             {
                 RenderProduct(method, isInterface, writer);
 
                 if (!method.IsLast)
                 {
-                    writer.WriteNewLine();
+                    _ = writer.WriteNewLine();
                 }
             }
 
@@ -74,64 +71,60 @@ namespace Ninject.Extension.AutoFactories.Templates
         private void RenderProduct(ProductModel product, bool isInterface, ClassWriter writer)
         {
 
-            foreach (var constructor in Iterator.Create(product.Constructors))
+            foreach (Iterator.Item<ConstructorModel> constructor in Iterator.Create(product.Constructors))
             {
-                writer.WriteBlock($"""
+                _ = writer.WriteBlock($"""
                 /// <summary>
                 /// Creates a new instance of <see cref="{product.ProductType.FullName}"/>
                 /// </summary>
                 """);
 
-                writer.WriteIf(!isInterface, "public ");
-                writer.Write($"global::{product.ProductType.FullName} {constructor.Value.Name}(");
+                _ = writer.WriteIf(!isInterface, "public ");
+                _ = writer.Write($"global::{product.ProductType.FullName} {constructor.Value.Name}(");
 
                 foreach (Iterator.Item<ParameterModel> parameter in Iterator.Create(constructor.Value.Parameters))
                 {
                     WriteParameter(writer, parameter);
                     if (!parameter.IsLast)
                     {
-                        writer.Write(", ");
+                        _ = writer.Write(", ");
                     }
                 }
-                writer.Write(")");
-                
+                _ = writer.Write(")");
+
                 if (isInterface)
                 {
-                    writer.Write(";");
+                    _ = writer.Write(";");
                     return;
                 }
-                writer.WriteNewLine();
+                _ = writer.WriteNewLine();
 
                 using (writer.StartScope())
                 {
-                    writer.WriteLine("IParameter[] parameters = new IParameter[]");
+                    _ = writer.WriteLine("IParameter[] parameters = new IParameter[]");
                     using (writer.StartScope(appendSemicolon: true))
                     {
-                        foreach (var parameter in Iterator.Create(constructor.Value.Parameters))
+                        foreach (Iterator.Item<ParameterModel> parameter in Iterator.Create(constructor.Value.Parameters))
                         {
-                            writer.Write($"""new ConstructorArgument("{parameter.Value.Name}", {parameter.Value.Name})""");
+                            _ = writer.Write($"""new ConstructorArgument("{parameter.Value.Name}", {parameter.Value.Name})""");
 
-                            if (parameter.IsLast)
-                            {
-                                writer.WriteNewLine();
-                            }
-                            else
-                            {
-                                writer.WriteLine(",");
-                            }
+                            _ = parameter.IsLast ? writer.WriteNewLine() : writer.WriteLine(",");
                         }
                     }
-                    writer.WriteLine($"""global::{product.ProductType.FullName} instance = m_resolutionRoot.Get<global::{product.ProductType.FullName}>(parameters);""");
-                    writer.WriteLine("return instance;");
+                    _ = writer.WriteLine($"""global::{product.ProductType.FullName} instance = m_resolutionRoot.Get<global::{product.ProductType.FullName}>(parameters);""");
+                    _ = writer.WriteLine("return instance;");
                 }
 
-                if (!constructor.IsLast) writer.WriteNewLine();
+                if (!constructor.IsLast)
+                {
+                    _ = writer.WriteNewLine();
+                }
             }
         }
 
         private void WriteParameter(ClassWriter writer, ParameterModel parameter)
         {
-            writer.Write($"{parameter.Type} {parameter.Name}");
+            _ = writer.Write($"{parameter.Type} {parameter.Name}");
         }
     }
 

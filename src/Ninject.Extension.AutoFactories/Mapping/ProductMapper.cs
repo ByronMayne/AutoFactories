@@ -1,11 +1,9 @@
 ﻿using Boxed.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Ninject.AutoFactory.Models;
-using Ninject.Extension.AutoFactories;
-using Ninject.Extension.AutoFactories.Models;
+using Ninject.AutoFactories.Models;
 
-namespace Ninject.AutoFactory.Mapping
+namespace Ninject.AutoFactories.Mapping
 {
     internal class ProductMapper : IMapper<(SemanticModel, ClassDeclarationSyntax), ProductModel>
     {

@@ -1,4 +1,4 @@
-﻿namespace Ninject.Extension.AutoFactories
+﻿namespace Ninject.AutoFactories
 {
 
     /// <summary>

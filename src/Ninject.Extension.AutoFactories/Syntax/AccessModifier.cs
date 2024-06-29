@@ -1,6 +1,6 @@
 ﻿using Vogen;
 
-namespace Ninject.AutoFactory
+namespace Ninject.AutoFactories
 {
     [Instance("Public", "public")]
     [Instance("Internal", "internal")]

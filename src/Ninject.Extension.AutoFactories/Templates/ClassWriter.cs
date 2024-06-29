@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Ninject.AutoFactory.Templates
+namespace Ninject.AutoFactories.Templates
 {
     internal class ClassWriter
     {
@@ -14,9 +14,9 @@ namespace Ninject.AutoFactory.Templates
             {
                 m_isDisposed = false;
                 m_writer = writer;
-                m_writer.WriteLine("{");
+                _ = m_writer.WriteLine("{");
                 m_writer.m_scope++;
-                m_prependSemicolon= prependSemicolon;
+                m_prependSemicolon = prependSemicolon;
             }
 
             public void Dispose()
@@ -28,9 +28,13 @@ namespace Ninject.AutoFactory.Templates
                 m_isDisposed = true;
                 m_writer.m_scope--;
 
-                m_writer.Write("}");
-                if (m_prependSemicolon) m_writer.Write(";");
-                m_writer.WriteNewLine();
+                _ = m_writer.Write("}");
+                if (m_prependSemicolon)
+                {
+                    _ = m_writer.Write(";");
+                }
+
+                _ = m_writer.WriteNewLine();
             }
         }
 
@@ -41,7 +45,7 @@ namespace Ninject.AutoFactory.Templates
         private bool m_isPendingIndent;
         private bool m_isPendingNewline;
 
-        private StringBuilder m_builder;
+        private readonly StringBuilder m_builder;
 
         public ClassWriter(
             int initialScope,
@@ -75,7 +79,7 @@ namespace Ninject.AutoFactory.Templates
                 AppendIndent();
             }
 
-            m_builder.Append(content);
+            _ = m_builder.Append(content);
 
             return this;
         }
@@ -88,15 +92,19 @@ namespace Ninject.AutoFactory.Templates
         /// <returns></returns>
         public ClassWriter WriteIf(bool condiation, string content)
         {
-            if (!condiation) return this;
-            Write(content);
+            if (!condiation)
+            {
+                return this;
+            }
+
+            _ = Write(content);
             return this;
         }
 
         public ClassWriter WriteLine(string content)
         {
-            Write(content);
-            WriteNewLine();
+            _ = Write(content);
+            _ = WriteNewLine();
             return this;
         }
 
@@ -109,9 +117,9 @@ namespace Ninject.AutoFactory.Templates
         public ClassWriter WriteBlock(string input)
         {
             string[] lines = input.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
-            foreach(var line in lines)
+            foreach (string line in lines)
             {
-                WriteLine(line);
+                _ = WriteLine(line);
             }
             return this;
         }
@@ -129,13 +137,13 @@ namespace Ninject.AutoFactory.Templates
         private void AppendIndent()
         {
             int indentCount = (m_initialScope + m_scope) * m_indentSize;
-            string indent = new string(m_inidentChar, indentCount);
-            m_builder.Append(indent);
+            string indent = new(m_inidentChar, indentCount);
+            _ = m_builder.Append(indent);
         }
 
         private void AppendNewline()
         {
-            m_builder.AppendLine();
+            _ = m_builder.AppendLine();
         }
 
 

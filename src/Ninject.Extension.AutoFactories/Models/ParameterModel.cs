@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Ninject.AutoFactory.Models
+namespace Ninject.AutoFactories.Models
 {
     [DebuggerDisplay("{Name,nq} {Type,nq}")]
     internal class ParameterModel
