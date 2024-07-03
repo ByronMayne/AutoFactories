@@ -1,10 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Ninject.AutoFactories
@@ -12,13 +7,23 @@ namespace Ninject.AutoFactories
     /// <summary>
     /// A unit test base class for writing tests for Source Generators.
     /// </summary>
-    public abstract class SourceGeneratorTestBase
+    public abstract class SnapshotTest
     {
         protected ITestOutputHelper m_outputHelper;
+        private readonly List<string> m_testSubjects;
 
-        protected SourceGeneratorTestBase(ITestOutputHelper outputHelper)
+        protected SnapshotTest(ITestOutputHelper outputHelper)
         {
+            m_testSubjects = [];
             m_outputHelper = outputHelper;
+        }
+
+        /// <summary>
+        /// Adds the a file to be tested by the snapshot tests. This is the `HintName` of the generated class
+        /// </summary>
+        protected void AddTestSubject(string fileName)
+        {
+            m_testSubjects.Add(fileName);
         }
 
         /// <summary>
@@ -26,16 +31,17 @@ namespace Ninject.AutoFactories
         /// </summary>
         /// <param name="text">The text to write</param>
         protected void WriteLine(string text)
-            => m_outputHelper.WriteLine(text);
+        {
+            m_outputHelper.WriteLine(text);
+        }
 
         /// <summary>
         /// Verifies that the source sent in here generates into the expected types.
         /// </summary>
         /// <param name="source">The source to try to run the source generator on</param>
         /// <returns>A task to await on</returns>
-        protected static Task Compose(
-            string? source = "", 
-            Predicate<string>[]? filters = null)
+        protected Task Compose(
+            string? source = "")
         {
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
 
@@ -44,24 +50,19 @@ namespace Ninject.AutoFactories
                 syntaxTrees: new[] { syntaxTree });
 
             // The 'hoist' is the SGF libraries wrapper around source generators
-            AutoFactorySourceGeneratorHoist generator = new AutoFactorySourceGeneratorHoist();
+            AutoFactorySourceGeneratorHoist generator = new();
 
             GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
 
             driver = driver.RunGenerators(compilation);
 
-            VerifySettings settings = new VerifySettings();
+            VerifySettings settings = new();
             settings.UseDirectory("Snapshots");
 
-            GeneratorDriverResultFilter filter = new GeneratorDriverResultFilter(driver.GetRunResult(), filters);
+
+            GeneratorDriverResultFilter filter = new(driver.GetRunResult(), m_testSubjects.Contains);
 
             return Verifier.Verify(filter, settings);
-        }
-
-        protected static class Filters
-        {
-            public static Predicate<string> Only(string fileName)
-                => f => string.Equals(fileName, f);
         }
     }
 }
