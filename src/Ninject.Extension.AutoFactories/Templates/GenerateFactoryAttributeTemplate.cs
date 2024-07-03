@@ -34,7 +34,42 @@
                         /// the name of the class this attribute is applied on but post-fixed with 'Factory'. Using this attribute
                         /// you can have several class factory methods be contained within one.
                         /// </summary>
-                        public string? FactoryFullyQualifiedName { get; set; }
+                        public string? FactoryFullyQualifiedName { get; }
+
+                        /// <summary>
+                        /// Marks a class to have a unique factory generated for the type.
+                        /// </summary>
+                        public {{GeneratorSettings.ClassAttribute.TypeName}}()
+                        {
+                            MethodName = null;
+                            FactoryFullyQualifiedName = null;
+                        }
+
+                        /// <summary>
+                        /// Marks a class to have a factory generated for it. Using this versions allows you to explictly define
+                        /// the name of the factory and what the methods should be called.
+                        /// </summary>
+                        /// <param name="factoryType">The type of the factory you want to add the builder methods to.</param>
+                        /// <param name="methodName">The name of the method that will be used to create your instances. When using a common factory you will need to give each type a custom 
+                        /// name otherwise the 'CS0111' error saying a member already exists with the given name. Example 'CreateDog', 'CreateHouse' etc</param>
+                        public {{GeneratorSettings.ClassAttribute.TypeName}}(Type factoryType, string methodName)
+                        {
+                            MethodName = methodName;
+                            FactoryFullyQualifiedName = factoryType.FullName;
+                        }
+
+                        /// <summary>
+                        /// Marks a class to have a factory generated for it. Using this versions allows you to explictly define
+                        /// the name of the factory and what the methods should be called.
+                        /// </summary>
+                        /// <param name="factoryType">The fully qualifed name of the factory that should have methods added to it. For example 'MyNamespace.Factories.ObjectFactory'</param>
+                        /// <param name="methodName">The name of the method that will be used to create your instances. When using a common factory you will need to give each type a custom 
+                        /// name otherwise the 'CS0111' error saying a member already exists with the given name. Example 'CreateDog', 'CreateHouse' etc</param>
+                        public {{GeneratorSettings.ClassAttribute.TypeName}}(string factoryFullyQualifiedName, string methodName)
+                        {
+                            MethodName = methodName;
+                            FactoryFullyQualifiedName = factoryFullyQualifiedName;
+                        }
                     }
                 }
                 """;

@@ -42,16 +42,8 @@ namespace Ninject.AutoFactories
 
         private void Generate(SgfSourceProductionContext context, ImmutableArray<ProductModel> models)
         {
-
-
-            List<FactoryModel> factories = models
-                .GroupBy(m => m.FactoryType)
-                .Select(g => new FactoryModel(g.Key)
-                {
-                    Products = g.ToList()
-                })
+            List<FactoryModel> factories = FactoryModel.Group(models)
                 .ToList();
-
 
             new NinjectModuleTemplate(factories).AddSource(context);
 
@@ -60,8 +52,6 @@ namespace Ninject.AutoFactories
             {
                 new FactoryTemplate(factoryModel).AddSource(context);
             }
-
-            // new GeneratorTemplate(args).AddSource(context);
         }
 
         private ProductModel? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)

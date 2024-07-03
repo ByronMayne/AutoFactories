@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq.Expressions;
 
 namespace Ninject.AutoFactories
 {
@@ -82,7 +83,24 @@ namespace Ninject.AutoFactories
             return nameSpace;
         }
 
-        public static T GetArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T defaultValue)
+        public static object? GetValue(this AttributeArgumentSyntax instance, SemanticModel semanticModel)
+        {
+            switch (instance.Expression)
+            {
+                case TypeOfExpressionSyntax typeOfExpression:
+                    return semanticModel.GetSymbolInfo(typeOfExpression.Type).Symbol;
+                case LiteralExpressionSyntax literalExpression:
+                    Optional<object?> optional = semanticModel.GetConstantValue(literalExpression);
+                    return optional.Value;
+            }
+
+            return null;
+        }
+
+
+
+
+        public static T? GetNamedArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T? defaultValue)
         {
             if (attribute == null)
             {

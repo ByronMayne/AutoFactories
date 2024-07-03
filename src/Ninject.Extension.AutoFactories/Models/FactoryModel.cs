@@ -8,7 +8,7 @@ namespace Ninject.AutoFactories.Models
         public MetadataTypeName Type { get; set; }
         public AccessModifier AccessModifier { get; set; }
         public MetadataTypeName InterfaceType { get; set; }
-        public AccessModifier InterfaceAccessModifier { get; }
+        public AccessModifier InterfaceAccessModifier { get; set; }
         public List<ProductModel> Products { get; set; }
 
         public FactoryModel(MetadataTypeName type)
@@ -25,6 +25,33 @@ namespace Ninject.AutoFactories.Models
             AccessModifier = AccessModifier.Internal;
             InterfaceAccessModifier = AccessModifier.Public;
             Products = [];
+        }
+
+        public static IEnumerable<FactoryModel> Group(IEnumerable<ProductModel> models)
+        {
+            Dictionary<string, FactoryModel> map = new Dictionary<string, FactoryModel>();
+
+            foreach (ProductModel product in models)
+            {
+                if (!map.TryGetValue(product.FactoryType.FullName, out FactoryModel factory))
+                {
+                    factory = new FactoryModel(product.FactoryType);
+                    map.Add(product.FactoryType.FullName, factory);
+                }
+
+                factory.Products.Add(product);
+                if (product.FactoryAccessModifier.HasValue)
+                {
+                    factory.AccessModifier = product.FactoryAccessModifier.Value;
+                }
+
+                if (product.InterfaceAccessModifier.HasValue)
+                {
+                    factory.InterfaceAccessModifier = product.InterfaceAccessModifier.Value;
+                }
+            }
+
+            return map.Values;
         }
     }
 }
