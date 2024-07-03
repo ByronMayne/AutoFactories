@@ -1,4 +1,5 @@
-﻿using Ninject.AutoFactories.Models;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Ninject.AutoFactories.Models;
 
 namespace Ninject.AutoFactories.Templates
 {
@@ -61,7 +62,7 @@ namespace Ninject.AutoFactories.Templates
 
                 if (!method.IsLast)
                 {
-                    _ = writer.WriteNewLine();
+                    writer.WriteNewLine();
                 }
             }
 
@@ -73,58 +74,65 @@ namespace Ninject.AutoFactories.Templates
 
             foreach (Iterator.Item<ConstructorModel> constructor in Iterator.Create(product.Constructors))
             {
-                _ = writer.WriteBlock($"""
+                writer.WriteBlock($"""
                 /// <summary>
                 /// Creates a new instance of <see cref="{product.ProductType.FullName}"/>
                 /// </summary>
                 """);
 
-                _ = writer.WriteIf(!isInterface, "public ");
-                _ = writer.Write($"global::{product.ProductType.FullName} {constructor.Value.Name}(");
+                writer.WriteIf(!isInterface, "public ");
+                writer.Write($"global::{product.ProductType.FullName} {constructor.Value.Name}(");
 
                 foreach (Iterator.Item<ParameterModel> parameter in Iterator.Create(constructor.Value.Parameters))
                 {
                     WriteParameter(writer, parameter);
                     if (!parameter.IsLast)
                     {
-                        _ = writer.Write(", ");
+                        writer.Write(", ");
                     }
                 }
-                _ = writer.Write(")");
+                writer.Write(")");
 
                 if (isInterface)
                 {
-                    _ = writer.Write(";");
+                    writer.Write(";");
                     return;
                 }
-                _ = writer.WriteNewLine();
+                writer.WriteNewLine();
 
                 using (writer.StartScope())
                 {
-                    _ = writer.WriteLine("IParameter[] parameters = new IParameter[]");
+                    writer.WriteLine("IParameter[] parameters = new IParameter[]");
                     using (writer.StartScope(appendSemicolon: true))
                     {
                         foreach (Iterator.Item<ParameterModel> parameter in Iterator.Create(constructor.Value.Parameters))
                         {
-                            _ = writer.Write($"""new ConstructorArgument("{parameter.Value.Name}", {parameter.Value.Name})""");
+                            writer.Write($"""new ConstructorArgument("{parameter.Value.Name}", {parameter.Value.Name})""");
 
-                            _ = parameter.IsLast ? writer.WriteNewLine() : writer.WriteLine(",");
+                            if (parameter.IsLast)
+                            {
+                                writer.WriteNewLine();
+                            }
+                            else
+                            {
+                                writer.WriteLine(",");
+                            }
                         }
                     }
-                    _ = writer.WriteLine($"""global::{product.ProductType.FullName} instance = m_resolutionRoot.Get<global::{product.ProductType.FullName}>(parameters);""");
-                    _ = writer.WriteLine("return instance;");
+                    writer.WriteLine($"""global::{product.ProductType.FullName} instance = m_resolutionRoot.Get<global::{product.ProductType.FullName}>(parameters);""");
+                    writer.WriteLine("return instance;");
                 }
 
                 if (!constructor.IsLast)
                 {
-                    _ = writer.WriteNewLine();
+                    writer.WriteNewLine();
                 }
             }
         }
 
         private void WriteParameter(ClassWriter writer, ParameterModel parameter)
         {
-            _ = writer.Write($"{parameter.Type} {parameter.Name}");
+            writer.Write($"{parameter.Type} {parameter.Name}");
         }
     }
 

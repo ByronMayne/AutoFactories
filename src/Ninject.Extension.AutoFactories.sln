@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFacto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFactories.Tests", "Ninject.Extension.AutoFactories.Tests\Ninject.Extension.AutoFactories.Tests.csproj", "{11A0F474-5536-4F63-8127-86F67B292E2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninject.Extension.AutoFactories.Sandbox", "Ninject.Extension.AutoFactories.Sandbox\Ninject.Extension.AutoFactories.Sandbox.csproj", "{D00CE409-8368-4170-B98D-14504C6244CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{11A0F474-5536-4F63-8127-86F67B292E2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11A0F474-5536-4F63-8127-86F67B292E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11A0F474-5536-4F63-8127-86F67B292E2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D00CE409-8368-4170-B98D-14504C6244CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D00CE409-8368-4170-B98D-14504C6244CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D00CE409-8368-4170-B98D-14504C6244CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D00CE409-8368-4170-B98D-14504C6244CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

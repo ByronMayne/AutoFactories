@@ -5,7 +5,7 @@
     },
     "Generate: Sandbox": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\Ninject.Sandbox\\Ninject.Sandbox.csproj"
+      "targetProject": "..\\Ninject.Extension.AutoFactories.Sandbox\\Ninject.Extension.AutoFactories.Sandbox.csproj"
     }
   }
 }
