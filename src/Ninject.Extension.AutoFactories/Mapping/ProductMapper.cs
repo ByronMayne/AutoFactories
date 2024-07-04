@@ -49,6 +49,22 @@ namespace Ninject.AutoFactories.Mapping
                         break;
                     case INamedTypeSymbol namedTypeSymbol:
                         fullyQualifedFactoryName = namedTypeSymbol.ToDisplayString(NullableFlowState.NotNull);
+
+                        switch (namedTypeSymbol.DeclaredAccessibility)
+                        {
+                            case Accessibility.Public:
+                                destination.FactoryAccessModifier = AccessModifier.Public;
+                                break;
+                            case Accessibility.Internal:
+                                destination.FactoryAccessModifier = AccessModifier.Internal;
+                                break;
+                            case Accessibility.Private:
+                                destination.FactoryAccessModifier = AccessModifier.Private;
+                                break;
+                            case Accessibility.ProtectedAndInternal:
+                                destination.FactoryAccessModifier = AccessModifier.ProtectedAndInternal;
+                                break;
+                        }
                         break;
                 }
             }
