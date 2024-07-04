@@ -31,13 +31,11 @@ namespace Ninject.AutoFactories
 
             var compilationProvider = context.CompilationProvider;
             var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
-                GeneratorSettings.ClassAttribute.FullName,
+                GeneratorSettings.ClassAttribute.Type.FullName,
                 predicate: FilterNodes,
                 transform: TransformNodes)
                 .Where(t => t is not null)
                 .Collect();
-
-            //context.RegisterSourceOutput(factoryNames,
 
             context.RegisterSourceOutput(compilationProvider.Combine(syntaxProvider), (context, args) => Generate(context, args.Left, args.Right!));
         }

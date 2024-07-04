@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Ninject.AutoFactories
 {
@@ -40,14 +41,20 @@ namespace Ninject.AutoFactories
         /// </summary>
         /// <param name="source">The source to try to run the source generator on</param>
         /// <returns>A task to await on</returns>
-        protected Task Compose(
+        protected async Task Compose(
             string? source = "")
         {
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
 
+            IEnumerable<PortableExecutableReference> references = new[]
+            {
+                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+            };
+
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName: "AutoFactoriesTests",
-                syntaxTrees: new[] { syntaxTree });
+                syntaxTrees: new[] { syntaxTree },
+                references: references);
 
             // The 'hoist' is the SGF libraries wrapper around source generators
             AutoFactorySourceGeneratorHoist generator = new();
@@ -59,10 +66,21 @@ namespace Ninject.AutoFactories
             VerifySettings settings = new();
             settings.UseDirectory("Snapshots");
 
+            GeneratorDriverRunResult runResults = driver.GetRunResult();
 
-            GeneratorDriverResultFilter filter = new(driver.GetRunResult(), m_testSubjects.Contains);
+#if DEBUG
+            foreach (GeneratorRunResult result in runResults.Results)
+            {
+                foreach (GeneratedSourceResult s in result.GeneratedSources)
+                {
+                    WriteLine(s.HintName);
+                }
+            }
+#endif
 
-            return Verifier.Verify(filter, settings);
+            GeneratorDriverResultFilter filter = new(runResults, m_testSubjects.Contains);
+
+            await Verifier.Verify(filter, settings);
         }
     }
 }

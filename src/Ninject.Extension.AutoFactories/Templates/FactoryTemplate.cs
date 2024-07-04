@@ -34,7 +34,7 @@ namespace Ninject.AutoFactories.Templates
                 namespace {{m_model.Type.Namespace}}
                 {
 
-                    {{m_model.AccessModifier}} sealed partial class {{m_model.Type.TypeName}}: global::{{m_model.InterfaceType.FullName}} 
+                    {{m_model.AccessModifier}} sealed partial class {{m_model.Type.TypeName}} : global::{{m_model.InterfaceType.FullName}} 
                     {
                         private readonly global::Ninject.Syntax.IResolutionRoot m_resolutionRoot;
 

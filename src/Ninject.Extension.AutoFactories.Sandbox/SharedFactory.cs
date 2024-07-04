@@ -17,6 +17,7 @@ namespace Ninject.Extension.AutoFactories.Sandbox
         }
     }
 
+
     [GenerateFactory(typeof(AnimalFactory), "CreateCat")]
     public class Cat
     { 
