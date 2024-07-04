@@ -1,3 +1,8 @@
+[![NuGet Version](http://img.shields.io/nuget/v/Ninject.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extension.AutoFactories/) 
+[![NuGet Downloads](http://img.shields.io/nuget/dt/Ninject.Extension.AutoFactories.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extension.AutoFactories/)
+![Issues](https://img.shields.io/github/issues-closed/ByronMayne/Ninject.Extensions.AutoFactories)
+
+
 # Ninject.Extensions.AutoFactories
 
 This library is a [Source Generator](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) for [Ninject](https://github.com/ninject/ninject) that generates factory for types during the compilation  process. This removes the need to have to write uninteresting boilerplate code. 
