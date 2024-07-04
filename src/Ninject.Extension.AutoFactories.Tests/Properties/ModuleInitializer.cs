@@ -28,6 +28,12 @@ public static class ModuleInitializer
                 .Where(x => target.Include(x.HintName))
                 .OrderBy(x => x.HintName)
                 .Select(SourceToTarget);
+
+            if (!collection.Any())
+            {
+                Assert.Fail($"No tests subjects matched any of the patterns. The following subjects were found\n{string.Join("\n - ", result.GeneratedSources.Select(s => s.HintName))}");
+            }
+
             targets.AddRange(collection);
         }
 

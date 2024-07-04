@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace Ninject.AutoFactories
@@ -87,32 +88,109 @@ namespace Ninject.AutoFactories
         {
             switch (instance.Expression)
             {
+                case InterpolatedStringExpressionSyntax interpolatedString:
+                    {
+
+                        Optional<object?> optional = semanticModel.GetConstantValue(interpolatedString);
+                        return optional.Value;
+                    }
                 case TypeOfExpressionSyntax typeOfExpression:
-                    return semanticModel.GetSymbolInfo(typeOfExpression.Type).Symbol;
+                    {
+                        SymbolInfo symbolInfo = semanticModel.GetSymbolInfo(typeOfExpression.Type);
+                        ISymbol? symbol = symbolInfo.Symbol;
+                        return symbol;
+                    }
                 case LiteralExpressionSyntax literalExpression:
-                    Optional<object?> optional = semanticModel.GetConstantValue(literalExpression);
-                    return optional.Value;
+                    {
+                        Optional<object?> optional = semanticModel.GetConstantValue(literalExpression);
+                        return optional.Value;
+                    }
             }
 
             return null;
         }
 
 
-
-
-        public static T? GetNamedArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T? defaultValue)
+        public static bool TryPositionalArgument(this AttributeSyntax attributeSyntax, int position, [NotNullWhen(true)] out AttributeArgumentSyntax? result)
         {
-            if (attribute == null)
+            result = null;
+
+            if (attributeSyntax.ArgumentList is null)
             {
-                return defaultValue;
+                return false;
             }
 
-            if (attribute.ArgumentList == null)
+            for (int i = 0; i < attributeSyntax.ArgumentList.Arguments.Count; i++)
             {
-                return defaultValue;
+                AttributeArgumentSyntax argument = attributeSyntax.ArgumentList.Arguments[i];
+
+                if (argument.NameEquals is not null)
+                {
+                    return false;
+                }
+
+                if (argument.NameColon is not null)
+                {
+                    return false;
+                }
+
+                if (i == position)
+                {
+                    result = argument;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to find an argument where users us the `name: value` method
+        /// </summary>
+        public static bool TryGetNameColonArgument(this AttributeSyntax? attributeSyntax, string argumentName, [NotNullWhen(true)] out AttributeArgumentSyntax? result)
+        {
+            result = null;
+
+            if (attributeSyntax == null)
+            {
+                return false;
             }
 
-            foreach (AttributeArgumentSyntax value in attribute.ArgumentList.Arguments)
+            if (attributeSyntax.ArgumentList == null)
+            {
+                return false;
+            }
+
+            foreach (AttributeArgumentSyntax value in attributeSyntax.ArgumentList.Arguments)
+            {
+                if (value.NameColon is not NameColonSyntax nameColone)
+                {
+                    continue;
+                }
+
+                if (string.Equals(nameColone.Name.Identifier.Text, argumentName))
+                {
+                    result = value;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool TryGetNamedArgument(this AttributeSyntax? attributeSyntax, string argumentName, [NotNullWhen(true)] out AttributeArgumentSyntax? result)
+        {
+            result = null;
+
+            if (attributeSyntax == null)
+            {
+                return false;
+            }
+
+            if (attributeSyntax.ArgumentList == null)
+            {
+                return false;
+            }
+
+            foreach (AttributeArgumentSyntax value in attributeSyntax.ArgumentList.Arguments)
             {
                 if (value.NameEquals is not NameEqualsSyntax nameEquals)
                 {
@@ -121,15 +199,63 @@ namespace Ninject.AutoFactories
 
                 if (string.Equals(nameEquals.Name.Identifier.Text, argumentName))
                 {
-                    Optional<object?> constantValue = semanticModel.GetConstantValue(value.Expression);
-
-                    if (constantValue.HasValue)
-                    {
-                        return (T)constantValue.Value!;
-                    }
+                    result = value;
+                    return true;
                 }
             }
-            return defaultValue;
+            return false;
         }
+
+        /// <summary>
+        /// Gets the string value of of an argument
+        /// </summary>
+        public static bool TryGetStringValue(this AttributeArgumentSyntax? attributeSyntax, SemanticModel semanticModel, [NotNullWhen(true)] out string? result)
+        {
+            result = null;
+            if (attributeSyntax is null) return false;
+
+            Optional<object?> constantValue = semanticModel.GetConstantValue(attributeSyntax.Expression);
+
+            if (!constantValue.HasValue)
+            {
+                return false;
+            }
+
+            result = constantValue.ToString();
+            return !string.IsNullOrWhiteSpace(result);
+        }
+
+
+        //public static T? GetNamedArgumentValue<T>(this AttributeSyntax? attribute, string argumentName, SemanticModel semanticModel, T? defaultValue)
+        //{
+        //    if (attribute == null)
+        //    {
+        //        return defaultValue;
+        //    }
+
+        //    if (attribute.ArgumentList == null)
+        //    {
+        //        return defaultValue;
+        //    }
+
+        //    foreach (AttributeArgumentSyntax value in attribute.ArgumentList.Arguments)
+        //    {
+        //        if (value.NameEquals is not NameEqualsSyntax nameEquals)
+        //        {
+        //            continue;
+        //        }
+
+        //        if (string.Equals(nameEquals.Name.Identifier.Text, argumentName))
+        //        {
+        //            Optional<object?> constantValue = semanticModel.GetConstantValue(value.Expression);
+
+        //            if (constantValue.HasValue)
+        //            {
+        //                return (T)constantValue.Value!;
+        //            }
+        //        }
+        //    }
+        //    return defaultValue;
+        //}
     }
 }
