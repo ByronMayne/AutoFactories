@@ -18,7 +18,7 @@ namespace Ninject.AutoFactories
         /// Should contain a niject module that has no registrations 
         /// </summary>
         [Fact]
-        public void NoFactoriesSnapshot()
+        public Task NoFactoriesSnapshot()
             => Compose();
     }
 }
