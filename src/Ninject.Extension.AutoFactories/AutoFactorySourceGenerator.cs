@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Ninject.AutoFactories.Mapping;
 using Ninject.AutoFactories.Models;
 using Ninject.AutoFactories.Templates;
@@ -28,7 +29,8 @@ namespace Ninject.AutoFactories
             context.RegisterPostInitializationOutput(new GenerateFactoryAttributeTemplate().AddSource);
             context.RegisterPostInitializationOutput(new KernalFactoryExtensionsTemplate().AddSource);
 
-            IncrementalValueProvider<ImmutableArray<ProductModel?>> factoriesProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
+            var compilationProvider = context.CompilationProvider;
+            var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
                 GeneratorSettings.ClassAttribute.FullName,
                 predicate: FilterNodes,
                 transform: TransformNodes)
@@ -37,15 +39,17 @@ namespace Ninject.AutoFactories
 
             //context.RegisterSourceOutput(factoryNames,
 
-            context.RegisterSourceOutput(factoriesProvider, Generate!);
+            context.RegisterSourceOutput(compilationProvider.Combine(syntaxProvider), (context, args) => Generate(context, args.Left, args.Right!));
         }
 
-        private void Generate(SgfSourceProductionContext context, ImmutableArray<ProductModel> models)
+        private void Generate(SgfSourceProductionContext context, 
+            Compilation compilation,
+            ImmutableArray<ProductModel> models)
         {
             List<FactoryModel> factories = FactoryModel.Group(models)
                 .ToList();
 
-            new NinjectModuleTemplate(factories).AddSource(context);
+            new NinjectModuleTemplate(compilation.AssemblyName!, factories).AddSource(context);
 
 
             foreach (FactoryModel factoryModel in factories)
