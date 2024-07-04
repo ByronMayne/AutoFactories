@@ -4,11 +4,13 @@ namespace Ninject.AutoFactories.Templates
 {
     internal class NinjectModuleTemplate : Template
     {
+        private readonly string m_assemblyName;
         private readonly IReadOnlyList<FactoryModel> m_models;
 
-        public NinjectModuleTemplate(IReadOnlyList<FactoryModel> models) : base("Ninject.FactoryModule.g.cs")
+        public NinjectModuleTemplate(string assemblyName, IReadOnlyList<FactoryModel> models) : base("Ninject.FactoryModule.g.cs")
         {
             m_models = models;
+            m_assemblyName = assemblyName;
         }
 
         /// <inheritdoc cref="Template"/>
@@ -22,12 +24,27 @@ namespace Ninject.AutoFactories.Templates
                     /// <summary>
                     /// Contains all the bindings for the generated type factories 
                     /// </summary>
-                    internal sealed class {{GeneratorSettings.NinjectModule.TypeName}} : global::Ninject.Modules.NinjectModule 
+                    internal sealed partial class {{GeneratorSettings.NinjectModule.TypeName}} : global::Ninject.Modules.NinjectModule 
                     {
+                        /// <inheritdoc cref=" global::Ninject.Modules.NinjectModule "/>
+                        public override string Name { get; }
+                        
+                        public {{GeneratorSettings.NinjectModule.TypeName}}()
+                        {
+                            Name = "{{m_assemblyName}}.AutoFactoriesModule";
+                        }
+
+                        /// <inheritdoc cref=" global::Ninject.Modules.NinjectModule "/>
                         public override void Load()
                         {
                             {{WriteBindings()}}
+                            AfterBindings();
                         }
+
+                        /// <summary>
+                        /// Callback that is invoked after all bindings have been applied
+                        /// </summary>
+                        partial void AfterBindings();
                     }
                 }
                 """;
