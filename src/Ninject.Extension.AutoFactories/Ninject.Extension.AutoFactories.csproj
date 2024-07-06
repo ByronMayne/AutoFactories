@@ -22,8 +22,13 @@
     <RepositoryType>git</RepositoryType>
     <NoWarn>NU5128;CS0433</NoWarn>
     <RootNamespace>Ninject.AutoFactories</RootNamespace>
+    <PackageIcon>Ninject-Logo100.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\..\img\Ninject-Logo100.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
