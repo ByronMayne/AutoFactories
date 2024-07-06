@@ -132,7 +132,7 @@ namespace Ninject.AutoFactories.Templates
 
         private void WriteParameter(ClassWriter writer, ParameterModel parameter)
         {
-            writer.Write($"{parameter.Type} {parameter.Name}");
+            writer.Write($"global::{parameter.Type} {parameter.Name}");
         }
     }
 

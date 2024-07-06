@@ -1,4 +1,5 @@
 ﻿using Boxed.Mapping;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories.Models;
 
@@ -8,9 +9,9 @@ namespace Ninject.AutoFactories.Mapping
     {
         private readonly IMapper<ParameterSyntax, ParameterModel> m_parameterMapper;
 
-        public ConstructorMapper()
+        public ConstructorMapper(SemanticModel semanticModel)
         {
-            m_parameterMapper = new ParameterMapper();
+            m_parameterMapper = new ParameterMapper(semanticModel);
         }
 
         public void Map(ConstructorDeclarationSyntax source, ConstructorModel destination)

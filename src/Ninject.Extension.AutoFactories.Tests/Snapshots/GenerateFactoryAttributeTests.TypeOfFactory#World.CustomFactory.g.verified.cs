@@ -19,7 +19,7 @@ namespace World
 namespace World
 {
 
-    internal sealed partial class CustomFactory : global::World.ICustomFactory 
+    public sealed partial class CustomFactory : global::World.ICustomFactory 
     {
         private readonly global::Ninject.Syntax.IResolutionRoot m_resolutionRoot;
 
