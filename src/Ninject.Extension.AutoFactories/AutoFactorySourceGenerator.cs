@@ -15,11 +15,9 @@ namespace Ninject.AutoFactories
     [SgfGenerator]
     internal class AutoFactorySourceGenerator : IncrementalGenerator
     {
-        private readonly ProductMapper m_modelMapper;
 
         public AutoFactorySourceGenerator() : base("AutoFactory")
         {
-            m_modelMapper = new ProductMapper();
         }
 
         public override void OnInitialize(SgfInitializationContext context)
@@ -69,7 +67,11 @@ namespace Ninject.AutoFactories
                 .OfType<ConstructorDeclarationSyntax>()
                 .ToArray();
 
-            ProductModel model = m_modelMapper.Map((context.SemanticModel, classDeclaration));
+            ProductMapper mapper = new ProductMapper(context.SemanticModel);
+
+
+
+            ProductModel model = mapper.Map(classDeclaration);
 
             return model;
         }

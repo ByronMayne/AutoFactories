@@ -2,30 +2,25 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories.Models;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Ninject.AutoFactories.Mapping
 {
-    internal class ProductMapper : IMapper<(SemanticModel, ClassDeclarationSyntax), ProductModel>
+    internal class ProductMapper : IMapper<ClassDeclarationSyntax, ProductModel>
     {
+        private readonly SemanticModel m_semanticModel;
         private readonly ClassAttributeSettings m_classAttributeSettings;
         private readonly IMapper<ConstructorDeclarationSyntax, ConstructorModel> m_constructureMapper;
 
-        public ProductMapper()
+        public ProductMapper(SemanticModel semanticModel)
         {
+            m_semanticModel = semanticModel;
             m_classAttributeSettings = new ClassAttributeSettings();
-            m_constructureMapper = new ConstructorMapper();
+            m_constructureMapper = new ConstructorMapper(semanticModel);
         }
 
-
-
-        public void Map((SemanticModel, ClassDeclarationSyntax) source, ProductModel destination)
+        public void Map(ClassDeclarationSyntax classDeclaration, ProductModel destination)
         {
-            ClassDeclarationSyntax classDeclaration = source.Item2;
-            SemanticModel semanticModel = source.Item1;
-
             AttributeSyntax classAttribute = classDeclaration
               .AttributeLists
               .SelectMany(a => a.Attributes)
@@ -42,7 +37,7 @@ namespace Ninject.AutoFactories.Mapping
 
             if (TryGetFactoryNameArgument(classAttribute, out AttributeArgumentSyntax? factoryNameArgument))
             {
-                switch (factoryNameArgument.GetValue(semanticModel))
+                switch (factoryNameArgument.GetValue(m_semanticModel))
                 {
                     case string asString:
                         fullyQualifedFactoryName = asString;
@@ -72,65 +67,11 @@ namespace Ninject.AutoFactories.Mapping
             if (TryGetMethodNameArgument(classAttribute, out AttributeArgumentSyntax? methodNameArgument))
             {
                 // This will only ever be a string 
-                if (methodNameArgument.TryGetStringValue(semanticModel, out string? parsedValue))
+                if (methodNameArgument.TryGetStringValue(m_semanticModel, out string? parsedValue))
                 {
                     methodName = parsedValue;
                 }
             }
-
-
-
-
-            //if (classAttribute.ArgumentList != null)
-            //{
-            //    // THe constructor can be one of the following
-            //    // 1. ()
-            //    // 2. (typeof(MyType), "MethodName")
-            //    // 3. ("Namespace.MyType", "MethodName");
-            //    AttributeArgumentSyntax[] positionalArgs = classAttribute.ArgumentList.Arguments.OfType<AttributeArgumentSyntax>().ToArray();
-            //    if (positionalArgs.Length > 0)
-            //    {
-            //        object? value = positionalArgs[0].GetValue(semanticModel);
-            //        switch (value)
-            //        {
-            //            case INamedTypeSymbol namedTypeSymbol:
-            //                fullyQualifedFactoryName = namedTypeSymbol.ToDisplayString(NullableFlowState.NotNull);
-            //                switch (namedTypeSymbol.DeclaredAccessibility)
-            //                {
-            //                    case Accessibility.Public:
-            //                        destination.FactoryAccessModifier = AccessModifier.Public;
-            //                        break;
-            //                    case Accessibility.Internal:
-            //                        destination.FactoryAccessModifier = AccessModifier.Internal;
-            //                        break;
-            //                    case Accessibility.Private:
-            //                        destination.FactoryAccessModifier = AccessModifier.Private;
-            //                        break;
-            //                    case Accessibility.ProtectedAndInternal:
-            //                        destination.FactoryAccessModifier = AccessModifier.ProtectedAndInternal;
-            //                        break;
-            //                }
-            //                break;
-            //            case string asString:
-            //                fullyQualifedFactoryName = asString;
-            //                break;
-            //        }
-            //    }
-
-            //    if (positionalArgs.Length > 1)
-            //    {
-            //        if (positionalArgs[1].GetValue(semanticModel) is string asString)
-            //        {
-            //            methodName = asString;
-            //        }
-            //    }
-
-            //    // We can also define just the MethodName 
-            //    if (classAttribute.GetNamedArgumentValue<string>("MethodName", semanticModel, null) is string stringValue)
-            //    {
-            //        methodName = stringValue;
-            //    }
-            //}
 
             destination.FactoryType = new MetadataTypeName(fullyQualifedFactoryName);
 
@@ -155,8 +96,6 @@ namespace Ninject.AutoFactories.Mapping
         /// </summary>
         private bool TryGetFactoryNameArgument(AttributeSyntax attributeSyntax, [NotNullWhen(true)] out AttributeArgumentSyntax? result)
         {
-            result = null;
-
             if (attributeSyntax.TryPositionalArgument(0, out result))
             {
                 return true;
