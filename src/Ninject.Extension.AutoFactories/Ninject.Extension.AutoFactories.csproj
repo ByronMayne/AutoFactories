@@ -21,11 +21,16 @@
     <RepositoryUrl>https://github.com/ByronMayne/Ninject.Extensions.AutoFactories</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NoWarn>NU5128;CS0433</NoWarn>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RootNamespace>Ninject.AutoFactories</RootNamespace>
     <PackageIcon>Ninject-Logo100.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\img\Ninject-Logo100.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
