@@ -22,8 +22,13 @@
     <RepositoryType>git</RepositoryType>
     <NoWarn>NU5128</NoWarn>
     <RootNamespace>Ninject.AutoFactories</RootNamespace>
+    <PackageIcon>Ninject-Logo100.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\..\img\Ninject-Logo100.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -40,7 +45,7 @@
     <PackageReference Include="SourceGenerator.Foundations" Version="2.0.4" />
     <PackageReference Include="Vogen" Version="4.0.8" />
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
-    <PackageReference Update="*" PrivateAssets="all"/>
+    <PackageReference Update="*" PrivateAssets="all" />
   </ItemGroup>
   <Target Name="Nuget_AppendContent">
     <ItemGroup>
