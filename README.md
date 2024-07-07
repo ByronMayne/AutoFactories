@@ -1,4 +1,4 @@
-[![NuGet Version](http://img.shields.io/nuget/v/Ninject.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extension.AutoFactories/) 
+[![NuGet Version](http://img.shields.io/nuget/v/Ninject.Extension.AutoFactories.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extension.AutoFactories/) 
 [![NuGet Downloads](http://img.shields.io/nuget/dt/Ninject.Extension.AutoFactories.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extension.AutoFactories/)
 ![Issues](https://img.shields.io/github/issues-closed/ByronMayne/Ninject.Extensions.AutoFactories)
 
@@ -7,7 +7,47 @@
 
 This library is a [Source Generator](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) for [Ninject](https://github.com/ninject/ninject) that generates factory for types during the compilation  process. This removes the need to have to write uninteresting boilerplate code. 
 
+## Quick Example
 
+This code below uses this library to auto generate the `IShippingOrderFactory` and it's `Get` method to create new instances of `ShippingOrder` with both user provider and DI provided parameters.
+
+```csharp
+using Ninject;
+
+namespace Operations 
+{
+    [GenerateFactory] // <-- Add attribute 
+    public class ShippingOrder 
+    {
+        public ShippingOrder(
+            // No attribute means it's user provided
+            string orderId,
+            // 'FromFactory' means it should be provided by DI
+            [FromFactory] IShippingProvider provider)
+        {}
+    }
+
+    public class Program 
+    {
+
+        public static void Main(string[] args)
+        {
+            IKernel kernel = new StandardKernel();
+
+            // Generated extension method that binds all the factories to Ninject. 
+            kernel.LoadFactories();
+
+            // The class is generated `ShippingOrderFactory` along with a 
+            // matching interface `IShippingOrderFactory`.
+            IShippingOrderFactory factory = kernel.Get<IShippingOrderFactory>(); /
+
+            // The generated method require user to provide all parameters not marked
+            // with 'FromFactory' attribute.
+            ShippingOrder shippingOrder = factory.Get("random_id")
+        }
+    }
+}
+```
 
 ## Introduction
 The best practice for using a Dependency Injection (DI) container in a software system is to restrict direct interaction with the container to the Composition Root.
