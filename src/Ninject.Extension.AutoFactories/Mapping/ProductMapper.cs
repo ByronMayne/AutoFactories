@@ -75,10 +75,16 @@ namespace Ninject.AutoFactories.Mapping
 
             destination.FactoryType = new MetadataTypeName(fullyQualifedFactoryName);
 
+            IEnumerable<ConstructorDeclarationSyntax> constructors = classDeclaration.DescendantNodes()
+                .OfType<ConstructorDeclarationSyntax>()
+                // Fix for: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/21
+                .Where(c => !c.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.StaticKeyword)))
+                .ToList();
+
 
             destination.FactoryInterfaceType = new MetadataTypeName($"{destination.FactoryType.Namespace}.I{destination.FactoryType.TypeName}");
             destination.ProductType = new MetadataTypeName($"{@namespace}.{classDeclaration.Identifier.Text}");
-            destination.Constructors = m_constructureMapper.MapList(classDeclaration.DescendantNodes().OfType<ConstructorDeclarationSyntax>());
+            destination.Constructors = m_constructureMapper.MapList(constructors);
 
             if (destination.Constructors.Count == 0)
             {

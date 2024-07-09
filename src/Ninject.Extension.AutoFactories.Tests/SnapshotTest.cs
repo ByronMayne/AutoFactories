@@ -48,8 +48,16 @@ namespace Ninject.AutoFactories
         /// <param name="source">The source to try to run the source generator on</param>
         /// <returns>A task to await on</returns>
         protected async Task Compose(
-            string? source = "")
+            string? source = "",
+            string? testSubject = null)
         {
+            Assert.NotNull(source);
+
+            if (!string.IsNullOrWhiteSpace(testSubject))
+            {
+                m_testSubjects.Add(testSubject);
+            }
+
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
 
             IEnumerable<PortableExecutableReference> references = new[]

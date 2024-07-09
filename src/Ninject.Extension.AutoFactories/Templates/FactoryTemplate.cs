@@ -96,7 +96,8 @@ namespace Ninject.AutoFactories.Templates
                 if (isInterface)
                 {
                     writer.Write(";");
-                    return;
+                    writer.WriteNewLine();
+                    continue;
                 }
                 writer.WriteNewLine();
 
@@ -132,7 +133,7 @@ namespace Ninject.AutoFactories.Templates
 
         private void WriteParameter(ClassWriter writer, ParameterModel parameter)
         {
-            writer.Write($"global::{parameter.Type} {parameter.Name}");
+            writer.Write($"{parameter.Type} {parameter.Name}");
         }
     }
 
