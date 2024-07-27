@@ -1,0 +1,16 @@
+﻿#nullable enable
+using System;
+
+namespace {{Namespace}}
+{
+    /// <summary>
+    /// Applied to a parameter of a constructor or method to impley the factory
+    /// should provide this parameter rathen then the user.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)] 
+    {{AccessModifier}} sealed class {{ClassName}} : Attribute
+    {
+        public {{ClassName}}()
+        {}
+    }
+}

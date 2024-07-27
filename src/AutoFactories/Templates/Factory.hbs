@@ -1,0 +1,15 @@
+﻿#nullable enable
+using System;
+
+namespace {{Namespace}}
+{
+    {{AccessModifier}} interface I{{ClassName}}
+    {
+        {{#each Method}}
+        /// <summary>
+        /// Creates a new instance of  <see cref="{{Method.Return}}"/>
+        /// </summary>
+        public global::{{Method.Return.QualifiedName}} {{Method.Name}}({{> Parameters}});
+        {{/each}}
+    }
+}
