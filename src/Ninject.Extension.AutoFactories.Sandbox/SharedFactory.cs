@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoFactories;
 
 namespace Ninject.Extension.AutoFactories.Sandbox
 {
-    [GenerateFactory(typeof(AnimalFactory),"CreateDog")]
+    [AutoFactory(typeof(AnimalFactory),"CreateDog")]
     public class Dog
     {
         public string Name { get; }
@@ -18,16 +14,25 @@ namespace Ninject.Extension.AutoFactories.Sandbox
     }
 
 
-    [GenerateFactory(typeof(AnimalFactory), "CreateCat")]
+    [AutoFactory(typeof(AnimalFactory), "CreateCat")]
     public class Cat
     { 
     }
 
     // typeof(AnimalFactory) should be same as this 
-    [GenerateFactory("Ninject.Extension.AutoFactories.Sandbox.AnimalFactory", "CreateBird")]
+    [AutoFactory(typeof(AnimalFactory), "CreateBird")]
     public class Bird
     {
         
+    }
+
+    public class Other
+    {
+        public Other(
+            [FromFactory] string fileName)
+        {
+            
+        }
     }
 
     public partial class AnimalFactory

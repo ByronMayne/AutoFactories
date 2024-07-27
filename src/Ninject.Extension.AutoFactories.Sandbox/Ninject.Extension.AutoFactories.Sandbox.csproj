@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!--<ProjectReference Include="..\Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
   </ItemGroup>
 
 </Project>

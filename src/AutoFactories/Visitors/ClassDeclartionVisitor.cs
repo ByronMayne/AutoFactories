@@ -1,33 +1,69 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using AutoFactories.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace AutoFactories.Visitors
 {
     internal class ClassDeclartionVisitor
     {
+        private readonly List<ConstructorDeclarationVisitor> m_constructors;
         private readonly bool m_isAnalyzer;
+        private readonly GeneratorOptions m_options;
         private readonly SemanticModel m_semanticModel;
 
+        public bool HasMarkerAttribute { get; private set; }
+        public MetadataTypeName Type { get; private set; }
         public AccessModifier AccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
 
+        public MetadataTypeName FactoryType { get; private set; }
 
-        public ClassDeclartionVisitor(bool isAnalyzer, SemanticModel semanticModel)
+        public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
+
+        public ClassDeclartionVisitor(
+            bool isAnalyzer,
+            GeneratorOptions generatorOptions,
+            SemanticModel semanticModel)
         {
+            m_constructors = [];
+            m_options = generatorOptions;
             m_isAnalyzer = isAnalyzer;
             m_semanticModel = semanticModel;
         }
 
         public void VisitClassDeclaration(ClassDeclarationSyntax classDeclaration)
         {
+            if (m_semanticModel.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol typeSymbol)
+            {
+                return;
+            }
+
+            Type = new MetadataTypeName(typeSymbol.ToDisplayString());
+            AccessModifier = AccessModifier.FromSymbol(typeSymbol);
+            FactoryType = new MetadataTypeName($"{Type}Factory");
+
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
                 VisitAttributeList(attributeList);
+            }
+
+            if (!HasMarkerAttribute && !m_isAnalyzer)
+            {
+                // Analyzers will keep scanning for errors 
+                return;
+            }
+
+            foreach (SyntaxNode childNode in classDeclaration.ChildNodes())
+            {
+                switch (childNode)
+                {
+                    case ConstructorDeclarationSyntax constructor:
+                        VisitConstructorDeclaration(constructor);
+                        break;
+                }
             }
         }
 
@@ -35,9 +71,27 @@ namespace AutoFactories.Visitors
         {
             foreach (AttributeSyntax attributeSyntax in node.Attributes)
             {
-                ISymbol? symbol = m_semanticModel.GetDeclaredSymbol(attributeSyntax);
-                var typeInfo = m_semanticModel.GetTypeInfo(attributeSyntax);
+                if (m_semanticModel.GetTypeInfo(attributeSyntax).Type is not ITypeSymbol typeSymbol)
+                {
+                    continue;
+                }
+
+                string displayString = typeSymbol.ToDisplayString();
+
+                if (string.Equals(m_options.ClassAttributeType.QualifedName, displayString))
+                {
+                    HasMarkerAttribute = true;
+                    return;
+                }
             }
+        }
+
+
+        private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+        {
+            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, Type, m_semanticModel);
+            visitor.VisitConstructorDeclaration(node);
+            m_constructors.Add(visitor);
         }
     }
 }

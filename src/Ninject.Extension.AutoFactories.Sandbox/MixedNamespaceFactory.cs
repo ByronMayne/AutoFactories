@@ -1,4 +1,5 @@
-﻿using Ninject;
+﻿using AutoFactories;
+using Ninject;
 using System.Collections.Specialized;
 
 namespace Foo
@@ -8,7 +9,7 @@ namespace Foo
     /// Namespaces for parameters were not being written using their fully qualifed name leading to 
     /// this class being a compiler error.
     /// </summary>
-    [GenerateFactory]
+    [AutoFactory]
     public class ExampleClass
     {
         public ExampleClass(OrderedDictionary dictionary) // System.Collections.Specialized
