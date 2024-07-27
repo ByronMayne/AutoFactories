@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace {{Namespace}}
+namespace {{Type.Namespace}}
 {
     /// <summary>
     /// Applies to a class to have a factory generated for it for each
@@ -10,7 +10,7 @@ namespace {{Namespace}}
     /// dependency injection.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    {{AccessModifier}} sealed class {{ClassName}} : Attribute
+    {{AccessModifier}} sealed class {{Type.Name}} : Attribute
     {
         /// <summary>
         /// Gets the shared type of the factory that will be used.
@@ -27,7 +27,7 @@ namespace {{Namespace}}
         /// a factory will be generated with the same name but post-fixed with 'Factory' along 
         /// with a matching interface.
         /// </summary>
-        public {{ClassName}}()
+        public {{Type.Name}}()
         {
             FactoryType = null;
             MethodName = "Get";
@@ -39,7 +39,7 @@ namespace {{Namespace}}
         /// is used to control what the name of the factory method will be so that there are no 
         /// naming collisions. 
         /// </summary>
-        public {{ClassName}}(Type factoryType, string methodName) : this()
+        public {{Type.Name}}(Type factoryType, string methodName) : this()
         {
             FactoryType = factoryType;
             MethodName = methodName;
