@@ -1,23 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Nullable>enable</Nullable>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>12</LangVersion>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
-
   <ItemGroup>
-    <EmbeddedResource Include="Templates\*.hbs" LogicalName="%(FileName)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Templates\Factory.hbs" />
-    <None Remove="Templates\ParameterAttribute - Copy.hbs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Partials\Parameters.hbs">
-      <LogicalName>%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
@@ -33,14 +23,9 @@
     <PackageReference Include="Vogen" Version="4.0.8" />
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Templates\Factory.hbs">
-      <LogicalName>%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Update="Handlebars.Net" Version="2.1.6" />
+    <PackageReference Update="SourceGenerator.Foundations" Version="2.0.5" />
+    <PackageReference Update="Vogen" Version="4.0.15" />
   </ItemGroup>
 
 </Project>
