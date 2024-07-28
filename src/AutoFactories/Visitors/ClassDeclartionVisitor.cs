@@ -11,7 +11,7 @@ namespace AutoFactories.Visitors
     {
         private readonly List<ConstructorDeclarationVisitor> m_constructors;
         private readonly bool m_isAnalyzer;
-        private readonly GeneratorOptions m_options;
+        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
 
         public bool HasMarkerAttribute { get; private set; }
@@ -25,7 +25,7 @@ namespace AutoFactories.Visitors
 
         public ClassDeclartionVisitor(
             bool isAnalyzer,
-            GeneratorOptions generatorOptions,
+            Options generatorOptions,
             SemanticModel semanticModel)
         {
             m_constructors = [];
@@ -43,7 +43,7 @@ namespace AutoFactories.Visitors
 
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
-            FactoryType = new MetadataTypeName($"{Type}Factory");
+            FactoryType = new MetadataTypeName($"{Type}FactoryView");
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
@@ -78,7 +78,7 @@ namespace AutoFactories.Visitors
 
                 string displayString = typeSymbol.ToDisplayString();
 
-                if (string.Equals(m_options.ClassAttributeType.QualifedName, displayString))
+                if (string.Equals(m_options.ClassAttributeType.QualifiedName, displayString))
                 {
                     HasMarkerAttribute = true;
                     return;

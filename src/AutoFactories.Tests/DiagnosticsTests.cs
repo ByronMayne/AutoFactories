@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fluen
+using AutoFactories.Diagnostics;
+using FluentAssertions;
 using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
@@ -16,9 +17,7 @@ namespace AutoFactories.Tests
 
         [Fact]
         public Task UntaggedClass()
-            => Compose(
-                assertDiagnostics: d => d.Shd
-                source: $$"""
+            => Compose($$"""
                 using AutoFactories; 
 
                 public class UntaggedFactory
@@ -26,6 +25,7 @@ namespace AutoFactories.Tests
                     public UntaggedFactory([FromFactory] string name)
                     {}
                 }
-                """);
+                """,
+                assertDiagnostics: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory));
     }
 }

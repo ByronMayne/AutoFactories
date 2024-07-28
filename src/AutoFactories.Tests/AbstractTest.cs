@@ -38,14 +38,16 @@ namespace AutoFactories.Tests
             Action<IEnumerable<Diagnostic>>? assertDiagnostics = null)
         {
             SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source)];
-            MetadataReference[] metadataReferences = [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)];
+            MetadataReference[] metadataReferences = [
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)];
 
 
             CSharpCompilation compilation = CSharpCompilation.Create("UnitTest", syntaxTrees, metadataReferences);
 
-            AutoFactorySourceGeneratorHoist generatorHost = new AutoFactorySourceGeneratorHoist();
+            AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
+            AutoFactoriesGeneratorHoist host = new AutoFactoriesGeneratorHoist(generator);
 
-            GeneratorDriver driver = CSharpGeneratorDriver.Create(generatorHost);
+            GeneratorDriver driver = CSharpGeneratorDriver.Create(host);
             driver = driver.RunGenerators(compilation);
 
             VerifySettings settings = new();

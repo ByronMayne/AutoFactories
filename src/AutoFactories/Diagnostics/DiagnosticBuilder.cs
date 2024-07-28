@@ -16,7 +16,7 @@ namespace AutoFactories.Diagnostics
         /// <summary>
         /// Gets the uniqu id for the descriptr
         /// </summary>
-        public string Id { get; }
+        public DiagnosticIdentifier Id { get; }
 
         /// <summary>
         /// Gets the title of the diagnostics
@@ -43,9 +43,9 @@ namespace AutoFactories.Diagnostics
         /// </summary>
         public DiagnosticSeverity Severity { get; protected set; }
 
-        protected DiagnosticBuilder(int id, string title, string category, string messageFormat)
+        protected DiagnosticBuilder(DiagnosticIdentifier id, string title, string category, string messageFormat)
         {
-            Id = $"AF{id:000}";
+            Id = id;
             Title = title;
             MessageFormat = messageFormat;
             Category = category;
@@ -60,5 +60,8 @@ namespace AutoFactories.Diagnostics
         /// <returns></returns>
         protected virtual DiagnosticDescriptor CreateDescriptor()
             => new DiagnosticDescriptor(Id, Title, MessageFormat, Category, Severity, true, Description);
+
+        protected static string FormatId(int number)
+            => $"AF{number + 100}";
     }
 }

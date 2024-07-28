@@ -5,9 +5,9 @@ namespace AutoFactories.Diagnostics
 {
     internal class UnmarkedFactoryDiagnosticBuilder : DiagnosticBuilder
     {
-        public UnmarkedFactoryDiagnosticBuilder(GeneratorOptions options) : base(
-            id: 1000,
-            title: "Unmarked Factory",
+        public UnmarkedFactoryDiagnosticBuilder(Options options) : base(
+            id: DiagnosticIdentifier.UnmarkedFactory,
+            title: "Unmarked FactoryView",
             category: "Code",
             messageFormat: 
                 $"The parameter '{{0}}' is marked with the [{options.ParameterAttributeType.Name}] but the declaring class '{{1}}' is " +

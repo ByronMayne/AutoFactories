@@ -1,4 +1,6 @@
-﻿using AutoFactories.Views;
+﻿using AutoFactories.Types;
+using AutoFactories.Views;
+using AutoFactories.Views.Models;
 using AutoFactories.Visitors;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -6,20 +8,23 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Ninject.AutoFactories;
 using SGF;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using static AutoFactories.Views.View;
 
 namespace AutoFactories
 {
     [SgfGenerator]
     public class AutoFactoriesGenerator : IncrementalGenerator
     {
-        private static GeneratorOptions s_options;
+        private static Options s_options;
 
         static AutoFactoriesGenerator()
         {
-            s_options = new GeneratorOptions();
+            s_options = new Options();
         }
 
         public AutoFactoriesGenerator() : base($"AutoFactories")
@@ -30,7 +35,7 @@ namespace AutoFactories
         {
             IncrementalValueProvider<(AnalyzerConfigOptionsProvider Left, ImmutableArray<ClassDeclartionVisitor?> Right)> provider = context.AnalyzerConfigOptionsProvider
                  .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
-                      s_options.ClassAttributeType.QualifedName,
+                      s_options.ClassAttributeType.QualifiedName,
                       predicate: FilterNodes,
                       transform: TransformNodes)
                  .Where(t => t is not null)
@@ -42,15 +47,15 @@ namespace AutoFactories
 
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
         {
-            GeneratorOptions options = new GeneratorOptions();
+            Options options = new Options();
 
-            GenericClassView.AddSource(context.AddSource, "ClassAttribute.hbs", o =>
+            GenericView.AddSource(context.AddSource, "ClassAttribute.hbs", options, o =>
             {
                 o.AccessModifier = options.AttributeAccessModifier;
                 o.Type = options.ClassAttributeType;
             });
 
-            GenericClassView.AddSource(context.AddSource, "ParameterAttribute.hbs", o =>
+            GenericView.AddSource(context.AddSource, "ParameterAttribute.hbs", options, o =>
             {
                 o.AccessModifier = options.AttributeAccessModifier;
                 o.Type = options.ParameterAttributeType;
@@ -65,11 +70,16 @@ namespace AutoFactories
             AnalyzerConfigOptionsProvider configOptions,
             ImmutableArray<ClassDeclartionVisitor> visitors)
         {
-            _ = new GeneratorOptions(configOptions);
+            Options options = new Options(configOptions);
 
-            // Group them
-
+            foreach (FactoryView view in FactoryDeclartion.Create(visitors)
+                .Select(f => FactoryDeclartion.Map(f, options)))
+            {
+                view.AddSource(context.AddSource);
+            }
         }
+
+
 
         /// <summary>
         /// Take in the nodes and transform them into vistiors which can be cached

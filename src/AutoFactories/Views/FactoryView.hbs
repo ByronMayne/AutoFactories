@@ -1,0 +1,23 @@
+﻿#nullable enable
+using System;
+
+namespace {{Type.Namespace}}
+{
+    {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
+    {
+
+        public {{Type.Name}}Factory()
+        {
+        }
+
+        {{#each Methods}}
+        /// <summary>
+        /// Creates a new instance of  <see cref="{{Method.Return}}"/>
+        /// </summary>
+        public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
+        {
+
+        }
+        {{/each}}
+    }
+}

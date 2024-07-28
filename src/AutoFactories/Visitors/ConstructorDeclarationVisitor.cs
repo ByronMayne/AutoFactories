@@ -13,7 +13,7 @@ namespace AutoFactories.Visitors
     internal class ConstructorDeclarationVisitor
     {
         private readonly bool m_isAnalyzer;
-        private readonly GeneratorOptions m_options;
+        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
         private readonly List<ParameterSyntaxVisitor> m_parameters;
 
@@ -30,7 +30,7 @@ namespace AutoFactories.Visitors
         /// <summary>
         /// Gets the type that the constructor will make 
         /// </summary>
-        public MetadataTypeName Type { get; }
+        public MetadataTypeName ReturnType { get; }
 
         /// <summary>
         /// Gets the access modifier that the constructor will need to have
@@ -42,18 +42,19 @@ namespace AutoFactories.Visitors
         /// </summary>
         public IReadOnlyList<ParameterSyntaxVisitor> Parameters => m_parameters;
 
+
         /// <summary>
         /// Gets the class tha the constructor is defined within
         /// </summary>
         public ClassDeclartionVisitor Class { get; }
 
-        public ConstructorDeclarationVisitor(bool isAnalyzer, ClassDeclartionVisitor classVistor, GeneratorOptions options, MetadataTypeName type, SemanticModel semanticModel)
+        public ConstructorDeclarationVisitor(bool isAnalyzer, ClassDeclartionVisitor classVistor, Options options, MetadataTypeName type, SemanticModel semanticModel)
         {
             m_isAnalyzer = isAnalyzer;
             m_options = options;
             m_semanticModel = semanticModel;
             m_parameters = new List<ParameterSyntaxVisitor>();
-            Type = type;
+            ReturnType = type;
             Class = classVistor;
         }
 

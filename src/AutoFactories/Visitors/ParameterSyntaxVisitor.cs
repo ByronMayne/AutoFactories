@@ -8,7 +8,7 @@ namespace AutoFactories.Visitors
     internal class ParameterSyntaxVisitor
     {
         private readonly bool m_isAnalyzer;
-        private readonly GeneratorOptions m_options;
+        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
 
         public string? Name { get; private set; }
@@ -22,7 +22,7 @@ namespace AutoFactories.Visitors
         public ParameterSyntaxVisitor(
             bool isAnalyzer, 
             ConstructorDeclarationVisitor constructor,
-            GeneratorOptions options, 
+            Options options, 
             SemanticModel semanticModel)
         {
             m_isAnalyzer = isAnalyzer;
@@ -34,19 +34,16 @@ namespace AutoFactories.Visitors
 
         public void VisitParameter(ParameterSyntax parameter)
         {
-            if (GetMarkerAttribute(parameter) is not AttributeSyntax markerAttribute)
-            {
-                return;
-            }
 
             if (parameter.Type is null || m_semanticModel.GetSymbolInfo(parameter.Type).Symbol is not ISymbol typeSymbol)
             {
                 return;
             }
 
+            AttributeSyntax? markerAttribute = GetMarkerAttribute(parameter);
             Name = parameter.Identifier.Text;
-            HasMarkerAttribute = true;
-            AttributeLocation = markerAttribute.GetLocation();
+            HasMarkerAttribute = markerAttribute is not null;
+            AttributeLocation = markerAttribute?.GetLocation();
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
         }
 
@@ -63,7 +60,7 @@ namespace AutoFactories.Visitors
 
                     string displayString = typeSymbol.ToDisplayString();
 
-                    if (string.Equals(m_options.ParameterAttributeType.QualifedName, displayString))
+                    if (string.Equals(m_options.ParameterAttributeType.QualifiedName, displayString))
                     {
                         return attribute;
                     }

@@ -19,7 +19,7 @@ namespace AutoFactories
 
         public AutoFactoriesAnalyzer()
         {
-            GeneratorOptions options = new GeneratorOptions();
+            Options options = new Options();
 
             UnmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
 
@@ -36,7 +36,7 @@ namespace AutoFactories
             context.RegisterSyntaxNodeAction((context) =>
             {
                 ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
-                GeneratorOptions options = new(context.Options.AnalyzerConfigOptionsProvider);
+                Options options = new(context.Options.AnalyzerConfigOptionsProvider);
                 ClassDeclartionVisitor visitor = new(true, options, context.SemanticModel);
                 visitor.VisitClassDeclaration(classDeclarationSyntax);
                 Analyze(visitor, context);

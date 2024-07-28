@@ -10,6 +10,9 @@
     <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\FactoryView.hbs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="Handlebars.Net" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
@@ -23,6 +26,9 @@
     <PackageReference Include="Vogen" Version="4.0.8" />
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
+    <EmbeddedResource Update="Views\FactoryView.hbs">
+      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
+    </EmbeddedResource>
     <PackageReference Update="Handlebars.Net" Version="2.1.6" />
     <PackageReference Update="SourceGenerator.Foundations" Version="2.0.5" />
     <PackageReference Update="Vogen" Version="4.0.15" />

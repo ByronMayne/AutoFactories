@@ -4,20 +4,20 @@ using Ninject.AutoFactories;
 
 namespace AutoFactories
 {
-    internal class GeneratorOptions
+    internal class Options
     {
         public MetadataTypeName ClassAttributeType { get; }
         public MetadataTypeName ParameterAttributeType { get; }
         public AccessModifier AttributeAccessModifier { get; }
 
-        public GeneratorOptions()
+        public Options()
         {
             AttributeAccessModifier = AccessModifier.Internal;
             ClassAttributeType = new MetadataTypeName("AutoFactories.AutoFactoryAttribute");
             ParameterAttributeType = new MetadataTypeName("AutoFactories.FromFactoryAttribute");
         }
 
-        public GeneratorOptions(AnalyzerConfigOptionsProvider provider) : this()
+        public Options(AnalyzerConfigOptionsProvider provider) : this()
         {
 
         }

@@ -1,21 +1,18 @@
-﻿using AutoFactories.Types;
-using HandlebarsDotNet;
-using Ninject.AutoFactories;
+﻿using HandlebarsDotNet;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace AutoFactories.Views
 {
+
     internal abstract class View
     {
         public delegate void AddSourceDelegate(string hintName, string source);
 
         private static readonly Assembly s_assembly;
         private readonly IHandlebars m_handlebars;
-        private readonly string m_resourceName;
+        protected readonly string m_resourceName;
 
         static View()
         {
@@ -27,33 +24,42 @@ namespace AutoFactories.Views
         /// </summary>
         public abstract string HintName { get; }
 
-        public View(string resourceName)
+        public View(string resourceName, Options options)
         {
             m_resourceName = resourceName;
-            HandlebarsConfiguration configuration = new HandlebarsConfiguration();
+            HandlebarsConfiguration configuration = new()
+            {
+                PartialTemplateResolver = new ViewResolver(options),
+            };
             m_handlebars = Handlebars.Create(configuration);
         }
 
         /// <summary>
         /// Transforms the template into a text version of the class
         /// </summary>
-        public string Transform()
+        protected string Transform(string resourceName)
         {
-            using (Stream stream = s_assembly.GetManifestResourceStream(m_resourceName))
-            using (StreamReader reader = new StreamReader(stream))
+            using Stream stream = s_assembly.GetManifestResourceStream(resourceName);
+
+            if (stream is null)
             {
-                string template = reader.ReadToEnd();
-                HandlebarsTemplate<object, object> handlebars = m_handlebars.Compile(template);
-                return handlebars(this);
+                string resourceNames = string.Join("\n - ", s_assembly.GetManifestResourceNames())!;
+                throw new ArgumentException($"Unable to find resources named '{resourceName}'. The resources found are:\n {resourceNames}");
             }
+
+            using StreamReader reader = new(stream);
+            string template = reader.ReadToEnd();
+            HandlebarsTemplate<object, object> handlebars = m_handlebars.Compile(template);
+            return handlebars(this);
         }
 
 
 
-        public void AddSource(AddSourceDelegate addSource)
+        public virtual void AddSource(AddSourceDelegate addSource)
         {
-            string source = Transform();
+            string source = Transform(m_resourceName);
             addSource(HintName, source);
         }
+
     }
 }
