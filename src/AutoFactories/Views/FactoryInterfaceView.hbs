@@ -1,8 +1,10 @@
 ﻿#nullable enable
 using System;
 
+{{#if Type.Namespace}}
 namespace {{Type.Namespace}}
 {
+{{/if}}
     {{AccessModifier}} interface I{{Type.Name}}Factory
     {
         {{#each Methods}}
@@ -12,4 +14,6 @@ namespace {{Type.Namespace}}
         global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}});
         {{/each}}
     }
+{{#if Type.Namespace}}
 }
+{{/if}}

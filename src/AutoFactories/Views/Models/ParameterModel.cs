@@ -1,9 +1,12 @@
 ﻿using AutoFactories.Types;
 using AutoFactories.Visitors;
+using CodeCasing;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AutoFactories.Views.Models
 {
+    [DebuggerDisplay("{Name,nq}: {Type.Name}")]
     internal class ParameterModel
     {
         public class EqualityComparer : IEqualityComparer<ParameterModel>
@@ -35,6 +38,10 @@ namespace AutoFactories.Views.Models
         /// </summary>
         public bool IsRequired { get; set; }
 
+        public int Position { get; set; }
+        public bool IsFirst { get; set; }
+        public bool IsLast { get; set; }
+
         public ParameterModel()
         {
             Name = "";
@@ -44,7 +51,7 @@ namespace AutoFactories.Views.Models
         public static ParameterModel Map(ParameterSyntaxVisitor visitor)
             => new ParameterModel()
             {
-                Name = visitor.Name!,
+                Name = visitor.Name.ToCamelCase(),
                 Type = visitor.Type,
                 IsRequired = !visitor.HasMarkerAttribute
             };

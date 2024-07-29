@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Ninject.AutoFactories;
 using Xunit.Abstractions;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace AutoFactories.Tests
 {
@@ -10,9 +11,13 @@ namespace AutoFactories.Tests
     {
         protected readonly ITestOutputHelper m_outputHelper;
         private readonly List<string> m_testSubjects;
+        private static readonly VerifySettings s_verifySettings;
 
         static AbstractTest()
         {
+            s_verifySettings = new VerifySettings();
+            s_verifySettings.UseDirectory("Snapshots");
+
             VerifySourceGenerators.Initialize();
             GeneratorDriverResultFilter.Initialize();
         }
@@ -20,6 +25,7 @@ namespace AutoFactories.Tests
         protected AbstractTest(ITestOutputHelper outputHelper)
         {
             m_testSubjects = [];
+      
             m_outputHelper = outputHelper;
         }
 
@@ -32,6 +38,7 @@ namespace AutoFactories.Tests
             m_outputHelper.WriteLine(text);
         }
 
+
         protected async Task Compose(
             string source,
             bool verifyOutput = false,
@@ -39,21 +46,33 @@ namespace AutoFactories.Tests
         {
             SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source)];
             MetadataReference[] metadataReferences = [
+
+                MetadataReference.CreateFromFile(typeof(Options).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location)];
 
 
-            CSharpCompilation compilation = CSharpCompilation.Create("UnitTest", syntaxTrees, metadataReferences);
+            CSharpCompilationOptions options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                .WithAllowUnsafe(true)
+                .WithDeterministic(true);
 
+            ImmutableArray<DiagnosticAnalyzer> analyzers = [];
+
+            CSharpCompilation compilation = CSharpCompilation.Create("UnitTest", syntaxTrees, metadataReferences, options);
+
+            // Source Generator 
             AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
-            AutoFactoriesGeneratorHoist host = new AutoFactoriesGeneratorHoist(generator);
+            AutoFactoriesGeneratorHoist incrementalGenerator = new AutoFactoriesGeneratorHoist(generator);
 
-            GeneratorDriver driver = CSharpGeneratorDriver.Create(host);
-            driver = driver.RunGenerators(compilation);
+            GeneratorDriver driver = CSharpGeneratorDriver.Create(incrementalGenerator)
+                .RunGeneratorsAndUpdateCompilation(compilation, out Compilation postCompilation, out ImmutableArray<Diagnostic> _);
 
-            VerifySettings settings = new();
-            settings.UseDirectory("Snapshots");
+            // Code Analyzer 
+            AnalysisResult analysisResults = await postCompilation.WithAnalyzers([new AutoFactoriesAnalyzer()])
+                .GetAnalysisResultAsync(CancellationToken.None);
 
+            ImmutableArray<Diagnostic> diagnostics = analysisResults.GetAllDiagnostics();
             GeneratorDriverRunResult runResults = driver.GetRunResult();
+
 #if DEBUG
             foreach (GeneratorRunResult result in runResults.Results)
             {
@@ -63,11 +82,9 @@ namespace AutoFactories.Tests
                 }
             }
 #endif
-            ImmutableArray<Diagnostic> diagnostics = compilation.GetDiagnostics();
-
             GeneratorDriverResultFilter filter = new(runResults, m_testSubjects.Contains);
 
-            if (verifyOutput) await Verifier.Verify(filter, settings);
+            if (verifyOutput) await Verifier.Verify(filter, s_verifySettings);
             if (assertDiagnostics is not null) assertDiagnostics(diagnostics);
         }
     }

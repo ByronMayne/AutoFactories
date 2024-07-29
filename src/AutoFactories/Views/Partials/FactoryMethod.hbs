@@ -1,0 +1,6 @@
+﻿            global::{{ReturnType.QualifiedName}} result = new global::{{ReturnType.QualifiedName}}({{#each Parameters}}
+            {{#unless IsRequired}} m_{{Name}}{{/unless~}}
+            {{#if IsRequired}} {{Name}}{{/if~}}
+            {{#unless @Last}},{{/unless~}}
+{{/each}});
+            return result;

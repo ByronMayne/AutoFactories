@@ -1,23 +1,27 @@
 ﻿#nullable enable
 using System;
 
+{{#if Type.Namespace}}
 namespace {{Type.Namespace}}
 {
+{{/if}}
     {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
     {
+        {{> Factory_Members }}
 
-        public {{Type.Name}}Factory()
-        {
-        }
+        {{> Factory_Constructor }}
+
 
         {{#each Methods}}
         /// <summary>
-        /// Creates a new instance of  <see cref="{{Method.Return}}"/>
+        /// Creates a new instance of  <see cref="{{ReturnType.QualifiedName}}"/>
         /// </summary>
         public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
         {
-
+            {{> FactoryMethod}}
         }
         {{/each}}
     }
+{{#if Type.Namespace}}
 }
+{{/if}}

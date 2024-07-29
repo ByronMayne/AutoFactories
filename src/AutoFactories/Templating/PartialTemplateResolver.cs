@@ -1,15 +1,12 @@
 ﻿using HandlebarsDotNet;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace AutoFactories.Views
+namespace AutoFactories.Templating
 {
-    internal class ViewResolver : IPartialTemplateResolver
+    internal class PartialTemplateResolver : IPartialTemplateResolver
     {
         private readonly static Assembly s_assembly;
         private readonly static string[] s_resources;
@@ -18,9 +15,9 @@ namespace AutoFactories.Views
         private readonly Options m_options;
         private readonly IDictionary<string, string> m_partialMap;
 
-        static ViewResolver()
+        static PartialTemplateResolver()
         {
-            s_assembly = typeof(ViewResolver).Assembly;
+            s_assembly = typeof(PartialTemplateResolver).Assembly;
             s_resources = s_assembly.GetManifestResourceNames();
             s_partialPattern = new Regex(@"Partials[\\/](?<Name>[^\.]*).hbs", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
             Dictionary<string, string> defaultPartials = new Dictionary<string, string>();
@@ -40,7 +37,7 @@ namespace AutoFactories.Views
             }
         }
 
-        public ViewResolver(Options options)
+        public PartialTemplateResolver(Options options)
         {
             m_options = options;
             m_partialMap = new Dictionary<string, string>(s_defaultPartials);
@@ -48,7 +45,7 @@ namespace AutoFactories.Views
 
         public bool TryRegisterPartial(IHandlebars env, string partialName, string templatePath)
         {
-            if(m_partialMap.TryGetValue(partialName, out string content))
+            if (m_partialMap.TryGetValue(partialName, out string content))
             {
                 env.RegisterTemplate(partialName, content);
                 return true;

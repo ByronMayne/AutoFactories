@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Ninject.AutoFactories;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -13,7 +14,8 @@ namespace AutoFactories
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AutoFactoriesAnalyzer : DiagnosticAnalyzer
     {
-        internal UnmarkedFactoryDiagnosticBuilder UnmarkedFactoryDiagnostic { get; }
+        private UnmarkedFactoryDiagnosticBuilder m_unmarkedFactoryDiagnostic;
+        private InconsistentFactoryAcessibilityBuilder m_inconsistentFactoryAcessibility;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -21,11 +23,13 @@ namespace AutoFactories
         {
             Options options = new Options();
 
-            UnmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
+            m_unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
+            m_inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
 
             SupportedDiagnostics = [
-                UnmarkedFactoryDiagnostic.Descriptor
-                ];
+                m_unmarkedFactoryDiagnostic.Descriptor,
+                m_inconsistentFactoryAcessibility.Descriptor,
+             ];
         }
 
 
@@ -45,13 +49,20 @@ namespace AutoFactories
 
         private void Analyze(ClassDeclartionVisitor vistor, SyntaxNodeAnalysisContext context)
         {
-            // Check for missing atribute
+            // UnmarkedFactory
             if (!vistor.HasMarkerAttribute)
             {
                 vistor.Constructors
                     .SelectMany(c => c.Parameters)
                     .Where(p => p.HasMarkerAttribute)
-                    .ReportDiagnostic(context, UnmarkedFactoryDiagnostic.Build);
+                    .ReportDiagnostic(context, m_unmarkedFactoryDiagnostic.Build);
+            }
+
+            // InconsistentFactoryAcessibility
+            if (vistor.AccessModifier == AccessModifier.Internal &&
+                vistor.FactoryAccessModifier == AccessModifier.Public)
+            {
+                context.ReportDiagnostic(m_inconsistentFactoryAcessibility.Build(vistor));
             }
         }
     }

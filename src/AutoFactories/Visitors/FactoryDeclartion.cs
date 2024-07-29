@@ -4,6 +4,7 @@ using AutoFactories.Views.Models;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace AutoFactories.Visitors
 {
@@ -13,12 +14,19 @@ namespace AutoFactories.Visitors
         public MetadataTypeName Type { get; }
         public AccessModifier AccessModifier { get; }
         public IReadOnlyList<ClassDeclartionVisitor> Classes { get; }
+        public IReadOnlyList<ParameterSyntaxVisitor> Parameters { get; }
 
 
         private FactoryDeclartion(MetadataTypeName type, IEnumerable<ClassDeclartionVisitor> classes)
         {
             Type = type;
             Classes = classes.ToList();
+            Parameters = Classes
+                .SelectMany(c => c.Constructors)
+                .SelectMany(c => c.Parameters)
+                .Where(p => p.HasMarkerAttribute)
+                .ToList();
+
             AccessModifier = Classes.Any(c => c.AccessModifier != AccessModifier.Public)
                     ? AccessModifier.Internal
                     : AccessModifier.Public;
@@ -38,6 +46,9 @@ namespace AutoFactories.Visitors
             {
                 Type = declartion.Type,
                 AccessModifier = declartion.AccessModifier,
+                Parameters = declartion.Parameters
+                    .Select(ParameterModel.Map)
+                    .ToList(),
                 Methods = declartion.Classes
                     .SelectMany(c => c.Constructors)
                     .Select(MethodModel.Map)

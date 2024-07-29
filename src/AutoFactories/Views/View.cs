@@ -1,4 +1,5 @@
-﻿using HandlebarsDotNet;
+﻿using AutoFactories.Templating;
+using HandlebarsDotNet;
 using System;
 using System.IO;
 using System.Reflection;
@@ -27,11 +28,9 @@ namespace AutoFactories.Views
         public View(string resourceName, Options options)
         {
             m_resourceName = resourceName;
-            HandlebarsConfiguration configuration = new()
-            {
-                PartialTemplateResolver = new ViewResolver(options),
-            };
-            m_handlebars = Handlebars.Create(configuration);
+            m_handlebars = new HandlebarsBuilder(options)
+                .AddPartialTemplateResolver()
+                .Build();
         }
 
         /// <summary>

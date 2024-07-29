@@ -14,11 +14,14 @@ namespace AutoFactories.Views
 
         public IList<MethodModel> Methods { get; set; }
 
+        public IList<ParameterModel> Parameters { get; set; }
+
         public override string HintName => $"{Type.QualifiedName}.g.cs";
 
         public FactoryView(Options options) : base("UNSET", options)
         {
             Methods = new List<MethodModel>();
+            Parameters = new List<ParameterModel>();
         }
 
         public override void AddSource(AddSourceDelegate addSource)

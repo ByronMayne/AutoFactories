@@ -1,12 +1,15 @@
-﻿using AutoFactories.Types;
+﻿using AutoFactories.Extensions;
+using AutoFactories.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AutoFactories.Visitors
 {
+    [DebuggerDisplay("{Type,nq}")]
     internal class ClassDeclartionVisitor
     {
         private readonly List<ConstructorDeclarationVisitor> m_constructors;
@@ -15,12 +18,17 @@ namespace AutoFactories.Visitors
         private readonly SemanticModel m_semanticModel;
 
         public bool HasMarkerAttribute { get; private set; }
+        public string MethodName { get; private set; }
         public MetadataTypeName Type { get; private set; }
         public AccessModifier AccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
 
         public MetadataTypeName FactoryType { get; private set; }
 
+        public Location? MethodNameLocation { get; private set; }
+        public Location? FactoryTypeLocation { get; private set; }
+
+        public AccessModifier FactoryAccessModifier { get; private set; }
         public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
 
         public ClassDeclartionVisitor(
@@ -43,6 +51,7 @@ namespace AutoFactories.Visitors
 
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
+            FactoryAccessModifier = AccessModifier;
             FactoryType = new MetadataTypeName($"{Type}FactoryView");
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
@@ -81,6 +90,28 @@ namespace AutoFactories.Visitors
                 if (string.Equals(m_options.ClassAttributeType.QualifiedName, displayString))
                 {
                     HasMarkerAttribute = true;
+
+                    if(SyntaxHelpers.TryPositionalArgument(attributeSyntax, 0, out AttributeArgumentSyntax? factoryTypeArg))
+                    {
+                        FactoryTypeLocation = factoryTypeArg.GetLocation();
+                        if (SyntaxHelpers.GetValue(factoryTypeArg, m_semanticModel) is INamedTypeSymbol factoryTypeSymbol)
+                        {
+                            FactoryType = new MetadataTypeName(factoryTypeSymbol.ToDisplayString());
+                            FactoryAccessModifier = AccessModifier.FromSymbol(factoryTypeSymbol);
+                        }
+                    }
+
+                    if(SyntaxHelpers.TryPositionalArgument(attributeSyntax, 1, out AttributeArgumentSyntax? methodNameArg))
+                    {
+                        MethodNameLocation = methodNameArg.GetLocation();
+                        if(SyntaxHelpers.GetValue(methodNameArg, m_semanticModel) is string methodName)
+                        {
+                            MethodName = methodName;
+                        }
+                    }
+
+                    
+
                     return;
                 }
             }

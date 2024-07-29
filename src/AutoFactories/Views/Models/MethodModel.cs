@@ -9,22 +9,19 @@ namespace AutoFactories.Views.Models
     {
         public string Name { get; set; }
         public MetadataTypeName ReturnType { get; set; }
-        public List<ParameterModel> RequiredParameters { get; set; }
-        public List<ParameterModel> ProvidedParameters { get; set; }
+        public List<ParameterModel> Parameters { get; set; }
 
         public MethodModel()
         {
             Name = "";
-            RequiredParameters = new List<ParameterModel>();
-            ProvidedParameters = new List<ParameterModel>();
+            Parameters = new List<ParameterModel>();
         }
 
         public static MethodModel Map(ConstructorDeclarationVisitor vistor)
                => new MethodModel()
                {
                    Name = "Create",
-                   ProvidedParameters = vistor.Parameters.Where(p => p.HasMarkerAttribute).Select(ParameterModel.Map).ToList(),
-                   RequiredParameters = vistor.Parameters.Where(p => !p.HasMarkerAttribute).Select(ParameterModel.Map).ToList(),
+                   Parameters = vistor.Parameters.Select(ParameterModel.Map).ToList(),
                    ReturnType = vistor.ReturnType,
                };
     }

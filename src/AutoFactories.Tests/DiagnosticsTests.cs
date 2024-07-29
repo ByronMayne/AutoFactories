@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFactories.Diagnostics;
+﻿using AutoFactories.Diagnostics;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -27,5 +22,19 @@ namespace AutoFactories.Tests
                 }
                 """,
                 assertDiagnostics: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory));
+
+        [Fact]
+        public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAcessibility()
+            => Compose($$"""
+                using AutoFactories;
+
+                public class ChairFactory 
+                {}
+
+                [AutoFactory(typeof(ChairFactory)]
+                internal class Chair 
+                {}
+                """,
+                assertDiagnostics: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAcessibility));
     }
 }
