@@ -1,5 +1,5 @@
 ﻿using AutoFactories;
-using Ninject;
+using System.Collections;
 using System.Collections.Specialized;
 
 namespace Foo
@@ -12,7 +12,11 @@ namespace Foo
     [AutoFactory]
     public class ExampleClass
     {
-        public ExampleClass(OrderedDictionary dictionary) // System.Collections.Specialized
+        public ExampleClass(
+            string name,
+            [FromFactory] IList<string> people,
+            OrderedDictionary dictionary,
+            [FromFactory] IEqualityComparer equalityComparer) 
         {
 
         }
