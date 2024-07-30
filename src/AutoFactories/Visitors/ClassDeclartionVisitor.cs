@@ -52,7 +52,7 @@ namespace AutoFactories.Visitors
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
             FactoryAccessModifier = AccessModifier;
-            FactoryType = new MetadataTypeName($"{Type}FactoryView");
+            FactoryType = new MetadataTypeName($"{Type}Factory");
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
@@ -73,6 +73,12 @@ namespace AutoFactories.Visitors
                         VisitConstructorDeclaration(constructor);
                         break;
                 }
+            }
+
+            // Add default 
+            if(m_constructors.Count == 0)
+            {
+                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, Type, m_semanticModel));
             }
         }
 

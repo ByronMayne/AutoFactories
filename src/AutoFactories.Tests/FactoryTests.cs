@@ -5,54 +5,71 @@ namespace AutoFactories.Tests
     public class FactoryTests : AbstractTest
     {
         public FactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
-        {}
+        { }
 
+        [Fact]
         public Task PublicClass_PersonalFactory()
             => Compose("""
                 using AutoFactories;
-                using System.Collections.Generic'
+                using System.Collections.Generic;
 
                 [AutoFactory]
-                public class Human
+                public class Item
                 {
                     public string Name { get; }
 
-                    public Human(string name, [FromFactory] IEqualityComparer<string?> comparer)
-                    {}
+                    public Item(string name, [FromFactory] IEqualityComparer<string?> comparer)
+                    {
+                        Name = name;
+                    }
                 }
-                """);
+                """,
+                notes: ["'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well"],
+                verifySource: ["ItemFactory.g.cs", "IItemFactory.g.cs"]);
 
+        [Fact]
         public Task InternalClass_PersonalFactory()
             => Compose("""
                 using AutoFactories;
-                using System.Collections.Generic'
+                using System.Collections.Generic;
 
                 [AutoFactory]
-                internal class Human
+                internal class Item
                 {
                     public string Name { get; }
 
-                    public Human(string name, [FromFactory] IEqualityComparer<string?> comparer)
-                    {}
+                    public Item(string name, [FromFactory] IEqualityComparer<string?> comparer)
+                    {
+                        Name = name;
+                    }
                 }
-                """);
+                """,
+                notes: ["'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal."],
+                verifySource: ["ItemFactory.g.cs", "IItemFactory.g.cs"]);
 
+        [Fact]
         public Task PublicClass_SharedFactory()
             => Compose("""
                 using AutoFactories;
-                using System.Collections.Generic'
+                using System.Collections.Generic;
 
-                public partial class HumanFactory 
+                public partial class AnimalFactory 
                 {}
 
-                [AutoFactory(typeof(HumanFactory)]
-                internal class Human
-                {
-                    public string Name { get; }
+                [AutoFactory(typeof(AnimalFactory))]
+                internal class Cat
+                {}
 
-                    public Human(string name, [FromFactory] IEqualityComparer<string?> comparer)
+                [AutoFactory(typeof(AnimalFactory))]
+                internal class Dog
+                {
+                    public Dog(string dogName)
                     {}
                 }
-                """);
+
+
+                """,
+                notes: ["Both 'Cat' and 'Dog' should be defined within AnimalFactory", "Factory should be internal"],
+                verifySource: ["AnimalFactory.g.cs", "IAnimalFactory.g.cs"]);
     }
 }

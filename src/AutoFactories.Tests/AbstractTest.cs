@@ -4,28 +4,34 @@ using Ninject.AutoFactories;
 using Xunit.Abstractions;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Text;
 
 namespace AutoFactories.Tests
 {
     public abstract class AbstractTest
     {
         protected readonly ITestOutputHelper m_outputHelper;
-        private readonly List<string> m_testSubjects;
+        private static readonly MetadataReference[] s_metadataReferences;
         private static readonly VerifySettings s_verifySettings;
+        private static readonly CSharpCompilationOptions s_cSharpCompilationOptions;
 
         static AbstractTest()
         {
             s_verifySettings = new VerifySettings();
             s_verifySettings.UseDirectory("Snapshots");
+            s_cSharpCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                .WithNullableContextOptions(NullableContextOptions.Enable);
+            s_metadataReferences = [
+                MetadataReference.CreateFromFile(typeof(Options).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)];
 
             VerifySourceGenerators.Initialize();
             GeneratorDriverResultFilter.Initialize();
         }
 
+
         protected AbstractTest(ITestOutputHelper outputHelper)
         {
-            m_testSubjects = [];
-      
             m_outputHelper = outputHelper;
         }
 
@@ -41,51 +47,64 @@ namespace AutoFactories.Tests
 
         protected async Task Compose(
             string source,
-            bool verifyOutput = false,
-            Action<IEnumerable<Diagnostic>>? assertDiagnostics = null)
+            string[]? verifySource = null,
+            List<string>? notes = null,
+            Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null)
         {
             SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source)];
-            MetadataReference[] metadataReferences = [
+            CSharpCompilation baseCompilation = CSharpCompilation.Create("UnitTest", syntaxTrees, s_metadataReferences, s_cSharpCompilationOptions);
 
-                MetadataReference.CreateFromFile(typeof(Options).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)];
-
-
-            CSharpCompilationOptions options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithAllowUnsafe(true)
-                .WithDeterministic(true);
-
-            ImmutableArray<DiagnosticAnalyzer> analyzers = [];
-
-            CSharpCompilation compilation = CSharpCompilation.Create("UnitTest", syntaxTrees, metadataReferences, options);
-
-            // Source Generator 
+            // Setup Source Generator 
             AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
             AutoFactoriesGeneratorHoist incrementalGenerator = new AutoFactoriesGeneratorHoist(generator);
 
-            GeneratorDriver driver = CSharpGeneratorDriver.Create(incrementalGenerator)
-                .RunGeneratorsAndUpdateCompilation(compilation, out Compilation postCompilation, out ImmutableArray<Diagnostic> _);
+            GeneratorDriver driver = CSharpGeneratorDriver.Create(incrementalGenerator);
+            driver = driver.RunGeneratorsAndUpdateCompilation(baseCompilation, out Compilation finalCompilation, out ImmutableArray<Diagnostic> diagnostics);
 
-            // Code Analyzer 
-            AnalysisResult analysisResults = await postCompilation.WithAnalyzers([new AutoFactoriesAnalyzer()])
-                .GetAnalysisResultAsync(CancellationToken.None);
-
-            ImmutableArray<Diagnostic> diagnostics = analysisResults.GetAllDiagnostics();
-            GeneratorDriverRunResult runResults = driver.GetRunResult();
-
-#if DEBUG
-            foreach (GeneratorRunResult result in runResults.Results)
+            // Do compile check 
+            bool hasError = false;
+            StringBuilder builder = new StringBuilder()
+                .AppendLine("Test case failed as the source code failed to compile");
+            foreach(Diagnostic diagnostic in finalCompilation.GetDiagnostics())
             {
-                foreach (GeneratedSourceResult s in result.GeneratedSources)
+                switch (diagnostic.Severity)
                 {
-                    WriteLine(s.HintName);
+                    case DiagnosticSeverity.Info:
+                    case DiagnosticSeverity.Warning:
+                    case DiagnosticSeverity.Error:
+                        hasError = true;
+                        break;
+                    default:
+                        continue;
                 }
+                
+                builder.AppendLine($"{diagnostic.Severity} {diagnostic.Id}: {diagnostic.GetMessage()}");
             }
-#endif
-            GeneratorDriverResultFilter filter = new(runResults, m_testSubjects.Contains);
+            if (hasError)
+            {
+                Assert.Fail(builder.ToString());
+            }
 
-            if (verifyOutput) await Verifier.Verify(filter, s_verifySettings);
-            if (assertDiagnostics is not null) assertDiagnostics(diagnostics);
+            // Assert Analyzer
+            if (assertAnalyuzerResult != null)
+            {
+                AnalysisResult analysisResults = await finalCompilation.WithAnalyzers([new AutoFactoriesAnalyzer()])
+                    .GetAnalysisResultAsync(CancellationToken.None);
+
+                assertAnalyuzerResult(analysisResults.GetAllDiagnostics());
+            }
+
+            // Assert Source Trees
+            if (verifySource != null)
+            {
+                GeneratorDriverRunResult runResults = driver.GetRunResult();
+                GeneratorDriverResultFilter filter = new(runResults, verifySource.Contains)
+                {
+                    Notes = notes ?? new List<string>()
+                };
+
+                await Verifier.Verify(filter, s_verifySettings);
+            }
         }
     }
 }

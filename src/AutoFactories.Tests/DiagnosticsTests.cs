@@ -21,7 +21,7 @@ namespace AutoFactories.Tests
                     {}
                 }
                 """,
-                assertDiagnostics: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory));
+                assertAnalyuzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory));
 
         [Fact]
         public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAcessibility()
@@ -35,6 +35,6 @@ namespace AutoFactories.Tests
                 internal class Chair 
                 {}
                 """,
-                assertDiagnostics: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAcessibility));
+                assertAnalyuzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAcessibility));
     }
 }

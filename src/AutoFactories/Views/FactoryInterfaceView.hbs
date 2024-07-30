@@ -11,8 +11,9 @@ namespace {{Type.Namespace}}
         /// <summary>
         /// Creates a new instance of  <see cref="{{ReturnType.QualifiedName}}"/>
         /// </summary>
-        global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}});
-        {{/each}}
+        global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}});{{#unless @Last}}
+
+{{/unless}}{{/each}}
     }
 {{#if Type.Namespace}}
 }

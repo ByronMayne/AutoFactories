@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.Text;
 
 namespace Ninject.AutoFactories
 {
@@ -10,10 +11,18 @@ namespace Ninject.AutoFactories
         public GeneratorDriverRunResult Result { get; }
         public Predicate<string>? Filter { get; }
 
-        public GeneratorDriverResultFilter(GeneratorDriverRunResult result, Predicate<string>? filter)
+        /// <summary>
+        /// Gets or sets an optional note to add to the top of the file to explain what is unique about it.
+        /// </summary>
+        public List<string> Notes { get; set; }
+
+        public GeneratorDriverResultFilter(
+            GeneratorDriverRunResult result, 
+            Predicate<string>? filter)
         {
             Result = result;
             Filter = filter;
+            Notes = new List<string>();
         }
 
         public bool Include(string filePath)
@@ -45,11 +54,11 @@ namespace Ninject.AutoFactories
                 var collection = result.GeneratedSources
                     .Where(x => target.Include(x.HintName))
                     .OrderBy(x => x.HintName)
-                    .Select(SourceToTarget);
+                    .Select(x => SourceToTarget(x, target.Notes));
 
                 if (!collection.Any())
                 {
-                    Assert.Fail($"No tests subjects matched any of the patterns. The following subjects were found\n{string.Join("\n - ", result.GeneratedSources.Select(s => s.HintName))}");
+                    Assert.Fail($"Failed: Input was verfied but No test subjects were matched. The following subjects were found\n - {string.Join("\n - ", result.GeneratedSources.Select(s => s.HintName))}");
                 }
 
                 targets.AddRange(collection);
@@ -77,13 +86,21 @@ namespace Ninject.AutoFactories
             return new(null, targets);
         }
 
-        private static Target SourceToTarget(GeneratedSourceResult source)
+        private static Target SourceToTarget(GeneratedSourceResult source, IList<string> notes)
         {
-            var data = $"""
-            //HintName: {source.HintName}
-            {source.SourceText}
-            """;
-            return new("cs", data, Path.GetFileNameWithoutExtension(source.HintName));
+            StringBuilder dataBuilder = new StringBuilder();
+            dataBuilder.AppendFormat("//HintName: {0}", source.HintName).AppendLine();
+            if(notes.Count > 0)
+            {
+                dataBuilder.AppendLine("// -----------------------------| Notes |-----------------------------");
+                for (int i = 0; i < notes.Count; i++)
+                {
+                    dataBuilder.AppendFormat("// {0}. {1}", i + 1, notes[i]).AppendLine();
+                }
+                dataBuilder.AppendLine("// -------------------------------------------------------------------");
+            }
+            dataBuilder.Append(source.SourceText);
+            return new("cs", dataBuilder.ToString(), Path.GetFileNameWithoutExtension(source.HintName));
         }
     }
 }

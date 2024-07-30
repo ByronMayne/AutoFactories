@@ -19,8 +19,9 @@ namespace {{Type.Namespace}}
         public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
         {
             {{> FactoryMethod}}
-        }
-        {{/each}}
+        }{{#unless @Last}}
+
+{{/unless}}{{/each}}
     }
 {{#if Type.Namespace}}
 }
