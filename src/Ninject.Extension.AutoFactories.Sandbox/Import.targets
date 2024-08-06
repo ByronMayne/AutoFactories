@@ -1,0 +1,4 @@
+﻿<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
+  <Import Project="../AutoFactories/AutoFactories.targets"/>
+  <Import Project="../AutoFactories.Ninject/AutoFactories.Ninject.targets"/>
+</Project>

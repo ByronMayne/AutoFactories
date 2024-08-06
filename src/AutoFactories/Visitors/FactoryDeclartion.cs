@@ -1,10 +1,11 @@
 ﻿using AutoFactories.Types;
 using AutoFactories.Views;
 using AutoFactories.Views.Models;
+using HandlebarsDotNet;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
+using AutoFactories.Templating;
 
 namespace AutoFactories.Visitors
 {
@@ -41,8 +42,8 @@ namespace AutoFactories.Visitors
         }
 
 
-        public static FactoryView Map(FactoryDeclartion declartion, Options options)
-            => new FactoryView(options)
+        public static FactoryView Map(FactoryDeclartion declartion)
+            => new FactoryView()
             {
                 Type = declartion.Type,
                 AccessModifier = declartion.AccessModifier,

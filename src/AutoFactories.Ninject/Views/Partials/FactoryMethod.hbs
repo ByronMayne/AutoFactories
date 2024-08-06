@@ -1,0 +1,10 @@
+﻿            global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
+{{#each Parameters}}
+{{#if IsRequired}}              new global::Ninject.Parameters.ConstructorArgument("{{Name}}", "{{Name}}"),
+{{/if~}}
+{{/each}}
+            };
+
+            global::Ninject.Activation.IRequest request = m_resolutionRoot.CreateRequest(typeof({{ReturnType.QualifiedName}}), null, __parameters, isOptional: false, isUnique: true);
+            global::System.Collections.Generic.IEnumerable<object> results = m_resolutionRoot.Resolve(request);
+            return results.Cast<{{ReturnType.QualifiedName}}>().Single();

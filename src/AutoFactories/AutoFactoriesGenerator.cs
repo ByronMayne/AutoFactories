@@ -1,22 +1,21 @@
-﻿using AutoFactories.Types;
+﻿using AutoFactories.Templating;
 using AutoFactories.Views;
-using AutoFactories.Views.Models;
 using AutoFactories.Visitors;
+using HandlebarsDotNet;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Ninject.AutoFactories;
 using SGF;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Threading;
-using static AutoFactories.Views.View;
 
 namespace AutoFactories
 {
+
     [SgfGenerator]
     public class AutoFactoriesGenerator : IncrementalGenerator
     {
@@ -33,11 +32,12 @@ namespace AutoFactories
 
         public override void OnInitialize(SgfInitializationContext context)
         {
-            IncrementalValueProvider<(AnalyzerConfigOptionsProvider Left, ImmutableArray<ClassDeclartionVisitor?> Right)> provider = context.AnalyzerConfigOptionsProvider
-                 .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
-                      s_options.ClassAttributeType.QualifiedName,
-                      predicate: FilterNodes,
-                      transform: TransformNodes)
+            var provider =
+                context.AnalyzerConfigOptionsProvider
+                    .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
+                          s_options.ClassAttributeType.QualifiedName,
+                          predicate: FilterNodes,
+                          transform: TransformNodes)
                  .Where(t => t is not null)
                  .Collect());
 
@@ -45,21 +45,41 @@ namespace AutoFactories
             context.RegisterSourceOutput(provider, (context, tuple) => GenerateFactories(context, tuple.Left, tuple.Right!));
         }
 
+
+        private static bool IsHandlebarsText(AdditionalText additionalText)
+        {
+            string extension = Path.GetExtension(additionalText.Path);
+            return string.Equals(".hbs", extension, StringComparison.OrdinalIgnoreCase);
+        }
+
+
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
         {
             Options options = new Options();
 
-            GenericView.AddSource(context.AddSource, "ClassAttribute.hbs", options, o =>
-            {
-                o.AccessModifier = options.AttributeAccessModifier;
-                o.Type = options.ClassAttributeType;
-            });
+            IViewRenderer renderer = new ViewRendererBuilder(options)
+                .WriteTo(context.AddSource)
+                .LoadModule<CoreViewsModule>()
+                .Build();
 
-            GenericView.AddSource(context.AddSource, "ParameterAttribute.hbs", options, o =>
-            {
-                o.AccessModifier = options.AttributeAccessModifier;
-                o.Type = options.ParameterAttributeType;
-            });
+
+            renderer.WriteFile(
+                $"{options.ClassAttributeType.QualifiedName}.g.cs",
+                TemplateName.ClassAttribute, new GenericView()
+                {
+                    AccessModifier = options.AttributeAccessModifier,
+                    Type = options.ClassAttributeType
+                });
+
+
+            renderer.WriteFile(
+                $"{options.ParameterAttributeType.QualifiedName}.g.cs",
+                TemplateName.ParameterAttribute, new GenericView()
+                {
+                    AccessModifier = options.AttributeAccessModifier,
+                    Type = options.ParameterAttributeType
+                });
+
         }
 
         /// <summary>
@@ -72,14 +92,25 @@ namespace AutoFactories
         {
             Options options = new Options(configOptions);
 
-            foreach (FactoryView view in FactoryDeclartion.Create(visitors)
-                .Select(f => FactoryDeclartion.Map(f, options)))
+            IViewRenderer renderer = new ViewRendererBuilder(options)
+                .WriteTo(context.AddSource)
+                .AddPartialTemplateResolver()
+                .LoadModule<CoreViewsModule>()
+                .Build();
+
+            foreach (FactoryView view in FactoryDeclartion.Create(visitors).Select(FactoryDeclartion.Map))
             {
-                view.AddSource(context.AddSource);
+                try
+                {
+                    renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", TemplateName.Factory, view);
+                    renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", TemplateName.FactoryInterface, view);
+                }
+                catch (HandlebarsRuntimeException runtimeException)
+                {
+                    Console.WriteLine("D");
+                }
             }
         }
-
-
 
         /// <summary>
         /// Take in the nodes and transform them into vistiors which can be cached

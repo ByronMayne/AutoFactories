@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="AutoFactories.Ninject.targets">
+      <PackagePath>build/AutoFactories.Ninject.props</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
+    <None Pack="true" PackagePath="build/AutoFactories.Ninject.props" Update="AutoFactories.Ninject.props" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Views\**" Pack="true" PackagePath="build/Views/">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

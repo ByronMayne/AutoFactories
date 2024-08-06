@@ -8,7 +8,6 @@ using System;
     internal partial class ItemFactoryFactory : IItemFactoryFactory
     {
         private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
-
         public ItemFactoryFactory(
             global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {
@@ -20,9 +19,9 @@ using System;
         /// </summary>
         public global::Item Create(global::System.String name, global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {
-            global::Item result = new global::Item(
+            global::Item __result = new global::Item(
              name,
              m_comparer);
-            return result;
+            return __result;
         }
     }

@@ -8,7 +8,6 @@ using System;
 
     internal partial class AnimalFactoryFactory : IAnimalFactoryFactory
     {
-
         public AnimalFactoryFactory()
         {
         }
@@ -18,8 +17,8 @@ using System;
         /// </summary>
         public global::Cat Create()
         {
-            global::Cat result = new global::Cat();
-            return result;
+            global::Cat __result = new global::Cat();
+            return __result;
         }
 
         /// <summary>
@@ -27,8 +26,8 @@ using System;
         /// </summary>
         public global::Dog Create(global::System.String dogName)
         {
-            global::Dog result = new global::Dog(
+            global::Dog __result = new global::Dog(
              dogName);
-            return result;
+            return __result;
         }
     }

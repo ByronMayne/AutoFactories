@@ -7,9 +7,9 @@ namespace {{Type.Namespace}}
 {{/if}}
     {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
     {
-        {{> Factory_Members }}
-
-        {{> Factory_Constructor }}
+        {{> factory_fields }}
+        {{> factory_properties }}
+        {{> factory_constructors }}
 
 
         {{#each Methods}}
@@ -18,7 +18,7 @@ namespace {{Type.Namespace}}
         /// </summary>
         public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
         {
-            {{> FactoryMethod}}
+            {{> factory_method}}
         }{{#unless @Last}}
 
 {{/unless}}{{/each}}

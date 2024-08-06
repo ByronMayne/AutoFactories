@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="Import.props"/>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -16,5 +16,5 @@
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <!--<ProjectReference Include="..\Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
   </ItemGroup>
-
+  <Import Project="Import.targets"/>
 </Project>

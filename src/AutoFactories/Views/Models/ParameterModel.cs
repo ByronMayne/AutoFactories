@@ -51,7 +51,7 @@ namespace AutoFactories.Views.Models
         public static ParameterModel Map(ParameterSyntaxVisitor visitor)
             => new ParameterModel()
             {
-                Name = visitor.Name.ToCamelCase(),
+                Name = visitor.Name!.ToCamelCase(),
                 Type = visitor.Type,
                 IsRequired = !visitor.HasMarkerAttribute
             };

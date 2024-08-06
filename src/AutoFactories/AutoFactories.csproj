@@ -5,17 +5,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>12</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <EmbeddedResourceStringExtensions>.hbs</EmbeddedResourceStringExtensions>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\FactoryView.hbs" />
+    <None Remove="Views\Partials\FactoryConstructors.hbs" />
+    <None Remove="Views\Partials\FactoryFields.hbs" />
     <None Remove="Views\Partials\FactoryMethod.hbs" />
-    <None Remove="Views\Partials\Factory_Constructor.hbs" />
-    <None Remove="Views\Partials\Factory_Members.hbs" />
+    <None Remove="Views\Partials\FactoryProperties.hbs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="CodeCasing" />
     <PackageReference Include="Handlebars.Net" />
@@ -30,23 +33,22 @@
     <PackageReference Include="Vogen" Version="4.0.8" />
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
-    <EmbeddedResource Update="Views\FactoryView.hbs">
+    <EmbeddedResource Update="Views\Partials\FactoryProperties.hbs">
       <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\Partials\FactoryMethod.hbs">
-      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Views\Partials\Factory_Members.hbs">
-      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Views\Partials\Factory_Constructor.hbs">
-      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
+    <PackageReference Update="AutoInterface" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Update="CodeCasing" Version="3.0.3" />
     <PackageReference Update="Handlebars.Net" Version="2.1.6" />
     <PackageReference Update="Handlebars.Net.Helpers.Humanizer" Version="2.4.5" />
     <PackageReference Update="Humanizer.Core" Version="2.14.1" />
     <PackageReference Update="SourceGenerator.Foundations" Version="2.0.6" />
+    <PackageReference Update="ThisAssembly.Resources" Version="1.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Update="Vogen" Version="4.0.15" />
   </ItemGroup>
 

@@ -1,26 +1,32 @@
 ﻿using HandlebarsDotNet;
-using HandlebarsDotNet.IO;
 using HandlebarsDotNet.MemberAccessors;
 using HandlebarsDotNet.PathStructure;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
+
 
 
 namespace AutoFactories.Templating
 {
-    internal class HandlebarsBuilder
+
+    internal class ViewRendererBuilder
     {
         private readonly Options m_options;
         private readonly HandlebarsConfiguration m_configuration;
+        private readonly List<Action<IHandlebars>> m_setupActions;
+        private readonly List<ViewModule> m_modules;
+        private readonly ViewRegistry m_viewRegistry;
+        private AddSourceDelegate? m_outputTo;
 
-        public HandlebarsBuilder(Options options)
+        public ViewRendererBuilder(Options options)
         {
             m_options = options;
+            m_modules = new List<ViewModule>();
+            m_viewRegistry = new ViewRegistry();
+            m_setupActions = [
+             h => h.RegisterHelper("each-if", EachIf)];
+
             m_configuration = new HandlebarsConfiguration()
             {
                 NoEscape = true,
@@ -29,22 +35,67 @@ namespace AutoFactories.Templating
         }
 
         /// <summary>
+        /// Sets the delegate the the source file and code is written too
+        /// </summary>
+        public ViewRendererBuilder WriteTo(AddSourceDelegate addSource)
+        {
+            m_outputTo = addSource;
+            return this;
+        }
+
+        /// <summary>
         /// Adds a nwe resovler that can find partial templates that are contained within this assembly
         /// </summary>
-        public HandlebarsBuilder AddPartialTemplateResolver()
+        public ViewRendererBuilder AddPartialTemplateResolver()
         {
             m_configuration.PartialTemplateResolver = new PartialTemplateResolver(m_options);
             return this;
         }
 
-        public IHandlebars Build()
+        /// <summary>
+        /// Loads all the views from the given module
+        /// </summary>
+        public ViewRendererBuilder LoadModule<TModule>() where TModule : ViewModule, new()
         {
-            IHandlebars handlebars = Handlebars.Create(m_configuration);
-            handlebars.RegisterHelper("each-if", EachIf);
-            return handlebars;
+            LoadModule(new TModule());
+            return this;
         }
 
-   
+        /// <summary>
+        /// Loads a new module and parses all it's templates
+        /// </summary>
+        public ViewRendererBuilder LoadModule(ViewModule module)
+        {
+            m_modules.Add(module);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds templates that can override the built in ones
+        /// </summary>
+        /// <param name="templates">The templates to resolve</param>
+        /// <returns></returns>
+        public ViewRendererBuilder LoadModules()
+        {
+
+            //TODO:
+
+
+            return this;
+        }
+
+        public IViewRenderer Build()
+        {
+
+            IHandlebars handlebars = Handlebars.Create(m_configuration);
+            foreach (Action<IHandlebars> setupAction in m_setupActions)
+            {
+                setupAction(handlebars);
+            }
+            return new ViewRenderer(m_outputTo, handlebars, m_modules);
+        }
+
+
         private void EachIf(EncodedTextWriter output, BlockHelperOptions options, Context context, Arguments arguments)
         {
 

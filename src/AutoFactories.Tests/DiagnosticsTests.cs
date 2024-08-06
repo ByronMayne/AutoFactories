@@ -31,7 +31,7 @@ namespace AutoFactories.Tests
                 public class ChairFactory 
                 {}
 
-                [AutoFactory(typeof(ChairFactory)]
+                [AutoFactory(typeof(ChairFactory))]
                 internal class Chair 
                 {}
                 """,
