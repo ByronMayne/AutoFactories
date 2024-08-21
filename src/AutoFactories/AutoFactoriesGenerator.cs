@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using SGF;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,13 @@ namespace AutoFactories
     {
         private static Options s_options;
 
+        public List<ViewModule> Modules { get; }
+
+        /// <summary>
+        /// Events to subscribe to do handle exceptions that are thrown
+        /// </summary>
+        public event Action<Exception>? ExceptionHandler;
+
         static AutoFactoriesGenerator()
         {
             s_options = new Options();
@@ -28,6 +36,11 @@ namespace AutoFactories
 
         public AutoFactoriesGenerator() : base($"AutoFactories")
         {
+            ExceptionHandler = null;
+            Modules = new List<ViewModule>()
+            {
+                new CoreViewsModule()
+            };
         }
 
         public override void OnInitialize(SgfInitializationContext context)
@@ -52,14 +65,18 @@ namespace AutoFactories
             return string.Equals(".hbs", extension, StringComparison.OrdinalIgnoreCase);
         }
 
+        public override void OnException(Exception exception)
+        {
+            ExceptionHandler?.Invoke(exception);
+            base.OnException(exception);
+        }
 
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
         {
             Options options = new Options();
 
-            IViewRenderer renderer = new ViewRendererBuilder(options)
+            IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
-                .LoadModule<CoreViewsModule>()
                 .Build();
 
 
@@ -92,24 +109,27 @@ namespace AutoFactories
         {
             Options options = new Options(configOptions);
 
-            IViewRenderer renderer = new ViewRendererBuilder(options)
+            IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
                 .AddPartialTemplateResolver()
-                .LoadModule<CoreViewsModule>()
                 .Build();
 
             foreach (FactoryView view in FactoryDeclartion.Create(visitors).Select(FactoryDeclartion.Map))
             {
-                try
-                {
-                    renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", TemplateName.Factory, view);
-                    renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", TemplateName.FactoryInterface, view);
-                }
-                catch (HandlebarsRuntimeException runtimeException)
-                {
-                    Console.WriteLine("D");
-                }
+                renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", TemplateName.Factory, view);
+                renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", TemplateName.FactoryInterface, view);
             }
+        }
+
+        /// <summary>
+        /// Creates a new view renderer builder 
+        /// </summary>
+        private ViewRendererBuilder NewViewBuilder(Options? options = null)
+        {
+            ViewRendererBuilder builder = new ViewRendererBuilder();
+            if(options is not null) builder.UseOptions(options);
+            builder.LoadModules(Modules);
+            return builder;
         }
 
         /// <summary>

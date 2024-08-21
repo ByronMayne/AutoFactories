@@ -19,6 +19,7 @@
             SetPartial(PartialName.FactoryMethod, "Partials\\FactoryMethod.hbs");
             SetPartial(PartialName.FactoryFields, "Partials\\FactoryFields.hbs");
             SetPartial(PartialName.MethodParameters, "Partials\\Parameters.hbs");
+            SetPartial(PartialName.FactoryNamespaces, "Partials\\FactoryNamespaces.hbs");
         }
     }
 }

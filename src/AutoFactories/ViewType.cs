@@ -21,6 +21,7 @@ namespace AutoFactories
     [Instance("FactoryProperties", "factory_properties", "Used to render extra properties for both the instance and interface of the factories.")]
     [Instance("FactoryFields", "factory_fields", "Used to render fields for just the factory instance.")]
     [Instance("FactoryMethod", "factory_method", "Used to generate the methods that create the instances")]
+    [Instance("FactoryNamespaces", "factory_namespaces", "Imported at the type of factories and it's interface to include namespaces")]
     [ValueObject<string>(conversions: Conversions.None)]
     public partial struct PartialName
     {}

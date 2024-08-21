@@ -1,11 +1,12 @@
-﻿using Xunit.Abstractions;
+﻿using Microsoft.CodeAnalysis;
+using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
 {
     public class FactoryTests : AbstractTest
     {
         public FactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
-        { }
+        {}
 
         [Fact]
         public Task PublicClass_PersonalFactory()

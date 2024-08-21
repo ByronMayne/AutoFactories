@@ -12,16 +12,16 @@ namespace AutoFactories.Templating
 
     internal class ViewRendererBuilder
     {
-        private readonly Options m_options;
         private readonly HandlebarsConfiguration m_configuration;
         private readonly List<Action<IHandlebars>> m_setupActions;
         private readonly List<ViewModule> m_modules;
         private readonly ViewRegistry m_viewRegistry;
         private AddSourceDelegate? m_outputTo;
+        private Options m_options;
 
-        public ViewRendererBuilder(Options options)
+        public ViewRendererBuilder()
         {
-            m_options = options;
+            m_options = new Options();
             m_modules = new List<ViewModule>();
             m_viewRegistry = new ViewRegistry();
             m_setupActions = [
@@ -32,6 +32,12 @@ namespace AutoFactories.Templating
                 NoEscape = true,
             };
 
+        }
+
+        public ViewRendererBuilder UseOptions(Options options)
+        {
+            m_options = options;
+            return this;
         }
 
         /// <summary>
@@ -75,12 +81,9 @@ namespace AutoFactories.Templating
         /// </summary>
         /// <param name="templates">The templates to resolve</param>
         /// <returns></returns>
-        public ViewRendererBuilder LoadModules()
+        public ViewRendererBuilder LoadModules(IEnumerable<ViewModule> modules)
         {
-
-            //TODO:
-
-
+            m_modules.AddRange(modules);
             return this;
         }
 

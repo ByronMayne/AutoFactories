@@ -1,15 +1,21 @@
-﻿using AutoInterfaceAttributes;
-using HandlebarsDotNet;
+﻿using HandlebarsDotNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 
 namespace AutoFactories.Templating
 {
     public delegate void AddSourceDelegate(string hintName, string source);
 
-    [AutoInterface]
+    internal interface IViewRenderer
+    {
+        string Render<T>(TemplateName templateName, T data);
+        void WriteFile<T>(string hintName, TemplateName templateName, Action<T> configure) where T : new();
+        void WriteFile<T>(string hintName, TemplateName templateName, T data);
+    }
+
     internal class ViewRenderer : IViewRenderer
     {
 
@@ -53,6 +59,9 @@ namespace AutoFactories.Templating
 
         public void WriteFile<T>(string hintName, TemplateName templateName, T data)
         {
+            string[] items;
+
+       
             string source = Render(templateName, data);
             m_addSource(hintName, source);
         }

@@ -15,6 +15,7 @@
     <None Remove="Views\Partials\FactoryConstructors.hbs" />
     <None Remove="Views\Partials\FactoryFields.hbs" />
     <None Remove="Views\Partials\FactoryMethod.hbs" />
+    <None Remove="Views\Partials\FactoryNamespaces.hbs" />
     <None Remove="Views\Partials\FactoryProperties.hbs" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,9 @@
     <PackageReference Include="Vogen" Version="4.0.8" />
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
+    <EmbeddedResource Update="Views\Partials\FactoryNamespaces.hbs">
+      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\Partials\FactoryProperties.hbs">
       <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
     </EmbeddedResource>

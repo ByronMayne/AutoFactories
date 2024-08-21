@@ -7,4 +7,4 @@
 
             global::Ninject.Activation.IRequest request = m_resolutionRoot.CreateRequest(typeof({{ReturnType.QualifiedName}}), null, __parameters, isOptional: false, isUnique: true);
             global::System.Collections.Generic.IEnumerable<object> results = m_resolutionRoot.Resolve(request);
-            return results.Cast<{{ReturnType.QualifiedName}}>().Single();
+            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<{{ReturnType.QualifiedName}}>(results));

@@ -3,17 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFactories", "Ninject.Extension.AutoFactories\Ninject.Extension.AutoFactories.csproj", "{4087430E-9ADE-431E-86F4-FF59AB75C2CB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFactories.Tests", "Ninject.Extension.AutoFactories.Tests\Ninject.Extension.AutoFactories.Tests.csproj", "{11A0F474-5536-4F63-8127-86F67B292E2A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninject.Extension.AutoFactories.Sandbox", "Ninject.Extension.AutoFactories.Sandbox\Ninject.Extension.AutoFactories.Sandbox.csproj", "{D00CE409-8368-4170-B98D-14504C6244CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFactories", "AutoFactories\AutoFactories.csproj", "{42667062-3C03-4F2A-A833-FCC455D2526B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFactories.Tests", "AutoFactories.Tests\AutoFactories.Tests.csproj", "{A378E3CC-398B-4BD0-943E-C919A2043B0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoFactories.Ninject", "AutoFactories.Ninject\AutoFactories.Ninject.csproj", "{314EC48F-44BA-4B6D-876C-CF03698482C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFactories.Ninject", "AutoFactories.Ninject\AutoFactories.Ninject.csproj", "{314EC48F-44BA-4B6D-876C-CF03698482C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4087430E-9ADE-431E-86F4-FF59AB75C2CB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{11A0F474-5536-4F63-8127-86F67B292E2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11A0F474-5536-4F63-8127-86F67B292E2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11A0F474-5536-4F63-8127-86F67B292E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11A0F474-5536-4F63-8127-86F67B292E2A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D00CE409-8368-4170-B98D-14504C6244CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D00CE409-8368-4170-B98D-14504C6244CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D00CE409-8368-4170-B98D-14504C6244CC}.Release|Any CPU.ActiveCfg = Release|Any CPU

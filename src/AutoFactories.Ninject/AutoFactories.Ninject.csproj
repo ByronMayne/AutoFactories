@@ -14,8 +14,14 @@
       <Pack>true</Pack>
     </None>
     <None Pack="true" PackagePath="build/AutoFactories.Ninject.props" Update="AutoFactories.Ninject.props" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Views\**" Pack="true" PackagePath="build/Views/">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\Partials\FactoryNamespaces.hbs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Views\Partials\FactoryNamespaces.hbs">
+      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

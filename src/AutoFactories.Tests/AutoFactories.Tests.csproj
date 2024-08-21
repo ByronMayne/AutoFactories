@@ -14,6 +14,7 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Ninject" Version="3.3.6" />
     <PackageReference Include="SourceGenerator.Foundations.Contracts" Version="2.0.6" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AutoFactories.Ninject\AutoFactories.Ninject.csproj" />
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
 </Project>

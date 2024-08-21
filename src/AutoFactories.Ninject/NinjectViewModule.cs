@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AutoFactories.Ninject
@@ -12,9 +13,9 @@ namespace AutoFactories.Ninject
 
         public override void Load()
         {
-            SetView(TemplateName.FactoryMethod, "Views/Partials/FactoryMethod.hbs");
-            SetView(TemplateName.FactoryConstructor, "Views/Partials/FactoryConstructor.hbs");
-
+            SetPartial(PartialName.FactoryMethod, "Partials\\FactoryMethod.hbs");
+            SetPartial(PartialName.FactoryConstructor, "Partials\\FactoryConstructor.hbs");
+            SetPartial(PartialName.FactoryNamespaces, "Partials\\FactoryNamespaces.hbs");
         }
     }
 }
