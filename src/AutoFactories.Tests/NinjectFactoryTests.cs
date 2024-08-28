@@ -1,5 +1,4 @@
-﻿using AutoFactories.Ninject;
-using Ninject;
+﻿using Ninject;
 using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
@@ -8,9 +7,8 @@ namespace AutoFactories.Tests
     {
         public NinjectFactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            AddModule<NinjectViewModule>();
+            AddViews("AutoFactories.Ninject\\Views");
             AddAssemblyReference<IKernel>();
-            AddAssemblyReference<NinjectViewModule>();
         }
     }
 }

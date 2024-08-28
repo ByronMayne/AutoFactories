@@ -1,5 +1,5 @@
 ﻿#nullable enable
-{{> factory_namespaces}}
+{{> FactoryNamespaces}}
 
 
 {{#if Type.Namespace}}
@@ -8,9 +8,9 @@ namespace {{Type.Namespace}}
 {{/if}}
     {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
     {
-        {{> factory_fields }}
-        {{> factory_properties }}
-        {{> factory_constructors }}
+        {{> FactoryFields }}
+        {{> FactoryProperties }}
+        {{> FactoryConstructors }}
 
 
         {{#each Methods}}
@@ -19,7 +19,7 @@ namespace {{Type.Namespace}}
         /// </summary>
         public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
         {
-            {{> factory_method}}
+            {{> FactoryMethod}}
         }{{#unless @Last}}
 
 {{/unless}}{{/each}}

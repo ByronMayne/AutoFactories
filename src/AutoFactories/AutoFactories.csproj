@@ -8,7 +8,9 @@
     <EmbeddedResourceStringExtensions>.hbs</EmbeddedResourceStringExtensions>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
+    <EmbeddedResource Include="Views\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
+    <EmbeddedResource Include="Views\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
+    <AdditionalFiles Include="Views\**\*.hbs" Exclude="@(EmbeddedResource)" />
     <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />

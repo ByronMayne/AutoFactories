@@ -22,8 +22,6 @@ namespace AutoFactories
     {
         private static Options s_options;
 
-        public List<ViewModule> Modules { get; }
-
         /// <summary>
         /// Events to subscribe to do handle exceptions that are thrown
         /// </summary>
@@ -37,25 +35,25 @@ namespace AutoFactories
         public AutoFactoriesGenerator() : base($"AutoFactories")
         {
             ExceptionHandler = null;
-            Modules = new List<ViewModule>()
-            {
-                new CoreViewsModule()
-            };
         }
 
         public override void OnInitialize(SgfInitializationContext context)
         {
             var provider =
-                context.AnalyzerConfigOptionsProvider
-                    .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
-                          s_options.ClassAttributeType.QualifiedName,
-                          predicate: FilterNodes,
-                          transform: TransformNodes)
-                 .Where(t => t is not null)
-                 .Collect());
+                context.AdditionalTextsProvider
+                    .Where(IsHandlebarsText).Collect().Combine(
+                        context.AnalyzerConfigOptionsProvider
+                        .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
+                            s_options.ClassAttributeType.QualifiedName,
+                            predicate: FilterNodes,
+                            transform: TransformNodes)
+                        .Where(t => t is not null)
+                 .Collect()));
 
             context.RegisterPostInitializationOutput(AddSource);
-            context.RegisterSourceOutput(provider, (context, tuple) => GenerateFactories(context, tuple.Left, tuple.Right!));
+            context.RegisterSourceOutput(provider, (context, tuple) =>
+                GenerateFactories(context, tuple.Left, tuple.Right.Left, tuple.Right.Right!)
+            );
         }
 
 
@@ -76,13 +74,14 @@ namespace AutoFactories
             Options options = new Options();
 
             IViewRenderer renderer = NewViewBuilder(options)
+                .LoadEmbeddedTemplates()
                 .WriteTo(context.AddSource)
                 .Build();
 
 
             renderer.WriteFile(
                 $"{options.ClassAttributeType.QualifiedName}.g.cs",
-                TemplateName.ClassAttribute, new GenericView()
+                ViewResourceKey.ClassAttribute, new GenericView()
                 {
                     AccessModifier = options.AttributeAccessModifier,
                     Type = options.ClassAttributeType
@@ -91,7 +90,7 @@ namespace AutoFactories
 
             renderer.WriteFile(
                 $"{options.ParameterAttributeType.QualifiedName}.g.cs",
-                TemplateName.ParameterAttribute, new GenericView()
+                ViewResourceKey.ParameterAttribute, new GenericView()
                 {
                     AccessModifier = options.AttributeAccessModifier,
                     Type = options.ParameterAttributeType
@@ -104,6 +103,7 @@ namespace AutoFactories
         /// </summary>
         private void GenerateFactories(
             SgfSourceProductionContext context,
+            ImmutableArray<AdditionalText> additionalTexts,
             AnalyzerConfigOptionsProvider configOptions,
             ImmutableArray<ClassDeclartionVisitor> visitors)
         {
@@ -112,12 +112,13 @@ namespace AutoFactories
             IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
                 .AddPartialTemplateResolver()
+                .AddAdditionalTexts(additionalTexts)
                 .Build();
 
             foreach (FactoryView view in FactoryDeclartion.Create(visitors).Select(FactoryDeclartion.Map))
             {
-                renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", TemplateName.Factory, view);
-                renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", TemplateName.FactoryInterface, view);
+                renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", ViewResourceKey.Factory, view);
+                renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", ViewResourceKey.FactoryInterface, view);
             }
         }
 
@@ -128,7 +129,6 @@ namespace AutoFactories
         {
             ViewRendererBuilder builder = new ViewRendererBuilder();
             if(options is not null) builder.UseOptions(options);
-            builder.LoadModules(Modules);
             return builder;
         }
 

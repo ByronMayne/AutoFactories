@@ -11,9 +11,9 @@ namespace AutoFactories.Templating
 
     internal interface IViewRenderer
     {
-        string Render<T>(TemplateName templateName, T data);
-        void WriteFile<T>(string hintName, TemplateName templateName, Action<T> configure) where T : new();
-        void WriteFile<T>(string hintName, TemplateName templateName, T data);
+        string Render<T>(ViewResourceKey templateName, T data);
+        void WriteFile<T>(string hintName, ViewResourceKey templateName, Action<T> configure) where T : new();
+        void WriteFile<T>(string hintName, ViewResourceKey templateName, T data);
     }
 
     internal class ViewRenderer : IViewRenderer
@@ -27,29 +27,15 @@ namespace AutoFactories.Templating
         public ViewRenderer(
             AddSourceDelegate addSource,
             IHandlebars handlebars,
-            IEnumerable<ViewModule> modules)
+            ViewRegistry viewRegistry)
         {
             m_addSource = addSource; ;
             m_handlebars = handlebars;
-            m_viewRegistry = new ViewRegistry();
+            m_viewRegistry = viewRegistry;
             m_contentCache = new Dictionary<string, HandlebarsTemplate<object, object>>();
-
-            foreach (ViewModule module in modules)
-            {
-                module.Initialize(m_viewRegistry);
-            }
-
-            foreach (KeyValuePair<PartialName, Stream> partial in m_viewRegistry.Partials)
-            {
-                using (StreamReader reader = new StreamReader(partial.Value))
-                {
-                    string content = reader.ReadToEnd();
-                    m_handlebars.RegisterTemplate(partial.Key.Value, content);
-                }
-            }
         }
 
-        public void WriteFile<T>(string hintName, TemplateName templateName, Action<T> configure) where T : new()
+        public void WriteFile<T>(string hintName, ViewResourceKey templateName, Action<T> configure) where T : new()
         {
             T data = new T();
             configure(data);
@@ -57,18 +43,15 @@ namespace AutoFactories.Templating
             m_addSource(hintName, source);
         }
 
-        public void WriteFile<T>(string hintName, TemplateName templateName, T data)
-        {
-            string[] items;
-
-       
+        public void WriteFile<T>(string hintName, ViewResourceKey templateName, T data)
+        {       
             string source = Render(templateName, data);
             m_addSource(hintName, source);
         }
 
-        public string Render<T>(TemplateName templateName, T data)
+        public string Render<T>(ViewResourceKey templateName, T data)
         {
-            foreach (KeyValuePair<TemplateName, Stream> entry in m_viewRegistry.Templates)
+            foreach (KeyValuePair<ViewResourceKey, Stream> entry in m_viewRegistry.Templates)
             {
                 if (templateName.Equals(entry.Key))
                 {

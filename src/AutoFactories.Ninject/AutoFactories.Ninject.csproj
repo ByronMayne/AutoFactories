@@ -17,6 +17,9 @@
     <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="NinjectViewModule.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Views\Partials\FactoryNamespaces.hbs" />
   </ItemGroup>
   <ItemGroup>

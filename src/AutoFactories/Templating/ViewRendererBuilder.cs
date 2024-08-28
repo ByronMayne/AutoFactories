@@ -1,9 +1,16 @@
 ﻿using HandlebarsDotNet;
 using HandlebarsDotNet.MemberAccessors;
 using HandlebarsDotNet.PathStructure;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 
 
@@ -12,26 +19,80 @@ namespace AutoFactories.Templating
 
     internal class ViewRendererBuilder
     {
+        private static readonly Regex s_partialRegex;
+        private static readonly Assembly s_assembly;
+
         private readonly HandlebarsConfiguration m_configuration;
         private readonly List<Action<IHandlebars>> m_setupActions;
-        private readonly List<ViewModule> m_modules;
         private readonly ViewRegistry m_viewRegistry;
         private AddSourceDelegate? m_outputTo;
         private Options m_options;
 
+        static ViewRendererBuilder()
+        {
+            s_assembly = typeof(ViewRendererBuilder).Assembly;
+            s_partialRegex = new Regex(@"[\\/]partials[\\/].*\.hbs", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        }
+
         public ViewRendererBuilder()
         {
             m_options = new Options();
-            m_modules = new List<ViewModule>();
             m_viewRegistry = new ViewRegistry();
             m_setupActions = [
-             h => h.RegisterHelper("each-if", EachIf)];
+            h => h.RegisterHelper("each-if", EachIf)];
 
             m_configuration = new HandlebarsConfiguration()
             {
                 NoEscape = true,
             };
+        }
 
+        /// <summary>
+        /// Loops over the assembly and loads all the templates that 
+        /// are defined 
+        /// </summary>
+        public ViewRendererBuilder LoadEmbeddedTemplates()
+        {
+            foreach (string resourcePath in s_assembly.GetManifestResourceNames()
+                 .Where(p => string.Equals(Path.GetExtension(p), ".hbs")))
+            {
+                ViewResourceKey templateName = ViewResourceKey.From(resourcePath);
+                Stream stream = s_assembly.GetManifestResourceStream(resourcePath);
+                m_viewRegistry.SetView(templateName, stream);
+            }
+            return this;
+        }
+
+        public ViewRendererBuilder AddAdditionalTexts(ImmutableArray<AdditionalText> templates)
+        {
+            foreach (AdditionalText template in templates)
+            {
+                string filePath = template.Path;
+                string fileName = Path.GetFileName(filePath);
+                string? text = template.GetText()?.ToString();
+                if (string.IsNullOrWhiteSpace(text)) continue;
+
+                MemoryStream stream = new MemoryStream();
+                using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+                {
+                    writer.WriteAsync(text);
+                }
+                stream.Position = 0;
+
+                string name = Path.GetFileNameWithoutExtension(filePath);
+                
+                if (s_partialRegex.IsMatch(filePath))
+                {
+                    PartialResourceKey partialName = PartialResourceKey.From(name);
+                    m_viewRegistry.SetPartial(partialName, stream);
+                }
+                else
+                {
+                    ViewResourceKey templateName = ViewResourceKey.From(name);
+                    m_viewRegistry.SetView(templateName, stream);
+                }
+            }
+            return this;
         }
 
         public ViewRendererBuilder UseOptions(Options options)
@@ -58,35 +119,6 @@ namespace AutoFactories.Templating
             return this;
         }
 
-        /// <summary>
-        /// Loads all the views from the given module
-        /// </summary>
-        public ViewRendererBuilder LoadModule<TModule>() where TModule : ViewModule, new()
-        {
-            LoadModule(new TModule());
-            return this;
-        }
-
-        /// <summary>
-        /// Loads a new module and parses all it's templates
-        /// </summary>
-        public ViewRendererBuilder LoadModule(ViewModule module)
-        {
-            m_modules.Add(module);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds templates that can override the built in ones
-        /// </summary>
-        /// <param name="templates">The templates to resolve</param>
-        /// <returns></returns>
-        public ViewRendererBuilder LoadModules(IEnumerable<ViewModule> modules)
-        {
-            m_modules.AddRange(modules);
-            return this;
-        }
-
         public IViewRenderer Build()
         {
 
@@ -95,7 +127,17 @@ namespace AutoFactories.Templating
             {
                 setupAction(handlebars);
             }
-            return new ViewRenderer(m_outputTo, handlebars, m_modules);
+
+            foreach (KeyValuePair<PartialResourceKey, Stream> partial in m_viewRegistry.Partials)
+            {
+                using (StreamReader reader = new StreamReader(partial.Value))
+                {
+                    string content = reader.ReadToEnd();
+                    handlebars.RegisterTemplate(partial.Key.Value, content);
+                }
+            }
+
+            return new ViewRenderer(m_outputTo!, handlebars, m_viewRegistry);
         }
 
 

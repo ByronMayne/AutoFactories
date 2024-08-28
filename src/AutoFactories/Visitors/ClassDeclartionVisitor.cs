@@ -36,6 +36,7 @@ namespace AutoFactories.Visitors
             Options generatorOptions,
             SemanticModel semanticModel)
         {
+            MethodName = "";
             m_constructors = [];
             m_options = generatorOptions;
             m_isAnalyzer = isAnalyzer;

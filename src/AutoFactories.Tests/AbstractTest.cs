@@ -6,20 +6,24 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Text;
 using System.Reflection;
+using AutoFactories.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace AutoFactories.Tests
 {
     public abstract class AbstractTest
     {
-        private readonly List<ViewModule> m_viewModules;
         protected readonly ITestOutputHelper m_outputHelper;
         private static readonly VerifySettings s_verifySettings;
         private static readonly CSharpCompilationOptions s_cSharpCompilationOptions;
+        private static readonly DirectoryInfo s_sourceRoot;
 
         private readonly ISet<string?> m_referencedAssemblies;
+        private readonly List<AdditionalText> m_additionalTexts;
 
         static AbstractTest()
         {
+            s_sourceRoot = GetSourceRoot();
             s_verifySettings = new VerifySettings();
             s_verifySettings.UseDirectory("Snapshots");
             s_cSharpCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
@@ -34,8 +38,10 @@ namespace AutoFactories.Tests
         protected AbstractTest(ITestOutputHelper outputHelper)
         {
             m_outputHelper = outputHelper;
-            m_viewModules = new List<ViewModule>();
             m_referencedAssemblies = new HashSet<string?>();
+            m_additionalTexts = new List<AdditionalText>();
+
+            AddViews("AutoFactories\\Views");
 
             AddAssemblyReference("System");
             AddAssemblyReference("System.Private.CoreLib");
@@ -43,6 +49,21 @@ namespace AutoFactories.Tests
             AddAssemblyReference("netstandard");
             AddAssemblyReference("AutoFactories");
             AddAssemblyReference("System.Runtime");
+        }
+
+        /// <summary>
+        /// Adds the view from the given path
+        /// </summary>
+        protected void AddViews(string relativePath)
+        {
+            string directory = Path.Combine(s_sourceRoot.FullName, relativePath);
+            if (!Directory.Exists(directory))
+            {
+                throw new DirectoryNotFoundException($"Unable to find directory '{directory}'");
+            }
+            m_additionalTexts.AddRange(
+                Directory.GetFiles(directory, "*.hbs", SearchOption.AllDirectories)
+                .Select(path => new HandlebarsText(path, File.ReadAllText(path))));
         }
 
         /// <summary>
@@ -64,14 +85,6 @@ namespace AutoFactories.Tests
             m_referencedAssemblies.Add(typeof(T).Assembly.GetName().Name);
         }
 
-        /// <summary>
-        /// Adds a new view module to the template rendere
-        /// </summary>
-        protected void AddModule<T>() where T : ViewModule, new()
-        {
-            m_viewModules.Add(new T());
-        }
-
         protected async Task Compose(
             string source,
             string[]? verifySource = null,
@@ -79,10 +92,10 @@ namespace AutoFactories.Tests
             Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null)
         {
             List<MetadataReference> references = new List<MetadataReference>();
-            foreach(Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 AssemblyName assemblyName = assembly.GetName();
-                if(assemblyName.Name is not null && m_referencedAssemblies.Contains(assemblyName.Name))
+                if (assemblyName.Name is not null && m_referencedAssemblies.Contains(assemblyName.Name))
                 {
                     references.Add(MetadataReference.CreateFromFile(assembly.Location));
                 }
@@ -93,11 +106,11 @@ namespace AutoFactories.Tests
 
             // Setup Source Generator 
             AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
-            generator.Modules.AddRange(m_viewModules);
             generator.ExceptionHandler += GenerateException;
             AutoFactoriesGeneratorHoist incrementalGenerator = new AutoFactoriesGeneratorHoist(generator);
 
             GeneratorDriver driver = CSharpGeneratorDriver.Create(incrementalGenerator);
+            driver = driver.AddAdditionalTexts(m_additionalTexts.ToImmutableArray());
             driver = driver.RunGeneratorsAndUpdateCompilation(baseCompilation, out Compilation finalCompilation, out ImmutableArray<Diagnostic> diagnostics);
 
             // Do compile check 
@@ -148,6 +161,18 @@ namespace AutoFactories.Tests
         private void GenerateException(Exception exception)
         {
             Assert.Fail($"Unhandle exception was thrown by the generator\n{exception}");
+        }
+
+        private static DirectoryInfo GetSourceRoot([CallerFilePath] string filePath = "")
+        {
+            DirectoryInfo? directoryInfo = new DirectoryInfo(filePath);
+
+            while (directoryInfo is not null &&
+                !Path.Exists(Path.Combine(directoryInfo.FullName, "AutoFactories.sln")))
+            {
+                directoryInfo = directoryInfo.Parent;
+            }
+            return directoryInfo ?? throw new Exception("Unable to find the source directory");
         }
     }
 }
