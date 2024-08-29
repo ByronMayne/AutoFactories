@@ -111,7 +111,6 @@ namespace AutoFactories
 
             IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
-                .AddPartialTemplateResolver()
                 .AddAdditionalTexts(additionalTexts)
                 .Build();
 

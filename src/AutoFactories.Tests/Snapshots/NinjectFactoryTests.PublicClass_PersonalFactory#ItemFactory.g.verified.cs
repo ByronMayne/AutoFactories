@@ -9,12 +9,11 @@ using Ninject;
 
     public partial class ItemFactoryFactory : IItemFactoryFactory
     {
-        private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
-        private readonly global::Ninject.Syntax.IResolutionRoot m_resolutionRoot;
+        private readonly global::Ninject.Syntax.IResolutionRoot __resolutionRoot;
 
         public ItemFactoryFactory(global::Ninject.Syntax.IResolutionRoot resolutionRoot)
         {
-            m_resolutionRoot = resolutionRoot;
+            __resolutionRoot = resolutionRoot;
         }
 
         /// <summary>
@@ -26,8 +25,8 @@ using Ninject;
               new global::Ninject.Parameters.ConstructorArgument("name", "name"),
             };
 
-            global::Ninject.Activation.IRequest request = m_resolutionRoot.CreateRequest(typeof(Item), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object> results = m_resolutionRoot.Resolve(request);
+            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Item), null, __parameters, isOptional: false, isUnique: true);
+            global::System.Collections.Generic.IEnumerable<object> results = __resolutionRoot.Resolve(request);
             return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Item>(results));
         }
     }

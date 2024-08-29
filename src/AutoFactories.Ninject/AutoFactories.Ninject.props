@@ -1,5 +1,5 @@
 ﻿<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
   <ItemGroup>
-    <AutoFactoryViews Include="$(MSBuildThisFileDirectory)Views/**"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)Views/**"/>
   </ItemGroup>
 </Project>

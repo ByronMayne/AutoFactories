@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Text;
 
 
 namespace AutoFactories.Templating
@@ -44,33 +46,61 @@ namespace AutoFactories.Templating
         }
 
         public void WriteFile<T>(string hintName, ViewResourceKey templateName, T data)
-        {       
+        {
             string source = Render(templateName, data);
             m_addSource(hintName, source);
         }
 
         public string Render<T>(ViewResourceKey templateName, T data)
         {
-            foreach (KeyValuePair<ViewResourceKey, Stream> entry in m_viewRegistry.Templates)
+            if (m_viewRegistry.Views.TryGetValue(templateName, out Stream stream))
             {
-                if (templateName.Equals(entry.Key))
+                if (!m_contentCache.TryGetValue(templateName.Value, out HandlebarsTemplate<object, object> handlebars))
                 {
-                    if (!m_contentCache.TryGetValue(templateName.Value, out HandlebarsTemplate<object, object> handlebars))
+                    stream.Position = 0;
+                    using (StreamReader reader = new StreamReader(stream))
                     {
-                        Stream stream = entry.Value;
-                        stream.Position = 0;
-
-                        using (StreamReader reader = new StreamReader(stream))
-                        {
-                            string content = reader.ReadToEnd();
-                            handlebars = m_handlebars.Compile(content);
-                            m_contentCache[templateName.Value] = handlebars;
-                        }
+                        string content = reader.ReadToEnd();
+                        handlebars = m_handlebars.Compile(content);
+                        m_contentCache[templateName.Value] = handlebars;
                     }
-                    return handlebars(data!);
+                }
+                try
+                {
+                    string renderedTemplate = handlebars(data!);
+
+                    return renderedTemplate;
+                }
+                catch (Exception exception)
+                {
+                    StringBuilder exceptionBuilder = new StringBuilder();
+                    exceptionBuilder.AppendFormat("#error Unhandled exception while building the template {0}", templateName);
+                    foreach (string line in exception.Message.Split('\n'))
+                    {
+                        exceptionBuilder.AppendFormat("// {0}", line).AppendLine();
+                    }
+                    return exceptionBuilder.ToString();
                 }
             }
             return $"// Template '{templateName}' not found";
+        }
+
+        public bool TryRegisterPartial(IHandlebars env, string partialName, string templatePath)
+        {
+            if (PartialResourceKey.TryFrom(partialName, out var resourceKey))
+            {
+                if (m_viewRegistry.Partials.TryGetValue(resourceKey, out Stream stream))
+                {
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        string content = reader.ReadToEnd();
+                        env.RegisterTemplate(partialName, content);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

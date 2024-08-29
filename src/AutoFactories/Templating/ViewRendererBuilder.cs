@@ -2,6 +2,7 @@
 using HandlebarsDotNet.MemberAccessors;
 using HandlebarsDotNet.PathStructure;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -66,10 +67,13 @@ namespace AutoFactories.Templating
 
         public ViewRendererBuilder AddAdditionalTexts(ImmutableArray<AdditionalText> templates)
         {
+
             foreach (AdditionalText template in templates)
             {
                 string filePath = template.Path;
                 string fileName = Path.GetFileName(filePath);
+
+
                 string? text = template.GetText()?.ToString();
 
                 MemoryStream stream = new MemoryStream();
@@ -107,15 +111,6 @@ namespace AutoFactories.Templating
         public ViewRendererBuilder WriteTo(AddSourceDelegate addSource)
         {
             m_outputTo = addSource;
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a nwe resovler that can find partial templates that are contained within this assembly
-        /// </summary>
-        public ViewRendererBuilder AddPartialTemplateResolver()
-        {
-            m_configuration.PartialTemplateResolver = new PartialTemplateResolver(m_options);
             return this;
         }
 

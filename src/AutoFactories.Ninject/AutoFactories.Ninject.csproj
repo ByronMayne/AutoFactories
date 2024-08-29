@@ -8,23 +8,7 @@
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="AutoFactories.Ninject.targets">
-      <PackagePath>build/AutoFactories.Ninject.props</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-    </None>
+    <None Pack="true" PackagePath="build/AutoFactories.Ninject.targets" Update="AutoFactories.Ninject.targets" CopyToOutputDirectory="PreserveNewest" />
     <None Pack="true" PackagePath="build/AutoFactories.Ninject.props" Update="AutoFactories.Ninject.props" CopyToOutputDirectory="PreserveNewest" />
-    <EmbeddedResource Include="Views\**\*.hbs" LogicalName="%(RecursiveDir)%(FileName)%(Extension)" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="NinjectViewModule.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Views\Partials\FactoryNamespaces.hbs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Views\Partials\FactoryNamespaces.hbs">
-      <LogicalName>%(RecursiveDir)%(FileName)%(Extension)</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>
