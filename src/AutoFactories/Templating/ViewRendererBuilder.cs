@@ -56,7 +56,8 @@ namespace AutoFactories.Templating
             foreach (string resourcePath in s_assembly.GetManifestResourceNames()
                  .Where(p => string.Equals(Path.GetExtension(p), ".hbs")))
             {
-                ViewResourceKey templateName = ViewResourceKey.From(resourcePath);
+                string fileName = Path.GetFileNameWithoutExtension(resourcePath);
+                ViewResourceKey templateName = ViewResourceKey.From(fileName);
                 Stream stream = s_assembly.GetManifestResourceStream(resourcePath);
                 m_viewRegistry.SetView(templateName, stream);
             }
@@ -70,7 +71,6 @@ namespace AutoFactories.Templating
                 string filePath = template.Path;
                 string fileName = Path.GetFileName(filePath);
                 string? text = template.GetText()?.ToString();
-                if (string.IsNullOrWhiteSpace(text)) continue;
 
                 MemoryStream stream = new MemoryStream();
                 using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))

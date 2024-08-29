@@ -32,4 +32,7 @@
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+  </ItemGroup>
 </Project>
