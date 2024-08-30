@@ -10,6 +10,7 @@ using SGF;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -108,7 +109,10 @@ namespace AutoFactories
             ImmutableArray<ClassDeclartionVisitor> visitors)
         {
             Options options = new Options(configOptions);
-
+            foreach (AdditionalText text in additionalTexts)
+            {
+                Logger.Information($"Include: {text.Path}");
+            }
             IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
                 .AddAdditionalTexts(additionalTexts)

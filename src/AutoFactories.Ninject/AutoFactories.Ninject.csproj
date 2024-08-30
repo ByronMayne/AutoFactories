@@ -2,13 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT No Attributions</PackageLicenseExpression>
+    <Description>Modifies the templates from the 'AutoFactories' plugin and changes the generated factories to be Ninject specific.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Pack="true" PackagePath="build/AutoFactories.Ninject.targets" Update="AutoFactories.Ninject.targets" CopyToOutputDirectory="PreserveNewest" />
-    <None Pack="true" PackagePath="build/AutoFactories.Ninject.props" Update="AutoFactories.Ninject.props" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" />
+    <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
+    <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
   </ItemGroup>
 </Project>

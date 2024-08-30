@@ -1,4 +1,9 @@
 ﻿<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
-  <ItemGroup>
-  </ItemGroup>
+  <!-- Tne owner must include a refernece to 'Ninject' -->
+  <Target 
+    Name="AutoFactories_CheckDependencies"
+    Condition="!@(PackageReferences->AnyHaveMetadatValue('Include', 'Ninject'))"
+    BeforeTargets="Build">
+    <Error Text="You must add a reference Ninject to be able to use $(MSBuildThisFileName) library."/>
+  </Target>
 </Project>
