@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageLicenseExpression>MIT No Attributions</PackageLicenseExpression>
     <Description>Modifies the templates from the 'AutoFactories' plugin and changes the generated factories to be Ninject specific.</Description>
   </PropertyGroup>
 
@@ -15,5 +13,11 @@
     <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" />
     <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
     <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
