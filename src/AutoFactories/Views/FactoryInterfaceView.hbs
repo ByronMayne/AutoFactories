@@ -1,0 +1,21 @@
+﻿#nullable enable
+{{> FactoryNamespaces}}
+
+
+{{#if Type.Namespace}}
+namespace {{Type.Namespace}}
+{
+{{/if}}
+    {{AccessModifier}} interface I{{Type.Name}}Factory
+    {
+        {{#each Methods}}
+        /// <summary>
+        /// Creates a new instance of  <see cref="{{ReturnType.QualifiedName}}"/>
+        /// </summary>
+        global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}});{{#unless @Last}}
+
+{{/unless}}{{/each}}
+    }
+{{#if Type.Namespace}}
+}
+{{/if}}

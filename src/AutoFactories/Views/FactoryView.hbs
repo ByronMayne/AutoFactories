@@ -1,0 +1,31 @@
+﻿#nullable enable
+{{> FactoryNamespaces}}
+
+
+{{#if Type.Namespace}}
+namespace {{Type.Namespace}}
+{
+{{/if}}
+    {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
+    {
+        {{> FactoryFields }}
+
+        {{> FactoryProperties  }}
+
+        {{> FactoryConstructors }}
+
+
+        {{#each Methods}}
+        /// <summary>
+        /// Creates a new instance of  <see cref="{{ReturnType.QualifiedName}}"/>
+        /// </summary>
+        public global::{{ReturnType.QualifiedName}} {{Name}}({{> Parameters}})
+        {
+            {{> FactoryMethod}}
+        }{{#unless @Last}}
+
+{{/unless}}{{/each}}
+    }
+{{#if Type.Namespace}}
+}
+{{/if}}

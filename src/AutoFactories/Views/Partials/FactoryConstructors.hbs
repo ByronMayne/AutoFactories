@@ -1,0 +1,7 @@
+﻿        public {{Type.Name}}Factory({{#each Parameters}}
+            global::{{Type.QualifiedName}} {{Name}}{{#unless @Last}},{{/unless}}{{/each}})
+        {
+            {{#each Parameters}}
+            m_{{Name}} = {{Name}};
+            {{/each}}
+        }

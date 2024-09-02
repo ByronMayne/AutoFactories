@@ -1,0 +1,64 @@
+﻿#nullable enable
+using System;
+
+{{#if Type.Namespace}}
+namespace {{Type.Namespace}}
+{
+{{/if}}
+    /// <summary>
+    /// Applies to a class to have a factory generated for it for each
+    /// constructor. Parameters within the constructor can be marked with 
+    /// <see cref="FromFactoryAttribute"/> to apply they are provided by 
+    /// dependency injection.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    {{AccessModifier}} sealed class {{Type.Name}} : Attribute
+    {
+        /// <summary>
+        /// Gets the shared type of the factory that will be used.
+        /// </summary>   
+        public Type? FactoryType { get; }
+
+        /// <summary> 
+        /// Gets the name of the method that will be used to create an instance.
+        /// </summary>
+        public string MethodName { get; }
+        
+        /// <summary>
+        /// Marks a class as having a factory generated for it. By using the default constructor
+        /// a factory will be generated with the same name but post-fixed with 'Factory' along 
+        /// with a matching interface.
+        /// </summary>
+        public {{Type.Name}}()
+        {
+            FactoryType = null;
+            MethodName = "Get";
+        }
+
+        /// <summary> 
+        /// Marks a class has having a factory generatored for it but you define explictly 
+        /// what the type of the factory is. The type must be a partial class. The method name
+        /// is used to control what the name of the factory method will be so that there are no 
+        /// naming collisions. 
+        /// </summary>
+        public {{Type.Name}}(Type factoryType) : this()
+        {
+            FactoryType = factoryType;
+            MethodName = "";
+        }  
+ 
+        /// <summary> 
+        /// Marks a class has having a factory generatored for it but you define explictly 
+        /// what the type of the factory is. The type must be a partial class. The method name
+        /// is used to control what the name of the factory method will be so that there are no 
+        /// naming collisions. 
+        /// </summary>
+        public {{Type.Name}}(Type factoryType, string methodName) : this()
+        {
+            FactoryType = factoryType;
+            MethodName = methodName;
+        }   
+    }
+{{#if Type.Namespace}}
+}
+{{/if}}

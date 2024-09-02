@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Title>Auto Factories</Title>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Description>AutoFactories generates factories for types based on attributes applied to your classes. This library will create generic factories where as there is DI spesefic versions like 'Ninject' that alter the generated factories for that use case.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" Visible="false" />
+    <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
+    <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
+  
+    <EmbeddedResource Include="Views\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
+    <EmbeddedResource Include="Views\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
+      <AdditionalFiles Include="Views\**\*.hbs" Exclude="@(EmbeddedResource)" />
+    <PackageReference Include="AutoInterface" />
+    <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
+    <PackageReference Include="GitVersion.MsBuild" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="CodeCasing" Version="3.0.3" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.6" />
+    <PackageReference Include="Handlebars.Net.Helpers.Humanizer" Version="2.4.5" />
+    <PackageReference Include="SourceGenerator.Foundations" Version="2.0.6" />
+    <PackageReference Include="Vogen" Version="4.0.19" />
+    <PackageReference Update="AutoInterface" Version="2.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Nullable" Version="1.3.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
+    <PackageReference Update="*" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="GitVersion.MsBuild" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="True" PackagePath="/" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="True" PackagePath="/" Visible="false" />
+    </ItemGroup>
+</Project>
