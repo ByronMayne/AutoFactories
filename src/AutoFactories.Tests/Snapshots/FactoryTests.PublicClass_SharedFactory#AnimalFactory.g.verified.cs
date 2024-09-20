@@ -21,6 +21,7 @@ using System;
             return __result;
         }
 
+
         /// <summary>
         /// Creates a new instance of  <see cref="Dog"/>
         /// </summary>

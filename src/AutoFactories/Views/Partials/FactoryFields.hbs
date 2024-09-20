@@ -1,3 +1,4 @@
-﻿        {{#each Parameters}}
-        private readonly global::{{Type.QualifiedName}} m_{{Name}};
-        {{/each}}
+﻿{{#each Parameters }}
+        private readonly global::{{Type.QualifiedName}} m_{{Name}};{{#if @Last}}
+
+{{/if}}{{/each}}

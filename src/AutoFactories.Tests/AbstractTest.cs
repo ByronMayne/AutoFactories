@@ -8,6 +8,7 @@ using System.Text;
 using System.Reflection;
 using AutoFactories.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using VerifyTests;
 
 namespace AutoFactories.Tests
 {

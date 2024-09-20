@@ -8,6 +8,7 @@ using System;
     internal partial class ItemFactoryFactory : IItemFactoryFactory
     {
         private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
+
         public ItemFactoryFactory(
             global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {

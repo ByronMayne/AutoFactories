@@ -30,6 +30,7 @@ using Ninject;
             return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Cat>(results));
         }
 
+
         /// <summary>
         /// Creates a new instance of  <see cref="Dog"/>
         /// </summary>
