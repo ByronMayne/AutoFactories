@@ -22,10 +22,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-      - name: Restore
-        run: dotnet tool restore 
-      - name: GitVersion
-        run: dotnet gitversion /output buildserver
       - name: Build | Solution
         run: dotnet build ${{env.SolutionPath}} 
       - name: Test | Solution
