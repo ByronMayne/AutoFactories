@@ -27,11 +27,11 @@ jobs:
       - name: GitVersion
         run: dotnet gitversion /output buildserver
       - name: Build | Solution
-        run: dotnet build ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}} -p:PackageVersion=${{env.GitVersion_NuGetVersion}} 
+        run: dotnet build ${{env.SolutionPath}} 
       - name: Test | Solution
         run: dotnet test ${{env.SolutionPath}}
       - name: Pack | Project
-        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_NuGetVersion}}  --output .\.artifacts
+        run: dotnet pack ${{env.SolutionPath}} --output .\.artifacts
       - name: Push NuGet
         if: github.event_name == 'release' 
         run: dotnet nuget push .\.artifacts\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
