@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <Title>Auto Factories</Title>
+    <Authors>Byron Mayne</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/ByronMayne/AutoFactories</RepositoryUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>sourcegenerator;factories;csharp;ninject;dependencyinjection;di</PackageTags>
+    <Description>
+       AutoFactories is used to generate factories and matching interfaces for types
+       you define in your project. By marking your types with [AutoFactory] the source
+       generator will generate a `{ClassName}Factory` and `I{ClassName}Factory` which 
+       can be used to create instances of your type. Any parameters marked with [FromFactory]
+       will be provided by the factory.
+     </Description>
+  </PropertyGroup>
+</Project>

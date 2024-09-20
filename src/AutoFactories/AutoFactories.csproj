@@ -1,16 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>12</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Title>Auto Factories</Title>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Description>AutoFactories generates factories for types based on attributes applied to your classes. This library will create generic factories where as there is DI spesefic versions like 'Ninject' that alter the generated factories for that use case.</Description>
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

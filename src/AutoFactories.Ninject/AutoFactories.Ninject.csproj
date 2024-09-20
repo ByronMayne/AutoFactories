@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>Modifies the templates from the 'AutoFactories' plugin and changes the generated factories to be Ninject specific.</Description>
+    <Description>
+      $(Description)
+      Ninject: Changes the factory to use a Ninject version of the project
+    </Description>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>

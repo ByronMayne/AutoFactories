@@ -8,9 +8,7 @@ on:
 
 env:
   Configuration: Release
-  ProjectDir: src\Ninject.Extension.AutoFactories\
-  ProjectName: Ninject.Extension.AutoFactories.csproj
-  SolutionPath: src\Ninject.Extension.AutoFactories.sln
+  SolutionPath: src\AutoFactories.sln
 jobs:
   publish:
     name: build, bundle & publish
@@ -23,17 +21,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.0.x
-      - name: Restore
-        run: dotnet tool restore 
-      - name: GitVersion
-        run: dotnet gitversion /output buildserver
+          dotnet-version: 8.0.x
       - name: Build | Solution
-        run: dotnet build ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}} -p:PackageVersion=${{env.GitVersion_NuGetVersion}} 
+        run: dotnet build ${{env.SolutionPath}} 
       - name: Test | Solution
         run: dotnet test ${{env.SolutionPath}}
       - name: Pack | Project
-        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_NuGetVersion}} 
+        run: dotnet pack ${{env.SolutionPath}} --output .\.artifacts
       - name: Push NuGet
         if: github.event_name == 'release' 
-        run: dotnet nuget push ${{env.ProjectDir}}bin\${{env.Configuration}}\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push .\.artifacts\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
