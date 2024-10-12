@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
 {
-    public class NinjectFactoryTests : FactoryTests
+    public class NinjectFactoryTests : BaseFactoryTest
     {
         public NinjectFactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {

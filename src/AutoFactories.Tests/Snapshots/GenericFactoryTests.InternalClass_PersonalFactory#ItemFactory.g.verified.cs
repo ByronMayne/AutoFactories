@@ -1,13 +1,15 @@
 ﻿//HintName: ItemFactory.g.cs
 // -----------------------------| Notes |-----------------------------
-// 1. 'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well
+// 1. 'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal.
 // -------------------------------------------------------------------
 #nullable enable
 using System;
 
-    public partial class ItemFactoryFactory : IItemFactoryFactory
+    internal partial class ItemFactoryFactory : IItemFactoryFactory
     {
         private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
+
+
         public ItemFactoryFactory(
             global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {

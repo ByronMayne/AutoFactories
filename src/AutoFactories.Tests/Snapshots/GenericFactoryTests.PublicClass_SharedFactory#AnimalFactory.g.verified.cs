@@ -8,6 +8,8 @@ using System;
 
     internal partial class AnimalFactoryFactory : IAnimalFactoryFactory
     {
+
+
         public AnimalFactoryFactory()
         {
         }

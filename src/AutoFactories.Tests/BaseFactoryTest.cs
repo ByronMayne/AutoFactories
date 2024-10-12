@@ -3,9 +3,9 @@ using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
 {
-    public class FactoryTests : AbstractTest
+    public abstract class BaseFactoryTest : AbstractTest
     {
-        public FactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
+        public BaseFactoryTest(ITestOutputHelper outputHelper) : base(outputHelper)
         {}
 
         [Fact]
