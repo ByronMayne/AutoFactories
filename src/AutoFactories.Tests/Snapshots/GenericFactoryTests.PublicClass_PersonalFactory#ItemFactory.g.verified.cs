@@ -1,4 +1,4 @@
-﻿//HintName: ItemFactory.g.cs
+//HintName: ItemFactory.g.cs
 // -----------------------------| Notes |-----------------------------
 // 1. 'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well
 // -------------------------------------------------------------------

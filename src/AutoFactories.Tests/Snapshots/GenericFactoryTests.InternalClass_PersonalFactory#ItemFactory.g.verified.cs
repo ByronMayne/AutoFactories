@@ -1,4 +1,4 @@
-﻿//HintName: ItemFactory.g.cs
+//HintName: ItemFactory.g.cs
 // -----------------------------| Notes |-----------------------------
 // 1. 'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal.
 // -------------------------------------------------------------------
