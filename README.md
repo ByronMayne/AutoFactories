@@ -3,49 +3,64 @@
 ![Issues](https://img.shields.io/github/issues-closed/ByronMayne/Ninject.Extensions.AutoFactories)
 
 
-# Ninject.Extensions.AutoFactories
+## AutoFactories
 
-This library is a [Source Generator](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) for [Ninject](https://github.com/ninject/ninject) that generates factory for types during the compilation  process. This removes the need to have to write uninteresting boilerplate code. 
+This library is a [Source Generator](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) that generates factory for types during the compilation  process. This removes the need to have to write uninteresting boilerplate code. You can use the standard version `Autofactories` or create factories for one of the supported third party libraries like [Ninject](https://github.com/ninject/Ninject) or [Microsoft.DependencyInjection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection). Do you want support for another framwork, create a request. 
 
 ## Quick Example
 
 This code below uses this library to auto generate the `IShippingOrderFactory` and it's `Get` method to create new instances of `ShippingOrder` with both user provider and DI provided parameters.
 
-```csharp
-using Ninject;
-
+```cs
 namespace Operations 
 {
-    [GenerateFactory] // <-- Add attribute 
+    [AutoFactory] 
     public class ShippingOrder 
     {
         public ShippingOrder(
-            // No attribute means it's user provided
             string orderId,
-            // 'FromFactory' means it should be provided by DI
             [FromFactory] IShippingProvider provider)
         {}
     }
-
     public class Program 
     {
-
         public static void Main(string[] args)
         {
-            IKernel kernel = new StandardKernel();
-
-            // Generated extension method that binds all the factories to Ninject. 
-            kernel.LoadFactories();
-
-            // The class is generated `ShippingOrderFactory` along with a 
-            // matching interface `IShippingOrderFactory`.
-            IShippingOrderFactory factory = kernel.Get<IShippingOrderFactory>(); /
-
-            // The generated method require user to provide all parameters not marked
-            // with 'FromFactory' attribute.
-            ShippingOrder shippingOrder = factory.Get("random_id")
+            IShippingProvider provider = new ShippingProvider();
+            // The factory is generated, the constructor will take all
+            //  parameters that are marked with 'FromFactory' 
+            IShippingOrderFactory factory = new ShippingOrderFactory(provider);
+            // The `Get` method will take all parameters not marked with 'FromFactory'
+            ShippingOrder shippingOrder = factory.Get(orderId:"A2123F")
         }
     }
+}
+```
+
+You can also use a third party library instead of the generic factory. 
+
+### Ninject
+```cs
+public static void Main(string[] args)
+{
+    IKernel kernel = new StandardKernel();
+     // Auto generated binds all factories to their interfaces
+    kernel.LoadFactories()
+    IShippingOrderFactory factory = new ShippingOrderFactory(kernel);
+    ShippingOrder shippingOrder = factory.Get(orderId:"A2123F")
+}
+```
+
+### Microsoft.DependencyInjection
+```cs
+using Microsoft.Extensions.DependencyInjection;
+
+public static void Main(string[] args)
+{
+    ServiceCollection serviceCollection = new ServiceCollection();
+    IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
+    IShippingOrderFactory factory = new ShippingOrderFactory(serviceProvider);
+    ShippingOrder shippingOrder = factory.Get(orderId:"A2123F")
 }
 ```
 
