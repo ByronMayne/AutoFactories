@@ -1,0 +1,8 @@
+﻿            return new {{ReturnType.QualifiedName}}(
+                {{#each Parameters}}
+                {{#if IsRequired}}{{Name}}{{else}}__serviceProvider.GetRequiredService<{{Type}}>()
+                {{/if~}}
+                {{#unless @Last}},
+{{/unless}}
+                {{/each}}
+            );
