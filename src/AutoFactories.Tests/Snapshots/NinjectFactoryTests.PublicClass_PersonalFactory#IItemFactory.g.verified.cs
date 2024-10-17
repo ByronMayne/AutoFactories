@@ -5,12 +5,11 @@
 #nullable enable
 using System;
 using System.Linq;
-using Ninject;
 
-    public interface IItemFactoryFactory
+    public interface IItemFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        global::Item Create(global::System.String name, global::System.Collections.Generic.IEqualityComparer<string?> comparer);
+        global::Item Create(global::System.String name);
     }

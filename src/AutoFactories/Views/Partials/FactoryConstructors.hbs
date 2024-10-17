@@ -1,4 +1,4 @@
-﻿        public {{Type.Name}}Factory({{#each Parameters}}
+﻿        public {{Type.Name}}({{#each Parameters}}
             global::{{Type.QualifiedName}} {{Name}}{{#unless @Last}},{{/unless}}{{/each}})
         {
             {{#each Parameters}}

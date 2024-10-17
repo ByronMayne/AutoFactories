@@ -13,6 +13,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Ninject" Version="3.3.6" />
     <PackageReference Include="SourceGenerator.Foundations.Contracts" Version="2.0.6" />
@@ -29,5 +30,5 @@
     <ProjectReference Include="..\AutoFactories.Ninject\AutoFactories.Ninject.csproj" />
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
-  <Import Project="..\AutoFactories.Ninject\AutoFactories.Ninject.targets"/>
+  <Import Project="..\AutoFactories.Ninject\AutoFactories.Ninject.targets" />
 </Project>

@@ -1,12 +1,13 @@
 ﻿//HintName: IItemFactory.g.cs
 // -----------------------------| Notes |-----------------------------
-// 1. 'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal.
+// 1. 'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well
 // -------------------------------------------------------------------
 #nullable enable
 using System;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
-    internal interface IItemFactory
+    public interface IItemFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>

@@ -6,13 +6,9 @@
 namespace {{Type.Namespace}}
 {
 {{/if}}
-    {{AccessModifier}} partial class {{Type.Name}}Factory : I{{Type.Name}}Factory
+    {{AccessModifier}} partial class {{Type.Name}} : I{{Type.Name}}
     {
-        {{> FactoryFields }}
-        {{> FactoryProperties }} 
-        {{> FactoryConstructors }}
-        {{#each Methods}}
-
+{{> FactoryFields }}{{> FactoryProperties }}{{> FactoryConstructors }}{{#each Methods}}
         /// <summary>
         /// Creates a new instance of  <see cref="{{ReturnType.QualifiedName}}"/>
         /// </summary>

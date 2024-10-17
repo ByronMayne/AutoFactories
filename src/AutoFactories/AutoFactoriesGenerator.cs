@@ -118,7 +118,11 @@ namespace AutoFactories
                 .AddAdditionalTexts(additionalTexts)
                 .Build();
 
-            foreach (FactoryView view in FactoryDeclartion.Create(visitors).Select(FactoryDeclartion.Map))
+            IEnumerable<ClassDeclartionVisitor> validVisitors = visitors
+                .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
+
+            foreach (FactoryView view in FactoryDeclartion.Create(validVisitors)
+                .Select(FactoryDeclartion.Map))
             {
                 renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", ViewResourceKey.Factory, view);
                 renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", ViewResourceKey.FactoryInterface, view);

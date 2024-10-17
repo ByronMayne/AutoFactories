@@ -9,6 +9,34 @@ namespace AutoFactories.Tests
         {}
 
         [Fact]
+        public Task Evaluate_NoParameterInstance()
+        => Compose("""
+            using AutoFactories;
+            using System.Collections.Generic;
+
+            [AutoFactory]
+            public class ReturnResult 
+            {
+                public int Execute()
+                {
+                    return 200;
+                }
+            }
+
+            public static class Program
+            {
+                public static int Main(string[] args)
+                {
+                    IReturnResultFactory factory = new ReturnResultFactory();
+                    ReturnResult result = factory.Create();
+                    return result.Execute();
+                }
+            }
+        """);
+
+     
+
+        [Fact]
         public Task PublicClass_PersonalFactory()
             => Compose("""
                 using AutoFactories;
@@ -54,7 +82,7 @@ namespace AutoFactories.Tests
                 using AutoFactories;
                 using System.Collections.Generic;
 
-                public partial class AnimalFactory 
+                internal partial class AnimalFactory 
                 {}
 
                 [AutoFactory(typeof(AnimalFactory))]

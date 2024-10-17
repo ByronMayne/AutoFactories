@@ -1,11 +1,15 @@
-﻿using AutoFactories.Extensions;
+﻿using AutoFactories.Diagnostics;
+using AutoFactories.Extensions;
 using AutoFactories.Types;
+using HandlebarsDotNet;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
 
 namespace AutoFactories.Visitors
 {
@@ -77,9 +81,39 @@ namespace AutoFactories.Visitors
             }
 
             // Add default 
-            if(m_constructors.Count == 0)
+            if (m_constructors.Count == 0)
             {
                 m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, Type, m_semanticModel));
+            }
+        }
+
+        /// <summary>
+        /// Gets all the diagnostics that this class has produced
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Diagnostic> GetDiagnostics()
+        {
+            Options options = new Options();
+            UnmarkedFactoryDiagnosticBuilder unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
+            InconsistentFactoryAcessibilityBuilder inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
+
+            // UnmarkedFactory
+            if (!HasMarkerAttribute)
+            {
+                foreach (Diagnostic diagnostic in Constructors
+                     .SelectMany(c => c.Parameters)
+                     .Where(p => p.HasMarkerAttribute)
+                     .Select(unmarkedFactoryDiagnostic.Build))
+                {
+                    yield return diagnostic;
+                }
+            }
+
+            // InconsistentFactoryAcessibility
+            if (AccessModifier == AccessModifier.Internal &&
+                FactoryAccessModifier == AccessModifier.Public)
+            {
+                yield return inconsistentFactoryAcessibility.Build(this);
             }
         }
 
@@ -98,7 +132,7 @@ namespace AutoFactories.Visitors
                 {
                     HasMarkerAttribute = true;
 
-                    if(SyntaxHelpers.TryPositionalArgument(attributeSyntax, 0, out AttributeArgumentSyntax? factoryTypeArg))
+                    if (SyntaxHelpers.TryPositionalArgument(attributeSyntax, 0, out AttributeArgumentSyntax? factoryTypeArg))
                     {
                         FactoryTypeLocation = factoryTypeArg.GetLocation();
                         if (SyntaxHelpers.GetValue(factoryTypeArg, m_semanticModel) is INamedTypeSymbol factoryTypeSymbol)
@@ -108,22 +142,21 @@ namespace AutoFactories.Visitors
                         }
                     }
 
-                    if(SyntaxHelpers.TryPositionalArgument(attributeSyntax, 1, out AttributeArgumentSyntax? methodNameArg))
+                    if (SyntaxHelpers.TryPositionalArgument(attributeSyntax, 1, out AttributeArgumentSyntax? methodNameArg))
                     {
                         MethodNameLocation = methodNameArg.GetLocation();
-                        if(SyntaxHelpers.GetValue(methodNameArg, m_semanticModel) is string methodName)
+                        if (SyntaxHelpers.GetValue(methodNameArg, m_semanticModel) is string methodName)
                         {
                             MethodName = methodName;
                         }
                     }
 
-                    
+
 
                     return;
                 }
             }
         }
-
 
         private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {

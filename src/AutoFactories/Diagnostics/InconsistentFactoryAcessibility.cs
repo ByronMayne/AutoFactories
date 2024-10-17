@@ -12,7 +12,7 @@ namespace AutoFactories.Diagnostics
             messageFormat: 
                 $"The type '{{0}}' is marked as internal but the factory {{1}} is public. Either change {{0}} to public or change {{1}} to internal.")
         {
-            Severity = DiagnosticSeverity.Warning;
+            Severity = DiagnosticSeverity.Error;
         }
 
         public Diagnostic Build(ClassDeclartionVisitor visitor)

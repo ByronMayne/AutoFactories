@@ -2,6 +2,7 @@
 using AutoFactories.Views.Models;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AutoFactories.Views
 {
@@ -13,6 +14,8 @@ namespace AutoFactories.Views
         public IList<MethodModel> Methods { get; set; }
 
         public IList<ParameterModel> Parameters { get; set; }
+
+        public IReadOnlyList<ParameterModel> RequiredParameters => Parameters.Where(p => p.IsRequired).ToList();
 
         public FactoryView() 
         {

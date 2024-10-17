@@ -5,11 +5,16 @@
 // -------------------------------------------------------------------
 #nullable enable
 using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
     internal partial class AnimalFactory : IAnimalFactory
     {
-        public AnimalFactory()
+        private readonly global::System.IServiceProvider __serviceProvider;
+
+        public AnimalFactoryFactory(global::System.IServiceProvider serviceProvider)
         {
+            __serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -17,8 +22,8 @@ using System;
         /// </summary>
         public global::Cat Create()
         {
-            global::Cat __result = new global::Cat();
-            return __result;
+            return new Cat(
+            );
         }
 
 
@@ -27,8 +32,7 @@ using System;
         /// </summary>
         public global::Dog Create(global::System.String dogName)
         {
-            global::Dog __result = new global::Dog(
-             dogName);
-            return __result;
+            return new Dog(
+                dogName            );
         }
     }

@@ -49,20 +49,9 @@ namespace AutoFactories
 
         private void Analyze(ClassDeclartionVisitor vistor, SyntaxNodeAnalysisContext context)
         {
-            // UnmarkedFactory
-            if (!vistor.HasMarkerAttribute)
+            foreach(Diagnostic diagnostic in vistor.GetDiagnostics())
             {
-                vistor.Constructors
-                    .SelectMany(c => c.Parameters)
-                    .Where(p => p.HasMarkerAttribute)
-                    .ReportDiagnostic(context, m_unmarkedFactoryDiagnostic.Build);
-            }
-
-            // InconsistentFactoryAcessibility
-            if (vistor.AccessModifier == AccessModifier.Internal &&
-                vistor.FactoryAccessModifier == AccessModifier.Public)
-            {
-                context.ReportDiagnostic(m_inconsistentFactoryAcessibility.Build(vistor));
+                context.ReportDiagnostic(diagnostic);
             }
         }
     }

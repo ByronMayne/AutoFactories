@@ -1,4 +1,5 @@
 ﻿using Ninject;
+using Ninject.Syntax;
 using Xunit.Abstractions;
 
 namespace AutoFactories.Tests

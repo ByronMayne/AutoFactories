@@ -6,9 +6,8 @@
 #nullable enable
 using System;
 using System.Linq;
-using Ninject;
 
-    internal interface IAnimalFactoryFactory
+    internal interface IAnimalFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Cat"/>

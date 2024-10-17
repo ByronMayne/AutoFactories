@@ -6,13 +6,12 @@
 #nullable enable
 using System;
 using System.Linq;
-using Ninject;
 
-    internal partial class AnimalFactoryFactory : IAnimalFactoryFactory
+    internal partial class AnimalFactory : IAnimalFactory
     {
         private readonly global::Ninject.Syntax.IResolutionRoot __resolutionRoot;
 
-        public AnimalFactoryFactory(global::Ninject.Syntax.IResolutionRoot resolutionRoot)
+        public AnimalFactory(global::Ninject.Syntax.IResolutionRoot resolutionRoot)
         {
             __resolutionRoot = resolutionRoot;
         }
@@ -26,8 +25,10 @@ using Ninject;
             };
 
             global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Cat), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object> results = __resolutionRoot.Resolve(request);
-            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Cat>(results));
+            global::System.Collections.Generic.IEnumerable<object>
+    results = __resolutionRoot.Resolve(request);
+    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Cat>(results));
+
         }
 
 
@@ -37,11 +38,13 @@ using Ninject;
         public global::Dog Create(global::System.String dogName)
         {
             global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
-              new global::Ninject.Parameters.ConstructorArgument("dogName", "dogName"),
+              new global::Ninject.Parameters.ConstructorArgument("dogName", dogName),
             };
 
             global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Dog), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object> results = __resolutionRoot.Resolve(request);
-            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Dog>(results));
+            global::System.Collections.Generic.IEnumerable<object>
+    results = __resolutionRoot.Resolve(request);
+    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Dog>(results));
+
         }
     }

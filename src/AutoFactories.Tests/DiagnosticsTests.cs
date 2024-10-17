@@ -28,7 +28,7 @@ namespace AutoFactories.Tests
             => Compose($$"""
                 using AutoFactories;
 
-                public class ChairFactory 
+                public partial class ChairFactory 
                 {}
 
                 [AutoFactory(typeof(ChairFactory))]

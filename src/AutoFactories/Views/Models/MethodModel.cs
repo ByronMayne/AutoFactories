@@ -10,6 +10,8 @@ namespace AutoFactories.Views.Models
         public string Name { get; set; }
         public MetadataTypeName ReturnType { get; set; }
         public List<ParameterModel> Parameters { get; set; }
+        public IReadOnlyList<ParameterModel> RequiredParameters
+            => Parameters.Where(p => p.IsRequired).ToList();
 
         public MethodModel()
         {

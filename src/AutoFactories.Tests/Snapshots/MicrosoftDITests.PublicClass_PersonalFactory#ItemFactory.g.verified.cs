@@ -4,15 +4,16 @@
 // -------------------------------------------------------------------
 #nullable enable
 using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
     public partial class ItemFactory : IItemFactory
     {
-        private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
+        private readonly global::System.IServiceProvider __serviceProvider;
 
-        public ItemFactory(
-            global::System.Collections.Generic.IEqualityComparer<string?> comparer)
+        public ItemFactoryFactory(global::System.IServiceProvider serviceProvider)
         {
-            m_comparer = comparer;
+            __serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -20,9 +21,9 @@ using System;
         /// </summary>
         public global::Item Create(global::System.String name)
         {
-            global::Item __result = new global::Item(
-             name,
-             m_comparer);
-            return __result;
+            return new Item(
+                name,
+                __serviceProvider.GetRequiredService<System.Collections.Generic.IEqualityComparer<string?>>()
+            );
         }
     }

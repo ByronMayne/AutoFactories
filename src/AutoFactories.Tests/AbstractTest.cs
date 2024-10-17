@@ -9,6 +9,8 @@ using System.Reflection;
 using AutoFactories.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using VerifyTests;
+using System.Runtime.Loader;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace AutoFactories.Tests
 {
@@ -16,7 +18,7 @@ namespace AutoFactories.Tests
     {
         protected readonly ITestOutputHelper m_outputHelper;
         private static readonly VerifySettings s_verifySettings;
-        private static readonly CSharpCompilationOptions s_cSharpCompilationOptions;
+
         private static readonly DirectoryInfo s_sourceRoot;
 
         private readonly ISet<string?> m_referencedAssemblies;
@@ -27,8 +29,6 @@ namespace AutoFactories.Tests
             s_sourceRoot = GetSourceRoot();
             s_verifySettings = new VerifySettings();
             s_verifySettings.UseDirectory("Snapshots");
-            s_cSharpCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithNullableContextOptions(NullableContextOptions.Enable);
 
 
             VerifySourceGenerators.Initialize();
@@ -90,7 +90,9 @@ namespace AutoFactories.Tests
             string source,
             string[]? verifySource = null,
             List<string>? notes = null,
-            Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null)
+            Func<int>? assertExitCode = null,
+            Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null,
+            [CallerMemberName] string callerMemberName = "")
         {
             List<MetadataReference> references = new List<MetadataReference>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -102,8 +104,15 @@ namespace AutoFactories.Tests
                 }
             }
 
-            SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source)];
-            CSharpCompilation baseCompilation = CSharpCompilation.Create("UnitTest", syntaxTrees, references, s_cSharpCompilationOptions);
+            SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source, path: "TestSource")];
+            OutputKind outputKind = assertExitCode is null
+                ? OutputKind.DynamicallyLinkedLibrary
+                : OutputKind.WindowsApplication;
+
+            CSharpCompilationOptions cSharpCompilationOptions = new CSharpCompilationOptions(outputKind)
+                 .WithNullableContextOptions(NullableContextOptions.Enable);
+
+            CSharpCompilation baseCompilation = CSharpCompilation.Create("UnitTest", syntaxTrees, references, cSharpCompilationOptions);
 
             // Setup Source Generator 
             AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
@@ -114,27 +123,14 @@ namespace AutoFactories.Tests
             driver = driver.AddAdditionalTexts(m_additionalTexts.ToImmutableArray());
             driver = driver.RunGeneratorsAndUpdateCompilation(baseCompilation, out Compilation finalCompilation, out ImmutableArray<Diagnostic> diagnostics);
 
-            // Do compile check 
-            bool hasError = false;
-            StringBuilder builder = new StringBuilder()
-                .AppendLine("Test case failed as the source code failed to compile");
-            foreach (Diagnostic diagnostic in finalCompilation.GetDiagnostics())
-            {
-                switch (diagnostic.Severity)
-                {
-                    case DiagnosticSeverity.Error:
-                        hasError = true;
-                        break;
-                    default:
-                        continue;
-                }
 
-                builder.AppendLine($"{diagnostic.Severity} {diagnostic.Id}: {diagnostic.GetMessage()}");
-            }
-            if (hasError)
+
+            diagnostics = finalCompilation.GetDiagnostics()
+                .ToImmutableArray();
+
+            if (diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
             {
-                WriteLine(source);
-                Assert.Fail(builder.ToString());
+                ReportDiagnostics(finalCompilation, diagnostics);
             }
 
             // Assert Analyzer
@@ -145,6 +141,47 @@ namespace AutoFactories.Tests
 
                 assertAnalyuzerResult(analysisResults.GetAllDiagnostics());
             }
+
+
+            if (assertExitCode != null)
+            {
+                using (Stream assemblyStream = new MemoryStream())
+                using (Stream assemblySymbolStream = new MemoryStream())
+                {
+                    EmitOptions emitOptions = new EmitOptions();
+                    EmitResult emitResult = finalCompilation.Emit(assemblyStream, assemblySymbolStream, null, null, null, emitOptions, null, null, null, CancellationToken.None);
+                    Assert.True(emitResult.Success, "Failed to emit the generated assembly");
+                    assemblyStream.Position = 0;
+                    assemblySymbolStream.Position = 0;
+
+                    AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext(callerMemberName, true);
+                    try
+                    {
+                        Assembly assembly = assemblyLoadContext.LoadFromStream(assemblyStream, assemblySymbolStream);
+                        MethodInfo? entryPoint = assembly.EntryPoint;
+                        Assert.NotNull(entryPoint);
+                        object? result = entryPoint.Invoke(null, Array.Empty<string>());
+                        Assert.NotNull(result);
+                        if (result is int exitCode)
+                        {
+                            Assert.Equal(assertExitCode(), exitCode);
+                        }
+
+                    }
+                    catch (Exception exception)
+                    {
+                        Assert.Fail(exception.Message);
+                    }
+                    finally
+                    {
+                        assemblyLoadContext.Unload();
+                    }
+                    //AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext("UnitTests");
+                    //assemblyLoadContext.LoadFromStream(finalCompilation.emi)
+
+                }
+            }
+
 
             // Assert Source Trees
             if (verifySource != null)
@@ -158,6 +195,48 @@ namespace AutoFactories.Tests
                 await Verifier.Verify(filter, s_verifySettings);
             }
         }
+
+        private void ReportDiagnostics(Compilation compilation, ImmutableArray<Diagnostic> diagnostics)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("## Source Files");
+            foreach (SyntaxTree syntaxTree in compilation.SyntaxTrees)
+            {
+                builder.AppendLine($"### `{Path.GetFileName(syntaxTree.FilePath)}`");
+
+                Diagnostic[] treeDiagnostics = diagnostics
+                    .Where(d => d.Location.SourceTree == syntaxTree)
+                    .Where(d => d.Severity > DiagnosticSeverity.Info)
+                    .OrderBy(d => d.Location.SourceSpan.Start)
+                    .ToArray();
+
+                if (treeDiagnostics.Any())
+                {
+                    builder.AppendLine("#### Diagnostic");
+                    foreach (Diagnostic diagnostic in treeDiagnostics)
+                    {
+                        FileLinePositionSpan fileLinePosition = diagnostic.Location.GetLineSpan();
+                        var startPosition = fileLinePosition.StartLinePosition;
+                        builder.AppendLine($" * {diagnostic.Severity} `{diagnostic.Id}` [{startPosition.Line},{startPosition.Character}]: {diagnostic.GetMessage()}");
+                    }
+                }
+                builder.AppendLine("```cs");
+                string[] lines = syntaxTree.ToString()
+                    .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string lineNumber = $"{i + 1}.".PadRight(4);
+                    builder.Append(lineNumber);
+                    builder.AppendLine(lines[i]);
+                }
+                builder.AppendLine("```");
+
+            }
+            
+            m_outputHelper.WriteLine(builder.ToString());
+        }
+
 
         private void GenerateException(Exception exception)
         {
