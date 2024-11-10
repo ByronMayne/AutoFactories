@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
     {
         private readonly global::System.IServiceProvider __serviceProvider;
 
-        public ItemFactoryFactory(global::System.IServiceProvider serviceProvider)
+        public ItemFactory(global::System.IServiceProvider serviceProvider)
         {
             __serviceProvider = serviceProvider;
         }

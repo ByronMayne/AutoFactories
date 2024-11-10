@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
     {
         private readonly global::System.IServiceProvider __serviceProvider;
 
-        public AnimalFactoryFactory(global::System.IServiceProvider serviceProvider)
+        public AnimalFactory(global::System.IServiceProvider serviceProvider)
         {
             __serviceProvider = serviceProvider;
         }
