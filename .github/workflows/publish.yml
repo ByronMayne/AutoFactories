@@ -12,8 +12,8 @@ env:
   SolutionPath: src\AutoFactories.sln
   ArtifactsDir: ${GITHUB_WORKSPACE}\.artifacts
 jobs:
-  build:
-    name: Build
+  publish:
+    name: Publish NuGet Packages
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +24,12 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0.3
+        with:
+          versionSpec: '6.0.0'
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v3.0.3
       - name: Build | Solution
         run: dotnet build ${{env.SolutionPath}} 
       - name: Test | Solution
