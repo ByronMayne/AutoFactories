@@ -1,19 +1,19 @@
 name: Publish
 on:
-  push: 
-    branches: [master]
   release: 
     types: [published]
   pull_request: {}
+  workflow_dispatch: {}
 
 env:
   Configuration: Release
   ProjectDir: src\Ninject.Extension.AutoFactories\
   ProjectName: Ninject.Extension.AutoFactories.csproj
   SolutionPath: src\AutoFactories.sln
+  ArtifactsDir: ${GITHUB_WORKSPACE}\.artifacts
 jobs:
-  publish:
-    name: build, bundle & publish
+  build:
+    name: Build
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,7 +29,6 @@ jobs:
       - name: Test | Solution
         run: dotnet test ${{env.SolutionPath}}
       - name: Pack | Solution
-        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_NuGetVersion}} --output /.artifacts
+        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_NuGetVersion}} --output ${ArtifactsDir}
       - name: Push NuGet
-        if: github.event_name == 'release' 
-        run: dotnet nuget push /.artifacts/*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${ArtifactsDir}/*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
