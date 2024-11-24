@@ -1,0 +1,31 @@
+name: Publish
+on:
+  push: 
+    branches: ['*']
+  release: 
+    types: [published]
+  pull_request: {}
+
+env:
+  Configuration: Release
+  ProjectDir: src\Ninject.Extension.AutoFactories\
+  ProjectName: Ninject.Extension.AutoFactories.csproj
+  SolutionPath: src\AutoFactories.sln
+  ArtifactsDir: ${GITHUB_WORKSPACE}\.artifacts
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Build | Solution
+        run: dotnet build ${{env.SolutionPath}} 
+      - name: Test | Solution
+        run: dotnet test ${{env.SolutionPath}}
