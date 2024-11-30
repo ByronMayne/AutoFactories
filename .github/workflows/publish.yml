@@ -35,6 +35,6 @@ jobs:
       - name: Test | Solution
         run: dotnet test ${{env.SolutionPath}}
       - name: Pack | Solution
-        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_SemVer}} --output ${ArtifactsDir}
+        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_SemVer}} --output ${{env.ArtifactsDir}}
       - name: Push NuGet
-        run: dotnet nuget push ${ArtifactsDir}/*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{env.ArtifactsDir}}/*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
