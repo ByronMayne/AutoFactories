@@ -8,7 +8,6 @@ env:
   ProjectDir: src\Ninject.Extension.AutoFactories\
   ProjectName: Ninject.Extension.AutoFactories.csproj
   SolutionPath: src\AutoFactories.sln
-  ArtifactsDir: ${GITHUB_WORKSPACE}\.artifacts
 jobs:
   build:
     name: Build
