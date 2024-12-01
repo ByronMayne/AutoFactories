@@ -1,0 +1,9 @@
+﻿<!-- == AutoFactories Nuget Properties ===
+  Contains common properties for packages once they are
+  published as NuGet packages.
+-->
+<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\Views\**\*.hbs"/>
+  </ItemGroup>
+</Project>
