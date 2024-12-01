@@ -8,15 +8,4 @@
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" />
-    <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
-    <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>
