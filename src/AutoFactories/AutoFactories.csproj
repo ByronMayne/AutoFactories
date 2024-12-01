@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" Visible="false" />
+    <Content Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
     <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
-  
     <EmbeddedResource Include="Views\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
     <EmbeddedResource Include="Views\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
       <AdditionalFiles Include="Views\**\*.hbs" Exclude="@(EmbeddedResource)" />
+      <None Remove="AutoFactories.props" />
+      <None Remove="AutoFactories.targets" />
     <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="GitVersion.MsBuild" />

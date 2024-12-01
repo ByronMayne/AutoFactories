@@ -1,0 +1,6 @@
+﻿<!-- == AutoFactories Nuget Targets ===
+  Contains common targets for packages once they are
+  published as NuGet packages.
+-->
+<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
+</Project>

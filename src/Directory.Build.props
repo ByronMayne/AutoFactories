@@ -1,15 +1,25 @@
 <Project>
-    <PropertyGroup>
-      <Nullable>enable</Nullable>
-      <TargetFramework>netstandard2.0</TargetFramework>
-      <LangVersion>12</LangVersion>
-      <IncludeBuildOutput>false</IncludeBuildOutput>
-      <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="True" PackagePath="/" Visible="false" />
-        <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="True" PackagePath="/" Visible="false" />
-    </ItemGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Auto Include Content -->
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="True" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="True" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)AutoFactories.nuget.props" Pack="True" PackagePath="buildTransitive/$(MSBuildProjectName).props" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)AutoFactories.nuget.targets" Pack="True" PackagePath="buildTransitive/$(MSBuildProjectName).targets" Visible="false" />
+    <None Include="Views/**" Pack="True" PackagePath="Views"/>
+    
+    <!-- Shared References -->
+    <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
   <ImportGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <Import Project="Nuget.props"/>
   </ImportGroup>

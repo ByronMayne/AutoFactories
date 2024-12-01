@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFactories.Ninject", "Au
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ADCCA55E-F297-4318-AB73-D23AE0F55937}"
 	ProjectSection(SolutionItems) = preProject
+		AutoFactories.nuget.props = AutoFactories.nuget.props
+		AutoFactories.nuget.targets = AutoFactories.nuget.targets
 		Directory.Build.props = Directory.Build.props
 		Nuget.props = Nuget.props
 	EndProjectSection
