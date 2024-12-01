@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -6,16 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(MSBuildThisFileName).props" Pack="True" PackagePath="build" />
-    <None Include="$(MSBuildThisFileName).targets" Pack="True" PackagePath="build" />
     <EmbeddedResource Include="Views\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
     <EmbeddedResource Include="Views\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
-      <AdditionalFiles Include="Views\**\*.hbs" Exclude="@(EmbeddedResource)" />
-      <None Remove="AutoFactories.props" />
-      <None Remove="AutoFactories.targets" />
     <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
-    <PackageReference Include="GitVersion.MsBuild" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -34,11 +28,5 @@
     </PackageReference>
     <!-- Bug Fix: https://github.com/ByronMayne/Ninject.Extensions.AutoFactories/issues/11 -->
     <PackageReference Update="*" PrivateAssets="all" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="GitVersion.MsBuild" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
     <LangVersion>12</LangVersion>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <!-- Auto Include Content -->

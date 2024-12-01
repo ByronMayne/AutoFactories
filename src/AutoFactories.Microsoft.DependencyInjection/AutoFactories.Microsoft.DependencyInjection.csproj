@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>
       $(Description)
@@ -7,14 +7,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Views\**\*.hbs" Pack="True" PackagePath="Views/" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>
