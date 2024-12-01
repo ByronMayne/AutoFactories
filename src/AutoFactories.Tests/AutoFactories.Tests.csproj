@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\AutoFactories.Ninject\AutoFactories.Ninject.props" />
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -30,5 +29,4 @@
     <ProjectReference Include="..\AutoFactories.Ninject\AutoFactories.Ninject.csproj" />
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
-  <Import Project="..\AutoFactories.Ninject\AutoFactories.Ninject.targets" />
 </Project>
