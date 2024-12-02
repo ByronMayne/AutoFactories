@@ -193,9 +193,28 @@ ICoffeeFactory coffeeFactory = kernel.Get<ICoffeeFactory>();
 Apply to a class to change the return type of the generated factory method.
 ```cs
 public interface IClock 
-{}
+{
+    int Ticks { get; }
+}
 
 [AutoFactory(ExposeAs=typeof(IClock))]
 public class Clock : IClock 
-{}
+{
+    public int Ticks { get; }
+
+    public Clock(int ticks)
+    {
+        Ticks = tick;
+    }
+}
+```
+
+Would produce 
+```cs
+public class ClockFactory : IClockFactory
+{
+    // Returns `IClock` instead of `Clock` 
+    public IClock Create(int ticks)
+        => new Clock(ticks);
+}
 ```

@@ -16,6 +16,7 @@ namespace AutoFactories
     {
         private UnmarkedFactoryDiagnosticBuilder m_unmarkedFactoryDiagnostic;
         private InconsistentFactoryAcessibilityBuilder m_inconsistentFactoryAcessibility;
+        private ExposedAsNotDerivedTypeDiagnosticBuilder m_exposedAs;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -25,10 +26,12 @@ namespace AutoFactories
 
             m_unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
             m_inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
+            m_exposedAs = new ExposedAsNotDerivedTypeDiagnosticBuilder();
 
             SupportedDiagnostics = [
                 m_unmarkedFactoryDiagnostic.Descriptor,
                 m_inconsistentFactoryAcessibility.Descriptor,
+                m_exposedAs.Descriptor,
              ];
         }
 
