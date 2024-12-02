@@ -186,3 +186,15 @@ kernel.LoadFactories();
 ICoffeeFactory coffeeFactory = kernel.Get<ICoffeeFactory>();
 ```
 
+## Properties 
+
+### Expose As
+Apply to a class to change the return type of the generated factory method.
+```cs
+public interface IClock 
+{}
+
+[AutoFactory(ExposeAs=typeof(IClock))]
+public class Clock : IClock 
+{}
+```
