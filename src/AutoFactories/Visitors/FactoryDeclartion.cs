@@ -1,11 +1,10 @@
 ﻿using AutoFactories.Types;
-using AutoFactories.Views;
-using AutoFactories.Views.Models;
 using HandlebarsDotNet;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFactories.Templating;
+using AutoFactories.Models;
 
 namespace AutoFactories.Visitors
 {

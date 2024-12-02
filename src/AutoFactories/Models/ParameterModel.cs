@@ -4,7 +4,7 @@ using CodeCasing;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace AutoFactories.Views.Models
+namespace AutoFactories.Models
 {
     [DebuggerDisplay("{Name,nq}: {Type.Name}")]
     internal class ParameterModel
@@ -32,7 +32,7 @@ namespace AutoFactories.Views.Models
         /// Gets or sets the type of the parameter 
         /// </summary>
         public MetadataTypeName Type { get; set; }
-        
+
         /// <summary>
         /// Gets or sets if the parameter has to be provided by the invokee 
         /// </summary>

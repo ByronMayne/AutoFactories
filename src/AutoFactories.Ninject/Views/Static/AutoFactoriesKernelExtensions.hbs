@@ -1,0 +1,29 @@
+using System;
+using Ninject;
+using Ninject.Modules;
+
+{{#if Type.Namespace}}
+namespace {{Type.Namespace}}
+{
+{{/if}}
+    /// <summary>
+    /// Contains extension methos for <see cref="IKernel"/> to working
+    /// with AutoFactories
+    /// </summary>
+    public static class AutoFactoriesKernelExtensions
+    { 
+        /// <summary>
+        /// Adds the bindings from the AutoFactories interfaces to the matching interfaces.
+        /// </summary>
+        /// <typeparam name="TKernel">The kernel to add it to</typeparam>
+        /// <param name="kernel"></param>
+        /// <returns>The kernel</returns>
+        public static TKernel AddAutoFactories<TKernel>(this TKernel kernel) where TKernel : IKernel
+        {
+            kernel.Load<AutoFactoriesModule>();
+            return kernel;
+        }
+    }
+{{#if Type.Namespace}}
+}
+{{/if}}
