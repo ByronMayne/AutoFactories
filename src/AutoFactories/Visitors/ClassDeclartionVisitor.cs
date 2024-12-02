@@ -24,6 +24,7 @@ namespace AutoFactories.Visitors
         public bool HasMarkerAttribute { get; private set; }
         public string MethodName { get; private set; }
         public MetadataTypeName Type { get; private set; }
+        public MetadataTypeName ReturnType { get; private set; }
         public AccessModifier AccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
 
@@ -31,6 +32,7 @@ namespace AutoFactories.Visitors
 
         public Location? MethodNameLocation { get; private set; }
         public Location? FactoryTypeLocation { get; private set; }
+        public Location? ExposeAsLocation { get; private set; }
 
         public AccessModifier FactoryAccessModifier { get; private set; }
         public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
@@ -55,6 +57,7 @@ namespace AutoFactories.Visitors
             }
 
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
+            ReturnType = Type; // Default to current type 
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
             FactoryAccessModifier = AccessModifier;
             FactoryType = new MetadataTypeName($"{Type}Factory");
@@ -83,7 +86,7 @@ namespace AutoFactories.Visitors
             // Add default 
             if (m_constructors.Count == 0)
             {
-                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, Type, m_semanticModel));
+                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, ReturnType, m_semanticModel));
             }
         }
 
@@ -151,8 +154,14 @@ namespace AutoFactories.Visitors
                         }
                     }
 
-
-
+                    if (SyntaxHelpers.TryGetNamedArgument(attributeSyntax, "ExposeAs", out AttributeArgumentSyntax? exposeAsArg))
+                    {
+                        ExposeAsLocation = exposeAsArg.GetLocation();
+                        if (SyntaxHelpers.GetValue(exposeAsArg, m_semanticModel) is INamedTypeSymbol exposeAsTypeSymbol)
+                        {
+                            ReturnType = new MetadataTypeName(exposeAsTypeSymbol.ToDisplayString());
+                        }
+                    }
                     return;
                 }
             }

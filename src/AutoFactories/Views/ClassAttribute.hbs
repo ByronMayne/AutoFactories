@@ -23,6 +23,13 @@ namespace {{Type.Namespace}}
         /// Gets the name of the method that will be used to create an instance.
         /// </summary>
         public string MethodName { get; }
+
+        /// <summary>
+        /// Gets or sets what the return type will be for the generated factory method. This allows
+        /// you to expose an interface or a subtype and not expose the internal details 
+        /// will return 
+        /// </summary>
+        public Type? ExposeAs { get; set; }
         
         /// <summary>
         /// Marks a class as having a factory generated for it. By using the default constructor

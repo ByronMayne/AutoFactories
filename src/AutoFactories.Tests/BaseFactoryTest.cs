@@ -9,6 +9,23 @@ namespace AutoFactories.Tests
         {}
 
         [Fact]
+        public Task Class_ExposeAs_ShowsInterface()
+            => Compose("""
+                using AutoFactories;
+                using System.Collections.Generic;
+
+                namespace World
+                {
+                    public interface IPerson { get; }
+                
+                    [AutoFactory(ExposeAs=typeof(IPerson))]
+                    internal class Person : IPerson {}
+                }
+                """,
+                notes: ["Factory should be public because the interface is public" ],
+                verifySource: ["World.PersonFactory.g.cs"]);
+
+        [Fact]
         public Task Evaluate_NoParameterInstance()
         => Compose("""
             using AutoFactories;
