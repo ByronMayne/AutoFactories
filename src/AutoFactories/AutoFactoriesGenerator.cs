@@ -1,5 +1,6 @@
-﻿using AutoFactories.Templating;
-using AutoFactories.Views;
+﻿using AutoFactories.CodeAnalysis;
+using AutoFactories.Models;
+using AutoFactories.Templating;
 using AutoFactories.Visitors;
 using HandlebarsDotNet;
 using Microsoft.CodeAnalysis;
@@ -10,7 +11,6 @@ using SGF;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -21,7 +21,7 @@ namespace AutoFactories
     [SgfGenerator]
     public class AutoFactoriesGenerator : IncrementalGenerator
     {
-        private static Options s_options;
+        private static readonly Options s_options;
 
         /// <summary>
         /// Events to subscribe to do handle exceptions that are thrown
@@ -40,7 +40,7 @@ namespace AutoFactories
 
         public override void OnInitialize(SgfInitializationContext context)
         {
-            var provider =
+            IncrementalValueProvider<(ImmutableArray<AdditionalText> Left, (AnalyzerConfigOptionsProvider Left, ImmutableArray<ClassDeclartionVisitor?> Right) Right)> provider =
                 context.AdditionalTextsProvider
                     .Where(IsHandlebarsText).Collect().Combine(
                         context.AnalyzerConfigOptionsProvider
@@ -53,8 +53,26 @@ namespace AutoFactories
 
             context.RegisterPostInitializationOutput(AddSource);
             context.RegisterSourceOutput(provider, (context, tuple) =>
-                GenerateFactories(context, tuple.Left, tuple.Right.Left, tuple.Right.Right!)
-            );
+            {
+                ImmutableArray<ViewResourceText> templateTexts = ProcessTexts(tuple.Left)
+                    .ToImmutableArray();
+
+                GenerateFactories(context, templateTexts, tuple.Right.Left, tuple.Right.Right!);
+            });
+        }
+
+        /// <summary>
+        /// Loops over additional texts and converts them to <see cref="ViewResourceText"/> if they are valid.
+        /// </summary>
+        private static IEnumerable<ViewResourceText> ProcessTexts(IEnumerable<AdditionalText> additionalTexts)
+        {
+            foreach(var item in  additionalTexts)
+            {
+                if(ViewResourceText.TryParse(item, out var text))
+                {
+                    yield return text;
+                }
+            }
         }
 
 
@@ -72,31 +90,29 @@ namespace AutoFactories
 
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
         {
-            Options options = new Options();
+            Options options = new();
 
             IViewRenderer renderer = NewViewBuilder(options)
                 .LoadEmbeddedTemplates()
                 .WriteTo(context.AddSource)
                 .Build();
 
-
-            renderer.WriteFile(
+            renderer.WritePage(
                 $"{options.ClassAttributeType.QualifiedName}.g.cs",
-                ViewResourceKey.ClassAttribute, new GenericView()
+                ViewKey.ClassAttribute, new GenericView()
                 {
                     AccessModifier = options.AttributeAccessModifier,
                     Type = options.ClassAttributeType
                 });
 
 
-            renderer.WriteFile(
+            renderer.WritePage(
                 $"{options.ParameterAttributeType.QualifiedName}.g.cs",
-                ViewResourceKey.ParameterAttribute, new GenericView()
+                ViewKey.ParameterAttribute, new GenericView()
                 {
                     AccessModifier = options.AttributeAccessModifier,
                     Type = options.ParameterAttributeType
                 });
-
         }
 
         /// <summary>
@@ -104,38 +120,54 @@ namespace AutoFactories
         /// </summary>
         private void GenerateFactories(
             SgfSourceProductionContext context,
-            ImmutableArray<AdditionalText> additionalTexts,
+            ImmutableArray<ViewResourceText> templateTexts,
             AnalyzerConfigOptionsProvider configOptions,
             ImmutableArray<ClassDeclartionVisitor> visitors)
         {
-            Options options = new Options(configOptions);
-            foreach (AdditionalText text in additionalTexts)
+            Options options = new(configOptions);
+            foreach (AdditionalText text in templateTexts)
             {
                 Logger.Information($"Include: {text.Path}");
             }
             IViewRenderer renderer = NewViewBuilder(options)
                 .WriteTo(context.AddSource)
-                .AddAdditionalTexts(additionalTexts)
+                .AddTemplateTexts(templateTexts)
                 .Build();
 
             IEnumerable<ClassDeclartionVisitor> validVisitors = visitors
                 .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
 
-            foreach (FactoryView view in FactoryDeclartion.Create(validVisitors)
-                .Select(FactoryDeclartion.Map))
+
+            List<FactoryView> factories = FactoryDeclartion.Create(validVisitors)
+                .Select(FactoryDeclartion.Map)
+                .ToList();
+
+            foreach (FactoryView view in factories)
             {
-                renderer.WriteFile($"{view.Type.QualifiedName}.g.cs", ViewResourceKey.Factory, view);
-                renderer.WriteFile($"I{view.Type.QualifiedName}.g.cs", ViewResourceKey.FactoryInterface, view);
+                renderer.WritePage($"{view.Type.QualifiedName}.g.cs", ViewKey.Factory, view);
+                renderer.WritePage($"I{view.Type.QualifiedName}.g.cs", ViewKey.FactoryInterface, view);
+            }
+
+            // Render out all static files 
+            foreach (ViewResourceText view in templateTexts.Where(t => t.Kind == ViewKind.Static))
+            {
+                string fileName = Path.GetFileNameWithoutExtension(view.Path);
+                renderer.WritePage(fileName, view.Key, factories);
             }
         }
+
 
         /// <summary>
         /// Creates a new view renderer builder 
         /// </summary>
         private ViewRendererBuilder NewViewBuilder(Options? options = null)
         {
-            ViewRendererBuilder builder = new ViewRendererBuilder();
-            if(options is not null) builder.UseOptions(options);
+            ViewRendererBuilder builder = new();
+            if (options is not null)
+            {
+                _ = builder.UseOptions(options);
+            }
+
             return builder;
         }
 

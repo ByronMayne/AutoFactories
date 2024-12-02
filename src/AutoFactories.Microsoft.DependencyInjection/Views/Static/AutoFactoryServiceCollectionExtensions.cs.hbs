@@ -1,0 +1,19 @@
+/// <summary>
+/// Provides functionality for automatically binding factory interfaces to their corresponding implementations.
+/// This class is part of the AutoFactories library, which simplifies the registration of factories for dependency injection
+/// by using the [AutoFactory] attribute to identify and register factory classes dynamically.
+/// </summary>
+public static class AutoFactoryServiceCollectionExtensions
+{
+    /// <summary>
+    /// Registers factory interfaces to their corresponding implementations.
+    /// This registration process occurs for each class decorated with the [AutoFactory] attribute,
+    /// ensuring that the appropriate factory is bound to its interface for dependency injection or service resolution.
+    /// </summary>
+    public static void AddAutoFactories(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
+    {
+{{#each .}}
+        services.AddTransient<{{Type.Namespace}}.I{{Type.Name}}, {{Type.QualifiedName}}>();
+{{/each}}
+    }
+}

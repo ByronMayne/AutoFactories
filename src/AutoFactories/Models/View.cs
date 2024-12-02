@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using AutoFactories.Templating;
 
-namespace AutoFactories.Views
+namespace AutoFactories.Models
 {
     internal abstract class View
     {

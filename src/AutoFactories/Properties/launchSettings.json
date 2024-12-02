@@ -2,7 +2,7 @@
   "profiles": {
     "Generate: Sandbox": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\Ninject.Extension.AutoFactories.Sandbox\\Ninject.Extension.AutoFactories.Sandbox.csproj"
+      "targetProject": "C:\\Users\\byron\\source\\repos\\WebApplication1\\WebApplication1\\WebApplication1.csproj"
     }
   }
 }

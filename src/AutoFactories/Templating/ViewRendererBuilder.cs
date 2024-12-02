@@ -1,4 +1,5 @@
-﻿using HandlebarsDotNet;
+﻿using AutoFactories.CodeAnalysis;
+using HandlebarsDotNet;
 using HandlebarsDotNet.MemberAccessors;
 using HandlebarsDotNet.PathStructure;
 using Microsoft.CodeAnalysis;
@@ -23,11 +24,11 @@ namespace AutoFactories.Templating
         private static readonly Regex s_partialRegex;
         private static readonly Assembly s_assembly;
 
+        private Options m_options;
+        private AddSourceDelegate? m_outputTo;
         private readonly HandlebarsConfiguration m_configuration;
         private readonly List<Action<IHandlebars>> m_setupActions;
-        private readonly ViewRegistry m_viewRegistry;
-        private AddSourceDelegate? m_outputTo;
-        private Options m_options;
+        private readonly Dictionary<ViewKey, Stream> m_handlebarsResourceMap;
 
         static ViewRendererBuilder()
         {
@@ -37,8 +38,8 @@ namespace AutoFactories.Templating
 
         public ViewRendererBuilder()
         {
+            m_handlebarsResourceMap = new Dictionary<ViewKey, Stream>();
             m_options = new Options();
-            m_viewRegistry = new ViewRegistry();
             m_setupActions = [
             h => h.RegisterHelper("each-if", EachIf)];
 
@@ -58,22 +59,19 @@ namespace AutoFactories.Templating
                  .Where(p => string.Equals(Path.GetExtension(p), ".hbs")))
             {
                 string fileName = Path.GetFileNameWithoutExtension(resourcePath);
-                ViewResourceKey templateName = ViewResourceKey.From(fileName);
+                ViewKey viewKey = ViewKey.From(fileName);
                 Stream stream = s_assembly.GetManifestResourceStream(resourcePath);
-                m_viewRegistry.SetView(templateName, stream);
+                m_handlebarsResourceMap[viewKey] = stream;
             }
             return this;
         }
 
-        public ViewRendererBuilder AddAdditionalTexts(ImmutableArray<AdditionalText> templates)
+        public ViewRendererBuilder AddTemplateTexts(ImmutableArray<ViewResourceText> templates)
         {
-
-            foreach (AdditionalText template in templates)
+            foreach (ViewResourceText template in templates)
             {
                 string filePath = template.Path;
                 string fileName = Path.GetFileName(filePath);
-
-
                 string? text = template.GetText()?.ToString();
 
                 MemoryStream stream = new MemoryStream();
@@ -84,16 +82,16 @@ namespace AutoFactories.Templating
                 stream.Position = 0;
 
                 string name = Path.GetFileNameWithoutExtension(filePath);
-                
-                if (s_partialRegex.IsMatch(filePath))
+
+                switch (template.Kind)
                 {
-                    PartialResourceKey partialName = PartialResourceKey.From(name);
-                    m_viewRegistry.SetPartial(partialName, stream);
-                }
-                else
-                {
-                    ViewResourceKey templateName = ViewResourceKey.From(name);
-                    m_viewRegistry.SetView(templateName, stream);
+                    case ViewKind.Partial:
+                        m_setupActions.Add(h => h.RegisterTemplate(template.Key.Value, template!.GetText()!.ToString()));
+                        break;
+                    case ViewKind.Template:
+                    case ViewKind.Static:
+                        m_handlebarsResourceMap[ViewKey.From(template.Key.Value)] = stream;
+                        break;
                 }
             }
             return this;
@@ -123,16 +121,7 @@ namespace AutoFactories.Templating
                 setupAction(handlebars);
             }
 
-            foreach (KeyValuePair<PartialResourceKey, Stream> partial in m_viewRegistry.Partials)
-            {
-                using (StreamReader reader = new StreamReader(partial.Value))
-                {
-                    string content = reader.ReadToEnd();
-                    handlebars.RegisterTemplate(partial.Key.Value, content);
-                }
-            }
-
-            return new ViewRenderer(m_outputTo!, handlebars, m_viewRegistry);
+            return new ViewRenderer(m_outputTo!, handlebars, m_handlebarsResourceMap);
         }
 
 

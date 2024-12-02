@@ -64,7 +64,7 @@ namespace AutoFactories.Tests
             }
             m_additionalTexts.AddRange(
                 Directory.GetFiles(directory, "*.hbs", SearchOption.AllDirectories)
-                .Select(path => new HandlebarsText(path, File.ReadAllText(path))));
+                .Select(path => new ViewResourceText(path, File.ReadAllText(path))));
         }
 
         /// <summary>

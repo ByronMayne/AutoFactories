@@ -1,7 +1,7 @@
 ﻿using AutoFactories.Types;
 using Ninject.AutoFactories;
 
-namespace AutoFactories.Views
+namespace AutoFactories.Models
 {
     internal class GenericView : View
     {

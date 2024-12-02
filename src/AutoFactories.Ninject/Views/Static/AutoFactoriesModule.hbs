@@ -1,0 +1,21 @@
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+
+{{#if Type.Namespace}}
+namespace {{Type.Namespace}}
+{
+{{/if}}
+
+public class AutoFactoriesModule : NinjectModule
+{
+    public override void Load()
+    {
+{{#each .}}
+        Bind<{{Type.Namespace}}.I{{Type.Name}}>().To<{{Type.QualifiedName}}>();
+{{/each}}
+    }
+}
+
+{{#if Type.Namespace}}
+}
+{{/if}}

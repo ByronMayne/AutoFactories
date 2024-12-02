@@ -1,10 +1,9 @@
 ﻿using AutoFactories.Types;
-using AutoFactories.Views.Models;
 using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AutoFactories.Views
+namespace AutoFactories.Models
 {
     internal class FactoryView : View
     {
@@ -17,7 +16,7 @@ namespace AutoFactories.Views
 
         public IReadOnlyList<ParameterModel> RequiredParameters => Parameters.Where(p => p.IsRequired).ToList();
 
-        public FactoryView() 
+        public FactoryView()
         {
             Methods = new List<MethodModel>();
             Parameters = new List<ParameterModel>();
