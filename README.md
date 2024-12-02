@@ -43,10 +43,9 @@ You can also use a third party library instead of the generic factory.
 ```cs
 public static void Main(string[] args)
 {
-    IKernel kernel = new StandardKernel();
-     // Auto generated binds all factories to their interfaces
-    kernel.LoadFactories()
-    IShippingOrderFactory factory = new ShippingOrderFactory(kernel);
+    IKernel kernel = new StandardKernel()
+        .AddAutoFactories(); // Adds the required view
+    IShippingOrderFactory factory = kernel.Get<ShippingOrderFactory>();
     ShippingOrder shippingOrder = factory.Get(orderId:"A2123F")
 }
 ```
@@ -57,9 +56,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static void Main(string[] args)
 {
-    ServiceCollection serviceCollection = new ServiceCollection();
-    IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
-    IShippingOrderFactory factory = new ShippingOrderFactory(serviceProvider);
+    IServiceProvider serviceProvider = new ServiceCollection()
+        .AddAutoFactories() // Adds the generated factories
+        .BuildServiceProvider();
+
+    IShippingOrderFactory factory =  serviceProvider.GetRequiredService<ShippingOrderFactory>();
     ShippingOrder shippingOrder = factory.Get(orderId:"A2123F")
 }
 ```

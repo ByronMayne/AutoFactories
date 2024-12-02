@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>12</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <EmbeddedResource Include="Views\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
-    <EmbeddedResource Include="Views\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
+    <EmbeddedResource Include="Views\Fixed\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
+    <EmbeddedResource Include="Views\Fixed\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
     <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
