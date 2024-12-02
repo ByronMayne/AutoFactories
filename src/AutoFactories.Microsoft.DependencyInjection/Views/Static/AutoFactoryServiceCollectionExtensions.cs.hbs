@@ -12,7 +12,7 @@ public static class AutoFactoryServiceCollectionExtensions
     /// </summary>
     public static void AddAutoFactories(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
     {
-{{#each .}}
+{{#each Factories}}
         services.AddTransient<{{Type.Namespace}}.I{{Type.Name}}, {{Type.QualifiedName}}>();
 {{/each}}
     }

@@ -148,11 +148,16 @@ namespace AutoFactories
                 renderer.WritePage($"I{view.Type.QualifiedName}.g.cs", ViewKey.FactoryInterface, view);
             }
 
+            GenericModel genericModel = new GenericModel()
+            {
+                ["Factories"] = factories
+            };
+
             // Render out all static files 
             foreach (ViewResourceText view in templateTexts.Where(t => t.Kind == ViewKind.Static))
             {
                 string fileName = Path.GetFileNameWithoutExtension(view.Path);
-                renderer.WritePage(fileName, view.Key, factories);
+                renderer.WritePage(fileName, view.Key, genericModel);
             }
         }
 

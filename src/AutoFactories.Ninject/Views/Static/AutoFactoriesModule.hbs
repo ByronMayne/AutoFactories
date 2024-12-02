@@ -10,7 +10,7 @@ public class AutoFactoriesModule : NinjectModule
 {
     public override void Load()
     {
-{{#each .}}
+{{#each Factories}}
         Bind<{{Type.Namespace}}.I{{Type.Name}}>().To<{{Type.QualifiedName}}>();
 {{/each}}
     }
