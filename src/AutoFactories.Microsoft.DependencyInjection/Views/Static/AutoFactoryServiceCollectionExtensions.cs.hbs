@@ -10,7 +10,7 @@ public static class AutoFactoryServiceCollectionExtensions
     /// This registration process occurs for each class decorated with the [AutoFactory] attribute,
     /// ensuring that the appropriate factory is bound to its interface for dependency injection or service resolution.
     /// </summary>
-    public static void AddAutoFactories(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
+    public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAutoFactories(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
     {
 {{#each Factories}}
         services.AddTransient<{{Type.Namespace}}.I{{Type.Name}}, {{Type.QualifiedName}}>();
