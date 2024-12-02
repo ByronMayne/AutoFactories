@@ -37,6 +37,9 @@ namespace AutoFactories.Visitors
         public AccessModifier FactoryAccessModifier { get; private set; }
         public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
 
+        private INamedTypeSymbol m_typeSymbol;
+        private INamedTypeSymbol m_exposeAsTypeSymbol;
+
         public ClassDeclartionVisitor(
             bool isAnalyzer,
             Options generatorOptions,
@@ -55,12 +58,14 @@ namespace AutoFactories.Visitors
             {
                 return;
             }
-
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
             ReturnType = Type; // Default to current type 
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
             FactoryAccessModifier = AccessModifier;
             FactoryType = new MetadataTypeName($"{Type}Factory");
+
+            m_typeSymbol = typeSymbol;
+            m_exposeAsTypeSymbol = typeSymbol;
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
@@ -99,7 +104,6 @@ namespace AutoFactories.Visitors
             Options options = new Options();
             UnmarkedFactoryDiagnosticBuilder unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
             InconsistentFactoryAcessibilityBuilder inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
-
             // UnmarkedFactory
             if (!HasMarkerAttribute)
             {
@@ -112,12 +116,41 @@ namespace AutoFactories.Visitors
                 }
             }
 
+            // ExposeAs is not a base type of Factory 
+            if (!ExposeAsIsDereived())
+            {
+                ExposedAsNotDerivedTypeDiagnosticBuilder notDerivedBuilder = new ExposedAsNotDerivedTypeDiagnosticBuilder();
+                yield return notDerivedBuilder.Build(ExposeAsLocation, m_typeSymbol, m_exposeAsTypeSymbol);
+            }
+
             // InconsistentFactoryAcessibility
             if (AccessModifier == AccessModifier.Internal &&
                 FactoryAccessModifier == AccessModifier.Public)
             {
                 yield return inconsistentFactoryAcessibility.Build(this);
             }
+        }
+
+        private bool ExposeAsIsDereived()
+        {
+            SymbolEqualityComparer comparer = SymbolEqualityComparer.Default;
+            INamedTypeSymbol? typeSymbol = m_typeSymbol;
+            while (typeSymbol != null)
+            {
+                if (comparer.Equals(m_exposeAsTypeSymbol, typeSymbol))
+                {
+
+                    return true;
+                }
+
+                if (m_typeSymbol.Interfaces.Any(a => comparer.Equals(a, m_exposeAsTypeSymbol)))
+                {
+                    return true;
+                }
+
+                typeSymbol = typeSymbol.BaseType;
+            }
+            return false;
         }
 
         private void VisitAttributeList(AttributeListSyntax node)
@@ -159,6 +192,7 @@ namespace AutoFactories.Visitors
                         ExposeAsLocation = exposeAsArg.GetLocation();
                         if (SyntaxHelpers.GetValue(exposeAsArg, m_semanticModel) is INamedTypeSymbol exposeAsTypeSymbol)
                         {
+                            m_exposeAsTypeSymbol = exposeAsTypeSymbol;
                             ReturnType = new MetadataTypeName(exposeAsTypeSymbol.ToDisplayString());
                         }
                     }
@@ -169,7 +203,7 @@ namespace AutoFactories.Visitors
 
         private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, Type, m_semanticModel);
+            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, ReturnType, m_semanticModel);
             visitor.VisitConstructorDeclaration(node);
             m_constructors.Add(visitor);
         }

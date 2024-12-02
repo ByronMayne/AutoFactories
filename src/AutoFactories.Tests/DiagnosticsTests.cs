@@ -11,6 +11,38 @@ namespace AutoFactories.Tests
         }
 
         [Fact]
+        public Task ExposeAsNotDerived()
+            => Compose($$"""
+                using AutoFactories;
+
+                [AutoFactory(ExposeAs=typeof(int))]
+                public class Human
+                {
+                }
+
+                """,
+                assertAnalyuzerResult: d => d.Should()
+                    .OnlyContain(d => d.Id == DiagnosticIdentifier.ExposedAsIsNotDerivedType));
+
+
+        [Fact]
+        public Task ExpsedAsProducesNoError()
+            => Compose($$"""
+                using AutoFactories;
+
+                public interface IHuman 
+                {}
+
+                [AutoFactory(ExposeAs=typeof(IHuman))]
+                public class Human : IHuman
+                {
+                }
+
+                """,
+                assertAnalyuzerResult: d => d.Should()
+                    .BeEmpty());
+
+        [Fact]
         public Task UntaggedClass()
             => Compose($$"""
                 using AutoFactories; 
