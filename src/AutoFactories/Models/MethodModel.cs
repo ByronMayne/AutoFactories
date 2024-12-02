@@ -3,7 +3,7 @@ using AutoFactories.Visitors;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AutoFactories.Views.Models
+namespace AutoFactories.Models
 {
     internal class MethodModel
     {
