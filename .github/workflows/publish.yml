@@ -9,13 +9,15 @@ env:
   Configuration: Release
   ProjectDir: src\Ninject.Extension.AutoFactories\
   ProjectName: Ninject.Extension.AutoFactories.csproj
-  SolutionPath: src\AutoFactories.sln
-  ArtifactsDir: ${GITHUB_WORKSPACE}\.artifacts
+  SolutionPath: ${{ github.workspace }}\src\AutoFactories.sln
+  ArtifactsDir: ${{ github.workspace }}\.artifacts
 jobs:
   publish:
     name: Publish NuGet Packages
     runs-on: windows-latest
     steps:
+      - name: Print GitHub workspace
+        run: echo "GitHub workspace is ${{ github.workspace }}" or "${GITHUB_WORKSPACE}"
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}   # checkout the correct branch name
@@ -37,4 +39,4 @@ jobs:
       - name: Pack | Solution
         run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_SemVer}} --output ${{env.ArtifactsDir}}
       - name: Push NuGet
-        run: dotnet nuget push ${{env.ArtifactsDir}}/*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{env.ArtifactsDir}}\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
