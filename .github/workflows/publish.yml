@@ -2,6 +2,9 @@ name: Publish
 on:
   release: 
     types: [published]
+  push: 
+      branches: ['*']
+  
   pull_request: {}
   workflow_dispatch: {}
 
