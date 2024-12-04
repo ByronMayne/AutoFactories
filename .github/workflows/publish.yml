@@ -2,9 +2,6 @@ name: Publish
 on:
   release: 
     types: [published]
-  push: 
-      branches: ['*']
-  
   pull_request: {}
   workflow_dispatch: {}
 
@@ -19,8 +16,6 @@ jobs:
     name: Publish NuGet Packages
     runs-on: windows-latest
     steps:
-      - name: Print GitHub workspace
-        run: echo "GitHub workspace is ${{ github.workspace }}" or "${GITHUB_WORKSPACE}"
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}   # checkout the correct branch name
