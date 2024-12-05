@@ -35,7 +35,7 @@ namespace AutoFactories.Visitors
         /// <summary>
         /// Gets the access modifier that the constructor will need to have
         /// </summary>
-        public AccessModifier AccessModifier { get; }
+        public AccessModifier Accessibility { get; private set; }
 
         /// <summary>
         /// Gets the collection of parameters for the constructor
@@ -46,15 +46,16 @@ namespace AutoFactories.Visitors
         /// <summary>
         /// Gets the class tha the constructor is defined within
         /// </summary>
-        public ClassDeclartionVisitor Class { get; }
+        public ClassDeclarationVisitor Class { get; }
 
-        public ConstructorDeclarationVisitor(bool isAnalyzer, ClassDeclartionVisitor classVistor, Options options, MetadataTypeName type, SemanticModel semanticModel)
+        public ConstructorDeclarationVisitor(bool isAnalyzer, ClassDeclarationVisitor classVistor, Options options, INamedTypeSymbol returnType, SemanticModel semanticModel)
         {
             m_isAnalyzer = isAnalyzer;
             m_options = options;
             m_semanticModel = semanticModel;
             m_parameters = new List<ParameterSyntaxVisitor>();
-            ReturnType = type;
+            ReturnType = new MetadataTypeName(returnType.ToDisplayString());
+            Accessibility = AccessModifier.FromSymbol(returnType); // Default access is the return type
             Class = classVistor;
         }
 
@@ -69,6 +70,15 @@ namespace AutoFactories.Visitors
             }
 
             VisitParameters(node.ParameterList);
+
+            
+
+            // Returns back the most restrictive permissions 
+            // for all the parameters an return type. This should be public or internal
+            Accessibility = AccessModifier.MostRestrictive([
+                 Accessibility,
+                 ..m_parameters.Select(p => p.Accessibility)]);
+
         }
 
         private void VisitParameters(ParameterListSyntax parametersList)
@@ -78,6 +88,7 @@ namespace AutoFactories.Visitors
                 ParameterSyntaxVisitor vistor = new ParameterSyntaxVisitor(m_isAnalyzer, this, m_options, m_semanticModel);
                 vistor.VisitParameter(parameter);
                 m_parameters.Add(vistor);
+
             }
         }
     }

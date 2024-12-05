@@ -13,11 +13,11 @@ namespace AutoFactories.Visitors
     {
         public MetadataTypeName Type { get; }
         public AccessModifier AccessModifier { get; }
-        public IReadOnlyList<ClassDeclartionVisitor> Classes { get; }
+        public IReadOnlyList<ClassDeclarationVisitor> Classes { get; }
         public IReadOnlyList<ParameterSyntaxVisitor> Parameters { get; }
 
 
-        private FactoryDeclartion(MetadataTypeName type, IEnumerable<ClassDeclartionVisitor> classes)
+        private FactoryDeclartion(MetadataTypeName type, IEnumerable<ClassDeclarationVisitor> classes)
         {
             Type = type;
             Classes = classes.ToList();
@@ -27,14 +27,20 @@ namespace AutoFactories.Visitors
                 .Where(p => p.HasMarkerAttribute)
                 .ToList();
 
+            AccessModifier = AccessModifier.MostRestrictive(
+                Classes
+                .Select(c => c.Accessibility)
+                .ToArray());
+
+
             AccessModifier = Classes.Any(c => c.AccessModifier != AccessModifier.Public)
                     ? AccessModifier.Internal
                     : AccessModifier.Public;
         }
 
-        public static IEnumerable<FactoryDeclartion> Create(IEnumerable<ClassDeclartionVisitor> classes)
+        public static IEnumerable<FactoryDeclartion> Create(IEnumerable<ClassDeclarationVisitor> classes)
         {
-            foreach (IGrouping<MetadataTypeName, ClassDeclartionVisitor> grouping in classes.GroupBy(v => v.FactoryType))
+            foreach (IGrouping<MetadataTypeName, ClassDeclarationVisitor> grouping in classes.GroupBy(v => v.FactoryType))
             {
                 yield return new FactoryDeclartion(grouping.Key, grouping);
             }

@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Ninject.AutoFactories;
 
 namespace AutoFactories.Visitors
 {
@@ -14,6 +15,8 @@ namespace AutoFactories.Visitors
         public string? Name { get; private set; }
         public MetadataTypeName Type { get; private set; }
         public bool HasMarkerAttribute { get; private set; }
+
+        public AccessModifier Accessibility { get; private set; }
 
         public Location? AttributeLocation { get; private set; }
 
@@ -45,6 +48,7 @@ namespace AutoFactories.Visitors
             HasMarkerAttribute = markerAttribute is not null;
             AttributeLocation = markerAttribute?.GetLocation();
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
+            Accessibility = AccessModifier.FromSymbol(typeSymbol);
         }
 
         private AttributeSyntax? GetMarkerAttribute(ParameterSyntax node)

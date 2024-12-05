@@ -44,13 +44,13 @@ namespace AutoFactories
             {
                 ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
                 Options options = new(context.Options.AnalyzerConfigOptionsProvider);
-                ClassDeclartionVisitor visitor = new(true, options, context.SemanticModel);
+                ClassDeclarationVisitor visitor = new(true, options, context.SemanticModel);
                 visitor.VisitClassDeclaration(classDeclarationSyntax);
                 Analyze(visitor, context);
             }, SyntaxKind.ClassDeclaration);
         }
 
-        private void Analyze(ClassDeclartionVisitor vistor, SyntaxNodeAnalysisContext context)
+        private void Analyze(ClassDeclarationVisitor vistor, SyntaxNodeAnalysisContext context)
         {
             foreach(Diagnostic diagnostic in vistor.GetDiagnostics())
             {
