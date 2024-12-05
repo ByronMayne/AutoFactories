@@ -40,7 +40,7 @@ namespace AutoFactories
 
         public override void OnInitialize(SgfInitializationContext context)
         {
-            IncrementalValueProvider<(ImmutableArray<AdditionalText> Left, (AnalyzerConfigOptionsProvider Left, ImmutableArray<ClassDeclartionVisitor?> Right) Right)> provider =
+            IncrementalValueProvider<(ImmutableArray<AdditionalText> Left, (AnalyzerConfigOptionsProvider Left, ImmutableArray<ClassDeclarationVisitor?> Right) Right)> provider =
                 context.AdditionalTextsProvider
                     .Where(IsHandlebarsText).Collect().Combine(
                         context.AnalyzerConfigOptionsProvider
@@ -122,7 +122,7 @@ namespace AutoFactories
             SgfSourceProductionContext context,
             ImmutableArray<ViewResourceText> templateTexts,
             AnalyzerConfigOptionsProvider configOptions,
-            ImmutableArray<ClassDeclartionVisitor> visitors)
+            ImmutableArray<ClassDeclarationVisitor> visitors)
         {
             Options options = new(configOptions);
             foreach (AdditionalText text in templateTexts)
@@ -134,7 +134,7 @@ namespace AutoFactories
                 .AddTemplateTexts(templateTexts)
                 .Build();
 
-            IEnumerable<ClassDeclartionVisitor> validVisitors = visitors
+            IEnumerable<ClassDeclarationVisitor> validVisitors = visitors
                 .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
 
 
@@ -179,11 +179,11 @@ namespace AutoFactories
         /// <summary>
         /// Take in the nodes and transform them into vistiors which can be cached
         /// </summary>
-        private static ClassDeclartionVisitor? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken token)
+        private static ClassDeclarationVisitor? TransformNodes(GeneratorAttributeSyntaxContext context, CancellationToken token)
         {
             ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)context.TargetNode;
 
-            ClassDeclartionVisitor visitor = new(false, s_options, context.SemanticModel);
+            ClassDeclarationVisitor visitor = new(false, s_options, context.SemanticModel);
 
             visitor.VisitClassDeclaration(classDeclarationSyntax);
 
@@ -191,7 +191,7 @@ namespace AutoFactories
         }
 
         /// <summary>
-        /// Filteres the source generator to only look at <see cref="ClassDeclarationSyntax"/> types
+        /// Filters the source generator to only look at <see cref="ClassDeclarationSyntax"/> types
         /// </summary>
         /// <param name="node">The node to check</param>
         /// <param name="token"><see cref="CancellationToken"/></param>

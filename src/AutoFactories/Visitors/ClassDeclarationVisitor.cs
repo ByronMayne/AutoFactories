@@ -14,7 +14,7 @@ using System.Numerics;
 namespace AutoFactories.Visitors
 {
     [DebuggerDisplay("{Type,nq}")]
-    internal class ClassDeclartionVisitor
+    internal class ClassDeclarationVisitor
     {
         private readonly List<ConstructorDeclarationVisitor> m_constructors;
         private readonly bool m_isAnalyzer;
@@ -24,7 +24,6 @@ namespace AutoFactories.Visitors
         public bool HasMarkerAttribute { get; private set; }
         public string MethodName { get; private set; }
         public MetadataTypeName Type { get; private set; }
-        public MetadataTypeName ReturnType { get; private set; }
         public AccessModifier AccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
 
@@ -37,10 +36,15 @@ namespace AutoFactories.Visitors
         public AccessModifier FactoryAccessModifier { get; private set; }
         public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
 
-        private INamedTypeSymbol m_typeSymbol;
-        private INamedTypeSymbol m_exposeAsTypeSymbol;
+        /// <summary>
+        /// Gets the access modifier that the constructor will need to have
+        /// </summary>
+        public AccessModifier Accessibility { get; private set; }
 
-        public ClassDeclartionVisitor(
+        private INamedTypeSymbol? m_typeSymbol;
+        private INamedTypeSymbol? m_returnTypeSymbol;
+
+        public ClassDeclarationVisitor(
             bool isAnalyzer,
             Options generatorOptions,
             SemanticModel semanticModel)
@@ -59,13 +63,13 @@ namespace AutoFactories.Visitors
                 return;
             }
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
-            ReturnType = Type; // Default to current type 
+            m_returnTypeSymbol = typeSymbol; // Default to current type 
             AccessModifier = AccessModifier.FromSymbol(typeSymbol);
             FactoryAccessModifier = AccessModifier;
             FactoryType = new MetadataTypeName($"{Type}Factory");
 
             m_typeSymbol = typeSymbol;
-            m_exposeAsTypeSymbol = typeSymbol;
+            m_returnTypeSymbol = typeSymbol;
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
@@ -91,8 +95,13 @@ namespace AutoFactories.Visitors
             // Add default 
             if (m_constructors.Count == 0)
             {
-                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, ReturnType, m_semanticModel));
+                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel));
             }
+
+            AccessModifier returnTypeAccessibility = AccessModifier.FromSymbol(m_returnTypeSymbol);
+            IEnumerable<AccessModifier> constructorAccessibilities = m_constructors.Select(c => c.Accessibility);
+
+            Accessibility = AccessModifier.MostRestrictive([returnTypeAccessibility, ..constructorAccessibilities]);
         }
 
         /// <summary>
@@ -120,7 +129,7 @@ namespace AutoFactories.Visitors
             if (!ExposeAsIsDereived())
             {
                 ExposedAsNotDerivedTypeDiagnosticBuilder notDerivedBuilder = new ExposedAsNotDerivedTypeDiagnosticBuilder();
-                yield return notDerivedBuilder.Build(ExposeAsLocation, m_typeSymbol, m_exposeAsTypeSymbol);
+                yield return notDerivedBuilder.Build(ExposeAsLocation, m_typeSymbol, m_returnTypeSymbol);
             }
 
             // InconsistentFactoryAcessibility
@@ -137,13 +146,13 @@ namespace AutoFactories.Visitors
             INamedTypeSymbol? typeSymbol = m_typeSymbol;
             while (typeSymbol != null)
             {
-                if (comparer.Equals(m_exposeAsTypeSymbol, typeSymbol))
+                if (comparer.Equals(m_returnTypeSymbol, typeSymbol))
                 {
 
                     return true;
                 }
 
-                if (m_typeSymbol.Interfaces.Any(a => comparer.Equals(a, m_exposeAsTypeSymbol)))
+                if (m_typeSymbol.Interfaces.Any(a => comparer.Equals(a, m_returnTypeSymbol)))
                 {
                     return true;
                 }
@@ -189,11 +198,10 @@ namespace AutoFactories.Visitors
 
                     if (SyntaxHelpers.TryGetNamedArgument(attributeSyntax, "ExposeAs", out AttributeArgumentSyntax? exposeAsArg))
                     {
-                        ExposeAsLocation = exposeAsArg.GetLocation();
                         if (SyntaxHelpers.GetValue(exposeAsArg, m_semanticModel) is INamedTypeSymbol exposeAsTypeSymbol)
                         {
-                            m_exposeAsTypeSymbol = exposeAsTypeSymbol;
-                            ReturnType = new MetadataTypeName(exposeAsTypeSymbol.ToDisplayString());
+                            ExposeAsLocation = exposeAsArg.GetLocation();
+                            m_returnTypeSymbol = exposeAsTypeSymbol;
                         }
                     }
                     return;
@@ -203,7 +211,7 @@ namespace AutoFactories.Visitors
 
         private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, ReturnType, m_semanticModel);
+            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel);
             visitor.VisitConstructorDeclaration(node);
             m_constructors.Add(visitor);
         }

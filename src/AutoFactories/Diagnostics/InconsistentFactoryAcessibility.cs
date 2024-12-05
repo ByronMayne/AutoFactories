@@ -15,7 +15,7 @@ namespace AutoFactories.Diagnostics
             Severity = DiagnosticSeverity.Error;
         }
 
-        public Diagnostic Build(ClassDeclartionVisitor visitor)
+        public Diagnostic Build(ClassDeclarationVisitor visitor)
             => Diagnostic.Create(Descriptor,
                 visitor.FactoryTypeLocation,
                 new object?[] { visitor.Type.QualifiedName, visitor.FactoryType.QualifiedName });
