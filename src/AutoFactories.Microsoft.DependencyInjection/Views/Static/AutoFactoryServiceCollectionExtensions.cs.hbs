@@ -15,5 +15,6 @@ public static class AutoFactoryServiceCollectionExtensions
 {{#each Factories}}
         services.AddTransient<{{Type.Namespace}}.I{{Type.Name}}, {{Type.QualifiedName}}>();
 {{/each}}
+        return services;
     }
 }
