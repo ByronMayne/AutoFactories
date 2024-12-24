@@ -101,7 +101,7 @@ namespace AutoFactories.Visitors
             AccessModifier returnTypeAccessibility = AccessModifier.FromSymbol(m_returnTypeSymbol);
             IEnumerable<AccessModifier> constructorAccessibilities = m_constructors.Select(c => c.Accessibility);
 
-            Accessibility = AccessModifier.MostRestrictive([returnTypeAccessibility, ..constructorAccessibilities]);
+            Accessibility = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace AutoFactories.Visitors
                     return true;
                 }
 
-                if (m_typeSymbol.Interfaces.Any(a => comparer.Equals(a, m_returnTypeSymbol)))
+                if (typeSymbol.Interfaces.Any(a => comparer.Equals(a, m_returnTypeSymbol)))
                 {
                     return true;
                 }
@@ -211,9 +211,12 @@ namespace AutoFactories.Visitors
 
         private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel);
-            visitor.VisitConstructorDeclaration(node);
-            m_constructors.Add(visitor);
+            if (m_returnTypeSymbol is not null)
+            {
+                ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel);
+                visitor.VisitConstructorDeclaration(node);
+                m_constructors.Add(visitor);
+            }
         }
     }
 }
