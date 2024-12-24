@@ -21,8 +21,8 @@ namespace AutoFactories.Diagnostics
 
         public Diagnostic Build(
             Location? location,
-            INamedTypeSymbol type,
-            INamedTypeSymbol expose)
-            => Diagnostic.Create(Descriptor, location, new object[] { type.ToDisplayString(), expose.ToDisplayString() });
+            INamedTypeSymbol? type,
+            INamedTypeSymbol? expose)
+            => Diagnostic.Create(Descriptor, location, new object?[] { type?.ToDisplayString(), expose?.ToDisplayString() });
     }
 }
