@@ -18,7 +18,7 @@ namespace World
         /// </summary>
         public global::World.IPerson Create()
         {
-            global::World.IPerson __result = new global::World.IPerson();
+            global::World.IPerson __result = new global::World.Person();
             return __result;
         }
     }

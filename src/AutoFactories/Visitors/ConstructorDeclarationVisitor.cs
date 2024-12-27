@@ -28,6 +28,11 @@ namespace AutoFactories.Visitors
         public bool IsPublic { get; private set; }
 
         /// <summary>
+        /// Gets the type that is going to be created
+        /// </summary>
+        public MetadataTypeName Type { get; }
+
+        /// <summary>
         /// Gets the type that the constructor will make 
         /// </summary>
         public MetadataTypeName ReturnType { get; }
@@ -48,12 +53,19 @@ namespace AutoFactories.Visitors
         /// </summary>
         public ClassDeclarationVisitor Class { get; }
 
-        public ConstructorDeclarationVisitor(bool isAnalyzer, ClassDeclarationVisitor classVistor, Options options, INamedTypeSymbol returnType, SemanticModel semanticModel)
+        public ConstructorDeclarationVisitor(
+            bool isAnalyzer, 
+            ClassDeclarationVisitor classVistor, 
+            Options options, 
+            INamedTypeSymbol type,
+            INamedTypeSymbol returnType, 
+            SemanticModel semanticModel)
         {
             m_isAnalyzer = isAnalyzer;
             m_options = options;
             m_semanticModel = semanticModel;
             m_parameters = new List<ParameterSyntaxVisitor>();
+            Type = new MetadataTypeName(type.ToDisplayString());
             ReturnType = new MetadataTypeName(returnType.ToDisplayString());
             Accessibility = AccessModifier.FromSymbol(returnType); // Default access is the return type
             Class = classVistor;

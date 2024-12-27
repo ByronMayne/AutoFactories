@@ -95,7 +95,13 @@ namespace AutoFactories.Visitors
             // Add default 
             if (m_constructors.Count == 0)
             {
-                m_constructors.Add(new ConstructorDeclarationVisitor(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel));
+                m_constructors.Add(new ConstructorDeclarationVisitor(
+                    m_isAnalyzer, 
+                    this, 
+                    m_options,
+                    m_typeSymbol,
+                    m_returnTypeSymbol, 
+                    m_semanticModel));
             }
 
             AccessModifier returnTypeAccessibility = AccessModifier.FromSymbol(m_returnTypeSymbol);
@@ -211,9 +217,15 @@ namespace AutoFactories.Visitors
 
         private void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            if (m_returnTypeSymbol is not null)
+            if (m_returnTypeSymbol is not null && m_typeSymbol is not null)
             {
-                ConstructorDeclarationVisitor visitor = new(m_isAnalyzer, this, m_options, m_returnTypeSymbol, m_semanticModel);
+                ConstructorDeclarationVisitor visitor = new(
+                    m_isAnalyzer, 
+                    this, 
+                    m_options,
+                    m_typeSymbol,
+                    m_returnTypeSymbol, 
+                    m_semanticModel);
                 visitor.VisitConstructorDeclaration(node);
                 m_constructors.Add(visitor);
             }

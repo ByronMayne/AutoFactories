@@ -1,4 +1,4 @@
-﻿            return new {{ReturnType.QualifiedName}}(
+﻿            return new {{Type.QualifiedName}}(
                 {{#each Parameters}}
                 {{#if IsRequired}}{{Name}}{{else}}__serviceProvider.GetRequiredService<{{Type}}>()
                 {{/if~}}

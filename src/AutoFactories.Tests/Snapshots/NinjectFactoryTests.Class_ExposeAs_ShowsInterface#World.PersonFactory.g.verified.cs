@@ -25,10 +25,10 @@ namespace World
             global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
             };
 
-            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(World.IPerson), null, __parameters, isOptional: false, isUnique: true);
+            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(World.Person), null, __parameters, isOptional: false, isUnique: true);
             global::System.Collections.Generic.IEnumerable<object>
     results = __resolutionRoot.Resolve(request);
-    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<World.IPerson>(results));
+    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<World.Person>(results));
 
         }
     }
