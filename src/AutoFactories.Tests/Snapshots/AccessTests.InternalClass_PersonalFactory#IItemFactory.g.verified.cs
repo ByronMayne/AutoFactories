@@ -3,6 +3,8 @@
 // 1. 'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal.
 // -------------------------------------------------------------------
 #nullable enable
+#pragma warning disable CS8019 // Unnecessary using directive.
+
 using System;
 
     internal interface IItemFactory

@@ -3,6 +3,8 @@
 // 1. Factory should be public because the interface is public
 // -------------------------------------------------------------------
 #nullable enable
+#pragma warning disable CS8019 // Unnecessary using directive.
+
 using System;
 
 namespace World
