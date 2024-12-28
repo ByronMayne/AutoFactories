@@ -4,6 +4,8 @@
 // 2. Factory should be internal
 // -------------------------------------------------------------------
 #nullable enable
+#pragma warning disable CS8019 // Unnecessary using directive.
+
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
