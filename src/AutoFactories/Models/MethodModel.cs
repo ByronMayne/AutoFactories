@@ -8,6 +8,7 @@ namespace AutoFactories.Models
     internal class MethodModel
     {
         public string Name { get; set; }
+        public MetadataTypeName Type { get; set; }
         public MetadataTypeName ReturnType { get; set; }
         public List<ParameterModel> Parameters { get; set; }
         public IReadOnlyList<ParameterModel> RequiredParameters
@@ -23,6 +24,7 @@ namespace AutoFactories.Models
                => new MethodModel()
                {
                    Name = "Create",
+                   Type = vistor.Type,
                    Parameters = vistor.Parameters.Select(ParameterModel.Map).ToList(),
                    ReturnType = vistor.ReturnType,
                };

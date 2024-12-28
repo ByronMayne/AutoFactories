@@ -1,4 +1,4 @@
-﻿//HintName: World.PersonFactory.g.cs
+//HintName: World.PersonFactory.g.cs
 // -----------------------------| Notes |-----------------------------
 // 1. Factory should be public because the interface is public
 // -------------------------------------------------------------------
@@ -25,7 +25,7 @@ namespace World
         /// </summary>
         public global::World.IPerson Create()
         {
-            return new World.IPerson(
+            return new World.Person(
             );
         }
     }
