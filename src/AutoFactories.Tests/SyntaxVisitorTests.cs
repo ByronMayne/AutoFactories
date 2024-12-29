@@ -3,14 +3,22 @@ using AutoFactories.Visitors;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using FluentAssertions;
 using Ninject.AutoFactories;
+using Xunit.Abstractions;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Text;
 
 namespace AutoFactories.Tests
 {
-    public class SyntaxVisitorTests
+    public class SyntaxVisitorTests : AbstractTest
     {
+        public SyntaxVisitorTests(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+            AddGenerator<AutoFactoriesGeneratorHoist>();
+            AddAnalyzer<AutoFactoriesAnalyzer>();
+        }
 
         [Fact]
-        public void PublicClass_CreatesPublicFactory()
+        public Task PublicClass_CreatesPublicFactory()
             => Compose("""
                 public class MyClass
                 {
@@ -20,7 +28,7 @@ namespace AutoFactories.Tests
                 CreatesPublicFactory);
 
         [Fact]
-        public void InternalClass_CreatesInternalFactory()
+        public Task InternalClass_CreatesInternalFactory()
             => Compose("""
                 internal class MyClass
                 {}
@@ -28,7 +36,7 @@ namespace AutoFactories.Tests
                 CreatesInternalFactory);
 
         [Fact]
-        public void PublicClass_WithExposedPublicInterface_CreatesPublicFactory()
+        public Task PublicClass_WithExposedPublicInterface_CreatesPublicFactory()
             => Compose("""
                 using AutoFactories;
 
@@ -39,12 +47,15 @@ namespace AutoFactories.Tests
                 CreatesPublicFactory);
 
 
-        private void Compose(string source, params Action<ClassDeclarationVisitor>[] asserts)
+        private async Task Compose(string source, params Action<ClassDeclarationVisitor>[] asserts)
         {
-            UnitTestCompiler compiler = new UnitTestCompiler();
-            CompileResult result = compiler.Compile([source]);
+            UnitTestCompiler compiler = CreateCompiler();
 
-            Diagnostic[] errors = result.Diagnostics
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source, encoding: Encoding.UTF8);
+
+            CompileResult compileResult = await compiler.CompileAsync([syntaxTree]);
+
+            Diagnostic[] errors = compileResult.Diagnostics
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
                 .ToArray();
 
@@ -53,9 +64,9 @@ namespace AutoFactories.Tests
                 Assert.Fail($"There were compiler errors\n - {string.Join("\n -", errors.Select(e => e.GetMessage()))}");
             }
 
-            ClassDeclarationVisitor visitor = new ClassDeclarationVisitor(true, new Options(), result.SemanticModel);
+            ClassDeclarationVisitor visitor = new ClassDeclarationVisitor(true, new Options(), compileResult.SemanticModel);
 
-            visitor.VisitClassDeclaration(result.SyntaxTree
+            visitor.VisitClassDeclaration(syntaxTree
                 .GetRoot()
                 .ChildNodes()
                 .OfType<ClassDeclarationSyntax>()
@@ -66,8 +77,6 @@ namespace AutoFactories.Tests
                 assert(visitor);
             }
         }
-
-
 
         private static Action<ClassDeclarationVisitor> CreatesPublicFactory => CreateFactoryThatIs(AccessModifier.Public);
         private static Action<ClassDeclarationVisitor> CreatesInternalFactory => CreateFactoryThatIs(AccessModifier.Internal);

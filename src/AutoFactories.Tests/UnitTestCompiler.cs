@@ -1,26 +1,36 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using FluentAssertions;
 using Microsoft.CodeAnalysis;
-using System.Reflection;
-using FluentAssertions;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Reflection;
 
 namespace AutoFactories.Tests
 {
-    internal class UnitTestCompiler
+    public class UnitTestCompiler
     {
-        private ImmutableArray<MetadataReference> m_references;
-        private readonly CSharpCompilationOptions m_csharpCompileOptions;
-        private readonly AutoFactoriesGeneratorHoist m_generatorHost;
+        private readonly ImmutableArray<MetadataReference> m_references;
+        private readonly CSharpCompilationOptions m_cSharpCompileOptions;
 
-        public UnitTestCompiler()
+        public ImmutableArray<IIncrementalGenerator> Generators { get; }
+        public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
+        public ImmutableArray<AdditionalText> AdditionalTexts { get; }
+
+        public UnitTestCompiler(
+            IEnumerable<IIncrementalGenerator>? generators = null,
+            IEnumerable<DiagnosticAnalyzer>? analyzers = null,
+            IEnumerable<AdditionalText>? additionalTexts = null)
         {
-            m_csharpCompileOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            generators ??= Array.Empty<IIncrementalGenerator>();
+            analyzers ??= Array.Empty<DiagnosticAnalyzer>();
+            additionalTexts ??= Array.Empty<AdditionalText>();
+
+            m_cSharpCompileOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithNullableContextOptions(NullableContextOptions.Enable);
 
-            AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
-            generator.ExceptionHandler += OnGeneratorException;
-
-            m_generatorHost = new AutoFactoriesGeneratorHoist(generator);
+            Generators = generators.ToImmutableArray();
+            Analyzers = analyzers.ToImmutableArray();
+            AdditionalTexts = additionalTexts.ToImmutableArray();
 
             m_references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !string.IsNullOrWhiteSpace(a.Location))
@@ -29,34 +39,28 @@ namespace AutoFactories.Tests
                 .ToImmutableArray();
         }
 
-
-        public CompileResult Compile(string[] source, AdditionalText[]? additionalTexts = null)
+        public async Task<CompileResult> CompileAsync(SyntaxTree[] syntaxTrees)
         {
-            additionalTexts ??= Array.Empty<AdditionalText>();
+            Compilation compilation = CSharpCompilation.Create("UnitTests", syntaxTrees, m_references, m_cSharpCompileOptions);
 
-            SyntaxTree[] syntaxTrees = source
-                .Select(s => CSharpSyntaxTree.ParseText(s))
-                .ToArray();
+            ImmutableArray<Diagnostic> diagnostics = [];
 
-            CSharpCompilation compilation = CSharpCompilation.Create("UnitTests", syntaxTrees, m_references, m_csharpCompileOptions);
-            GeneratorDriver driver = CSharpGeneratorDriver.Create(m_generatorHost)
-                .AddAdditionalTexts(additionalTexts.ToImmutableArray())
-                .RunGeneratorsAndUpdateCompilation(compilation, out Compilation generatorCompilation, out ImmutableArray<Diagnostic> _);
+            // Run one at a time
+            foreach (IIncrementalGenerator generator in Generators)
+            {
+                _ = CSharpGeneratorDriver.Create(generator)
+                 .AddAdditionalTexts(AdditionalTexts)
+                 .RunGeneratorsAndUpdateCompilation(compilation, out compilation, out diagnostics);
+            }
 
-            SemanticModel semanticModel = generatorCompilation.GetSemanticModel(syntaxTrees[0]);
-            ImmutableArray<Diagnostic> diagnostics = generatorCompilation.GetDiagnostics();
+            if (Analyzers.Length > 0)
+            {
+                CompilationWithAnalyzers analyzers = compilation.WithAnalyzers(Analyzers);
+                diagnostics = await analyzers.GetAllDiagnosticsAsync();
+            }
+            SemanticModel semanticModel = compilation.GetSemanticModel(syntaxTrees[0]);
 
-            return new CompileResult(syntaxTrees[0], generatorCompilation, semanticModel, diagnostics);
-        }
-
-
-        /// <summary>
-        /// Invoked when the generator throws an exception
-        /// </summary>
-        /// <param name="exception"></param>
-        private void OnGeneratorException(Exception exception)
-        {
-            Assert.Fail($"An unhandled exception was thrown while generating.\n{exception}");
+            return new CompileResult(compilation, semanticModel, diagnostics);
         }
     }
 }
