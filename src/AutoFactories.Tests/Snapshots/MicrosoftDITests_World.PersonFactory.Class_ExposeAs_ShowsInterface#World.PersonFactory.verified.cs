@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace World
 {
-    internal partial class PersonFactory : IPersonFactory
+    public partial class PersonFactory : IPersonFactory
     {
         private readonly global::System.IServiceProvider __serviceProvider;
 

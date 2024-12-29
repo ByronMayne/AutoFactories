@@ -9,7 +9,6 @@ using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 
 namespace AutoFactories.Visitors
 {
@@ -24,7 +23,7 @@ namespace AutoFactories.Visitors
         public bool HasMarkerAttribute { get; private set; }
         public string MethodName { get; private set; }
         public MetadataTypeName Type { get; private set; }
-        public AccessModifier AccessModifier { get; private set; }
+        public AccessModifier TypeAccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
 
         public MetadataTypeName FactoryType { get; private set; }
@@ -39,7 +38,7 @@ namespace AutoFactories.Visitors
         /// <summary>
         /// Gets the access modifier that the constructor will need to have
         /// </summary>
-        public AccessModifier Accessibility { get; private set; }
+        public AccessModifier FactoryAcessModifier { get; private set; }
 
         private INamedTypeSymbol? m_typeSymbol;
         private INamedTypeSymbol? m_returnTypeSymbol;
@@ -64,8 +63,9 @@ namespace AutoFactories.Visitors
             }
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
             m_returnTypeSymbol = typeSymbol; // Default to current type 
-            AccessModifier = AccessModifier.FromSymbol(typeSymbol);
-            FactoryAccessModifier = AccessModifier;
+            TypeAccessModifier = AccessModifier.FromSymbol(typeSymbol);
+            InterfaceAccessModifier = TypeAccessModifier;
+            FactoryAccessModifier = TypeAccessModifier;
             FactoryType = new MetadataTypeName($"{Type}Factory");
 
             m_typeSymbol = typeSymbol;
@@ -107,7 +107,7 @@ namespace AutoFactories.Visitors
             AccessModifier returnTypeAccessibility = AccessModifier.FromSymbol(m_returnTypeSymbol);
             IEnumerable<AccessModifier> constructorAccessibilities = m_constructors.Select(c => c.Accessibility);
 
-            Accessibility = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
+            FactoryAcessModifier = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace AutoFactories.Visitors
             }
 
             // InconsistentFactoryAcessibility
-            if (AccessModifier == AccessModifier.Internal &&
+            if (TypeAccessModifier == AccessModifier.Internal &&
                 FactoryAccessModifier == AccessModifier.Public)
             {
                 yield return inconsistentFactoryAcessibility.Build(this);

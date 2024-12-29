@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace World
 {
-    internal partial class PersonFactory : IPersonFactory
+    public partial class PersonFactory : IPersonFactory
     {
         private readonly global::Ninject.Syntax.IResolutionRoot __resolutionRoot;
 

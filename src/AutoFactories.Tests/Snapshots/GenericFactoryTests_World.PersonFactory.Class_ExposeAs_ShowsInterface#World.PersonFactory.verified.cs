@@ -8,7 +8,7 @@ using System;
 
 namespace World
 {
-    internal partial class PersonFactory : IPersonFactory
+    public partial class PersonFactory : IPersonFactory
     {
         public PersonFactory()
         {

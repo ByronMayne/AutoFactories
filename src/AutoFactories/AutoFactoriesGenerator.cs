@@ -138,8 +138,8 @@ namespace AutoFactories
                 .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
 
 
-            List<FactoryView> factories = FactoryDeclartion.Create(validVisitors)
-                .Select(FactoryDeclartion.Map)
+            List<FactoryView> factories = FactoryDeclaration.Create(validVisitors)
+                .Select(FactoryDeclaration.Map)
                 .ToList();
 
             foreach (FactoryView view in factories)

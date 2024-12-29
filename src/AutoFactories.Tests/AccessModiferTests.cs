@@ -3,7 +3,7 @@ using static Ninject.AutoFactories.AccessModifier;
 
 namespace AutoFactories.Tests
 {
-    public class AccessModiferTests
+    public class AccessModifierTests
     {
 
         [Theory]

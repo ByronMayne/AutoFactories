@@ -8,7 +8,8 @@ namespace AutoFactories.Models
     internal class FactoryView : View
     {
         public MetadataTypeName Type { get; set; }
-        public AccessModifier AccessModifier { get; set; }
+        public AccessModifier InterfaceAccessModifier { get; set; }
+        public AccessModifier ImplementationAccessModifier { get; set; }
 
         public IList<MethodModel> Methods { get; set; }
 

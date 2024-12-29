@@ -9,15 +9,16 @@ using AutoFactories.Models;
 namespace AutoFactories.Visitors
 {
 
-    internal class FactoryDeclartion
+    internal class FactoryDeclaration
     {
         public MetadataTypeName Type { get; }
-        public AccessModifier AccessModifier { get; }
+        public AccessModifier ImplementationAccessModifier { get; }
+        public AccessModifier InterfaceAccessModifier { get; }
         public IReadOnlyList<ClassDeclarationVisitor> Classes { get; }
         public IReadOnlyList<ParameterSyntaxVisitor> Parameters { get; }
 
 
-        private FactoryDeclartion(MetadataTypeName type, IEnumerable<ClassDeclarationVisitor> classes)
+        private FactoryDeclaration(MetadataTypeName type, IEnumerable<ClassDeclarationVisitor> classes)
         {
             Type = type;
             Classes = classes.ToList();
@@ -27,31 +28,32 @@ namespace AutoFactories.Visitors
                 .Where(p => p.HasMarkerAttribute)
                 .ToList();
 
-            AccessModifier = AccessModifier.MostRestrictive(
+            InterfaceAccessModifier = AccessModifier.MostRestrictive(
                 Classes
-                .Select(c => c.Accessibility)
+                .Select(c => c.InterfaceAccessModifier)
                 .ToArray());
 
-
-            AccessModifier = Classes.Any(c => c.AccessModifier != AccessModifier.Public)
-                    ? AccessModifier.Internal
-                    : AccessModifier.Public;
+            ImplementationAccessModifier = AccessModifier.MostRestrictive(
+                Classes
+                .Select(c => c.FactoryAcessModifier)
+                .ToArray());
         }
 
-        public static IEnumerable<FactoryDeclartion> Create(IEnumerable<ClassDeclarationVisitor> classes)
+        public static IEnumerable<FactoryDeclaration> Create(IEnumerable<ClassDeclarationVisitor> classes)
         {
             foreach (IGrouping<MetadataTypeName, ClassDeclarationVisitor> grouping in classes.GroupBy(v => v.FactoryType))
             {
-                yield return new FactoryDeclartion(grouping.Key, grouping);
+                yield return new FactoryDeclaration(grouping.Key, grouping);
             }
         }
 
 
-        public static FactoryView Map(FactoryDeclartion declartion)
+        public static FactoryView Map(FactoryDeclaration declartion)
             => new FactoryView()
             {
                 Type = declartion.Type,
-                AccessModifier = declartion.AccessModifier,
+                ImplementationAccessModifier = declartion.ImplementationAccessModifier,
+                InterfaceAccessModifier = declartion.InterfaceAccessModifier,
                 Parameters = declartion.Parameters
                     .Select(ParameterModel.Map)
                     .ToList(),

@@ -9,7 +9,7 @@
 namespace {{Type.Namespace}}
 {
 {{/if}}
-    {{AccessModifier}} partial class {{Type.Name}} : I{{Type.Name}}
+    {{ImplementationAccessModifier}} partial class {{Type.Name}} : I{{Type.Name}}
     {
 {{> FactoryFields }}{{> FactoryProperties }}{{> FactoryConstructors }}{{#each Methods}}
         /// <summary>

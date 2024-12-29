@@ -36,7 +36,7 @@ namespace AutoFactories.Tests
                 CreatesInternalFactory);
 
         [Fact]
-        public Task PublicClass_WithExposedPublicInterface_CreatesPublicFactory()
+        public Task Internal_Class_With_Public_Interface_Creates_Public_Factory()
             => Compose("""
                 using AutoFactories;
 
@@ -82,6 +82,6 @@ namespace AutoFactories.Tests
         private static Action<ClassDeclarationVisitor> CreatesInternalFactory => CreateFactoryThatIs(AccessModifier.Internal);
 
         private static Action<ClassDeclarationVisitor> CreateFactoryThatIs(AccessModifier modifier)
-            => c => c.Accessibility.Should().Be(modifier);
+            => c => c.FactoryAcessModifier.Should().Be(modifier);
     }
 }
