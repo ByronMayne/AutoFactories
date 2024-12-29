@@ -3,14 +3,19 @@ using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
 {
-    public abstract class BaseFactoryTest : AbstractTest
+    public abstract class BaseFactoryTest : SnapshotTest
     {
         public BaseFactoryTest(ITestOutputHelper outputHelper) : base(outputHelper)
-        {}
+        {
+            AddGenerator<AutoFactoriesGeneratorHoist>();
+        }
 
         [Fact]
         public Task Class_ExposeAs_ShowsInterface()
-            => Compose("""
+            => CaptureAsync(
+                notes: ["Factory should be public because the interface is public"],
+                verifySource: ["World.PersonFactory"],
+                source: ["""
                 using AutoFactories;
                 using System.Collections.Generic;
 
@@ -21,13 +26,11 @@ namespace AutoFactories.Tests
                     [AutoFactory(ExposeAs=typeof(IPerson))]
                     internal class Person : IPerson {}
                 }
-                """,
-                notes: ["Factory should be public because the interface is public" ],
-                verifySource: ["World.PersonFactory.g.cs"]);
+                """]);
 
         [Fact]
         public Task Evaluate_NoParameterInstance()
-        => Compose("""
+        => CaptureAsync(source: ["""
             using AutoFactories;
             using System.Collections.Generic;
 
@@ -39,7 +42,8 @@ namespace AutoFactories.Tests
                     return 200;
                 }
             }
-
+            """,
+            """
             public static class Program
             {
                 public static int Main(string[] args)
@@ -49,13 +53,14 @@ namespace AutoFactories.Tests
                     return result.Execute();
                 }
             }
-        """);
-
-     
+            """]);
 
         [Fact]
         public Task PublicClass_PersonalFactory()
-            => Compose("""
+            => CaptureAsync(
+                notes: ["'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well"],
+                verifySource: ["ItemFactory", "IItemFactory"],
+                source:["""
                 using AutoFactories;
                 using System.Collections.Generic;
 
@@ -69,13 +74,14 @@ namespace AutoFactories.Tests
                         Name = name;
                     }
                 }
-                """,
-                notes: ["'Item' is public so 'ItemFactory' and 'IItemFactory' should be public as well"],
-                verifySource: ["ItemFactory.g.cs", "IItemFactory.g.cs"]);
+                """]);
 
         [Fact]
         public Task InternalClass_PersonalFactory()
-            => Compose("""
+            => CaptureAsync(
+                notes: ["'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal."],
+                verifySource: ["ItemFactory", "IItemFactory"],
+                source: ["""
                 using AutoFactories;
                 using System.Collections.Generic;
 
@@ -89,22 +95,27 @@ namespace AutoFactories.Tests
                         Name = name;
                     }
                 }
-                """,
-                notes: ["'Item' is internal so 'ItemFactory' and 'IItemFactory' must also be internal."],
-                verifySource: ["ItemFactory.g.cs", "IItemFactory.g.cs"]);
+                """]);
 
         [Fact]
         public Task PublicClass_SharedFactory()
-            => Compose("""
+            => CaptureAsync(
+                notes: ["Both 'Cat' and 'Dog' should be defined within AnimalFactory", "Factory should be internal"],
+                verifySource: ["AnimalFactory", "IAnimalFactory"],
+                source: ["""
                 using AutoFactories;
                 using System.Collections.Generic;
 
                 internal partial class AnimalFactory 
                 {}
+                """, """
+                using AutoFactories;
 
                 [AutoFactory(typeof(AnimalFactory))]
                 internal class Cat
                 {}
+                """, """
+                using AutoFactories;
 
                 [AutoFactory(typeof(AnimalFactory))]
                 internal class Dog
@@ -112,10 +123,6 @@ namespace AutoFactories.Tests
                     public Dog(string dogName)
                     {}
                 }
-
-
-                """,
-                notes: ["Both 'Cat' and 'Dog' should be defined within AnimalFactory", "Factory should be internal"],
-                verifySource: ["AnimalFactory.g.cs", "IAnimalFactory.g.cs"]);
+                """]);
     }
 }

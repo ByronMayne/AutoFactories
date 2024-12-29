@@ -8,7 +8,10 @@ namespace AutoFactories.Tests
     {
         public DiagnosticsTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
+            AddAnalyzer<AutoFactoriesAnalyzer>();
+            AddGenerator<AutoFactoriesGeneratorHoist>();
         }
+
 
         [Fact]
         public Task ExposeAsNotDerived()

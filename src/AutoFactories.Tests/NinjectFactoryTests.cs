@@ -8,7 +8,7 @@ namespace AutoFactories.Tests
     {
         public NinjectFactoryTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            AddViews("AutoFactories.Ninject\\Views");
+            AddViews(ProjectPaths.NinjectDir / "Views");
             AddAssemblyReference<IKernel>();
         }
     }

@@ -8,7 +8,7 @@ namespace AutoFactories.Tests
     {
         public MicrosoftDITests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            AddViews("AutoFactories.Microsoft.DependencyInjection\\Views");
+            AddViews(ProjectPaths.MicrosoftDir / "Views");
             AddAssemblyReference<IServiceCollection>();
         }
     }

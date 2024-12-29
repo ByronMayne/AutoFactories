@@ -3,5 +3,5 @@ using System.Collections.Immutable;
 
 namespace AutoFactories.Tests
 {
-    internal record CompileResult(SyntaxTree SyntaxTree, Compilation Compilation, SemanticModel SemanticModel, ImmutableArray<Diagnostic> Diagnostics);
+    public record CompileResult(Compilation Compilation, SemanticModel SemanticModel, ImmutableArray<Diagnostic> Diagnostics);
 }

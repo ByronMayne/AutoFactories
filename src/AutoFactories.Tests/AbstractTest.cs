@@ -1,48 +1,37 @@
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis;
-using Ninject.AutoFactories;
-using Xunit.Abstractions;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Text;
-using System.Reflection;
 using AutoFactories.CodeAnalysis;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
+using Ninject.AutoFactories;
+using Seed.IO;
+using System.Collections.Immutable;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using VerifyTests;
-using System.Runtime.Loader;
-using Microsoft.CodeAnalysis.Emit;
+using System.Text;
+using Xunit.Abstractions;
 
 namespace AutoFactories.Tests
 {
+
     public abstract class AbstractTest
     {
         protected readonly ITestOutputHelper m_outputHelper;
-        private static readonly VerifySettings s_verifySettings;
 
-        private static readonly DirectoryInfo s_sourceRoot;
-
-        private readonly ISet<string?> m_referencedAssemblies;
+        private readonly ISet<MetadataReference> m_references;
         private readonly List<AdditionalText> m_additionalTexts;
-
-        static AbstractTest()
-        {
-            s_sourceRoot = GetSourceRoot();
-            s_verifySettings = new VerifySettings();
-            s_verifySettings.UseDirectory("Snapshots");
-
-
-            VerifySourceGenerators.Initialize();
-            GeneratorDriverResultFilter.Initialize();
-        }
-
+        private readonly List<DiagnosticAnalyzer> m_analyzers;
+        private readonly List<IIncrementalGenerator> m_generators;
 
         protected AbstractTest(ITestOutputHelper outputHelper)
         {
             m_outputHelper = outputHelper;
-            m_referencedAssemblies = new HashSet<string?>();
+            m_references = new HashSet<MetadataReference>();
             m_additionalTexts = new List<AdditionalText>();
+            m_generators = new List<IIncrementalGenerator>();
+            m_analyzers = new List<DiagnosticAnalyzer>();
 
-            AddViews("AutoFactories\\Views");
+            AddViews(ProjectPaths.AutoFactoriesProjectDir / "Views");
 
             AddAssemblyReference("System");
             AddAssemblyReference("System.Private.CoreLib");
@@ -53,146 +42,83 @@ namespace AutoFactories.Tests
         }
 
         /// <summary>
-        /// Adds the view from the given path
+        /// Adds the view from the given directory. This will override the default ones.
         /// </summary>
-        protected void AddViews(string relativePath)
+        protected void AddViews(AbsolutePath viewDirectory)
         {
-            string directory = Path.Combine(s_sourceRoot.FullName, relativePath);
-            if (!Directory.Exists(directory))
+            if (!Directory.Exists(viewDirectory))
             {
-                throw new DirectoryNotFoundException($"Unable to find directory '{directory}'");
+                throw new DirectoryNotFoundException($"Unable to find directory '{viewDirectory}'");
             }
-            m_additionalTexts.AddRange(
-                Directory.GetFiles(directory, "*.hbs", SearchOption.AllDirectories)
-                .Select(path => new ViewResourceText(path, File.ReadAllText(path))));
+                m_additionalTexts.AddRange(
+                    Directory.GetFiles(viewDirectory, "*.hbs", SearchOption.AllDirectories)
+                    .Select(path => new ViewResourceText(path, File.ReadAllText(path))));
+        }
+
+
+        /// <summary>
+        /// Adds a new <see cref="MetadataReference"/> for the assembly with the given name.
+        /// </summary>
+        /// <param name="assemblyName">The full or partial name of the assembly to add the refernece to</param>
+        protected void AddAssemblyReference(string assemblyName)
+        {
+            Assembly assembly = Assembly.Load(assemblyName);
+            if (assembly is not null)
+            {
+                m_references.Add(MetadataReference.CreateFromFile(assembly.Location));
+            }
         }
 
         /// <summary>
-        /// Writes a line of text that will show up in the output of the unit test
+        /// Adds a new <see cref="MetadataReference"/> for the assembly of the given assembly for which the type is contained"/>
         /// </summary>
-        /// <param name="text">The text to write</param>
-        protected void WriteLine(string text)
-        {
-            m_outputHelper.WriteLine(text);
-        }
-
-        protected void AddAssemblyReference(string name)
-        {
-            m_referencedAssemblies.Add(name);
-        }
-
+        /// <typeparam name="T">The types who's assembly you want to add a refernece tood</typeparam>
         protected void AddAssemblyReference<T>()
         {
-            m_referencedAssemblies.Add(typeof(T).Assembly.GetName().Name);
+            m_references.Add(MetadataReference.CreateFromFile(typeof(T).Assembly.Location));
         }
+
+        /// <summary>
+        /// Adds a new <see cref="IIncrementalGenerator"/> to the list of generators that will run
+        /// </summary>
+        /// <typeparam name="T">The type of the generator</typeparam>
+        protected void AddGenerator<T>() where T : IIncrementalGenerator, new()
+            => m_generators.Add(new T());
+
+        /// <summary>
+        /// Adds a new <see cref="DiagnosticAnalyzer"/> to the list of analyzers that will run
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        protected void AddAnalyzer<T>() where T : DiagnosticAnalyzer, new()
+            => m_analyzers.Add(new T());
+
+        protected UnitTestCompiler CreateCompiler()
+            => new UnitTestCompiler(m_generators, m_analyzers, m_additionalTexts);
 
         protected async Task Compose(
             string source,
-            string[]? verifySource = null,
             List<string>? notes = null,
-            Func<int>? assertExitCode = null,
             Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null,
             [CallerMemberName] string callerMemberName = "")
         {
             List<MetadataReference> references = new List<MetadataReference>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+
+            SyntaxTree[] syntaxTrees = [
+                CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), path: callerMemberName)];
+
+
+            UnitTestCompiler compiler = CreateCompiler();
+            CompileResult compileResult = await compiler.CompileAsync(syntaxTrees);
+
+            if (compileResult.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
             {
-                AssemblyName assemblyName = assembly.GetName();
-                if (assemblyName.Name is not null && m_referencedAssemblies.Contains(assemblyName.Name))
-                {
-                    references.Add(MetadataReference.CreateFromFile(assembly.Location));
-                }
-            }
-
-            SyntaxTree[] syntaxTrees = [CSharpSyntaxTree.ParseText(source, path: "TestSource")];
-            OutputKind outputKind = assertExitCode is null
-                ? OutputKind.DynamicallyLinkedLibrary
-                : OutputKind.WindowsApplication;
-
-            CSharpCompilationOptions cSharpCompilationOptions = new CSharpCompilationOptions(outputKind)
-                 .WithNullableContextOptions(NullableContextOptions.Enable);
-
-            CSharpCompilation baseCompilation = CSharpCompilation.Create("UnitTest", syntaxTrees, references, cSharpCompilationOptions);
-
-            // Setup Source Generator 
-            AutoFactoriesGenerator generator = new AutoFactoriesGenerator();
-            generator.ExceptionHandler += GenerateException;
-            AutoFactoriesGeneratorHoist incrementalGenerator = new AutoFactoriesGeneratorHoist(generator);
-
-            GeneratorDriver driver = CSharpGeneratorDriver.Create(incrementalGenerator);
-            driver = driver.AddAdditionalTexts(m_additionalTexts.ToImmutableArray());
-            driver = driver.RunGeneratorsAndUpdateCompilation(baseCompilation, out Compilation finalCompilation, out ImmutableArray<Diagnostic> diagnostics);
-
-
-
-            diagnostics = finalCompilation.GetDiagnostics()
-                .ToImmutableArray();
-
-            if (diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
-            {
-                ReportDiagnostics(finalCompilation, diagnostics);
+                ReportDiagnostics(compileResult.Compilation, compileResult.Diagnostics);
             }
 
             // Assert Analyzer
             if (assertAnalyuzerResult != null)
             {
-                AnalysisResult analysisResults = await finalCompilation.WithAnalyzers([new AutoFactoriesAnalyzer()])
-                    .GetAnalysisResultAsync(CancellationToken.None);
-
-                assertAnalyuzerResult(analysisResults.GetAllDiagnostics());
-            }
-
-
-            if (assertExitCode != null)
-            {
-                using (Stream assemblyStream = new MemoryStream())
-                using (Stream assemblySymbolStream = new MemoryStream())
-                {
-                    EmitOptions emitOptions = new EmitOptions();
-                    EmitResult emitResult = finalCompilation.Emit(assemblyStream, assemblySymbolStream, null, null, null, emitOptions, null, null, null, CancellationToken.None);
-                    Assert.True(emitResult.Success, "Failed to emit the generated assembly");
-                    assemblyStream.Position = 0;
-                    assemblySymbolStream.Position = 0;
-
-                    AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext(callerMemberName, true);
-                    try
-                    {
-                        Assembly assembly = assemblyLoadContext.LoadFromStream(assemblyStream, assemblySymbolStream);
-                        MethodInfo? entryPoint = assembly.EntryPoint;
-                        Assert.NotNull(entryPoint);
-                        object? result = entryPoint.Invoke(null, Array.Empty<string>());
-                        Assert.NotNull(result);
-                        if (result is int exitCode)
-                        {
-                            Assert.Equal(assertExitCode(), exitCode);
-                        }
-
-                    }
-                    catch (Exception exception)
-                    {
-                        Assert.Fail(exception.Message);
-                    }
-                    finally
-                    {
-                        assemblyLoadContext.Unload();
-                    }
-                    //AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext("UnitTests");
-                    //assemblyLoadContext.LoadFromStream(finalCompilation.emi)
-
-                }
-            }
-
-
-            // Assert Source Trees
-            if (verifySource != null)
-            {
-                GeneratorDriverRunResult runResults = driver.GetRunResult();
-                GeneratorDriverResultFilter filter = new(runResults, verifySource.Contains)
-                {
-                    Notes = notes ?? new List<string>()
-                };
-
-                await Verifier.Verify(filter, s_verifySettings);
+                assertAnalyuzerResult(compileResult.Diagnostics);
             }
         }
 
@@ -233,26 +159,8 @@ namespace AutoFactories.Tests
                 builder.AppendLine("```");
 
             }
-            
+
             m_outputHelper.WriteLine(builder.ToString());
-        }
-
-
-        private void GenerateException(Exception exception)
-        {
-            Assert.Fail($"Unhandle exception was thrown by the generator\n{exception}");
-        }
-
-        private static DirectoryInfo GetSourceRoot([CallerFilePath] string filePath = "")
-        {
-            DirectoryInfo? directoryInfo = new DirectoryInfo(filePath);
-
-            while (directoryInfo is not null &&
-                !Path.Exists(Path.Combine(directoryInfo.FullName, "AutoFactories.sln")))
-            {
-                directoryInfo = directoryInfo.Parent;
-            }
-            return directoryInfo ?? throw new Exception("Unable to find the source directory");
         }
     }
 }
