@@ -17,7 +17,8 @@
     <PackageReference Include="CodeCasing" Version="3.0.3" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="Handlebars.Net.Helpers.Humanizer" Version="2.4.5" />
-    <PackageReference Include="SourceGenerator.Foundations" Version="2.0.6" />
+    <PackageReference Include="NugetInsights.Connector" />
+    <PackageReference Include="SourceGenerator.Foundations" />
     <PackageReference Include="Vogen" Version="4.0.19" />
     <PackageReference Update="AutoInterface" Version="2.4.0">
       <PrivateAssets>all</PrivateAssets>
@@ -37,7 +38,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Update="Handlebars.Net.Helpers.Humanizer" Version="2.4.7" />
-    <PackageReference Update="SourceGenerator.Foundations" Version="2.0.12" />
+    <PackageReference Update="NugetInsights.Connector" Version="1.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Update="SourceGenerator.Foundations" Version="2.0.13" />
     <PackageReference Update="Vogen" Version="5.0.6" />
   </ItemGroup>
 </Project>
