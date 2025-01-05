@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AutoFactories.Models
 {
-    public class GenericModel : Dictionary<string, object>
+    public class GenericViewModel : Dictionary<string, object>
     {
     }
 }

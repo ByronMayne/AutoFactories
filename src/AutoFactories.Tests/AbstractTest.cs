@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Ninject.AutoFactories;
 using Seed.IO;
+using SGF;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -86,6 +87,27 @@ namespace AutoFactories.Tests
             => m_generators.Add(new T());
 
         /// <summary>
+        /// Adds a new generator to the list of generators that will run
+        /// </summary>
+        /// <param name="generator"></param>
+        protected void AddGenerator(IIncrementalGenerator generator)
+        {
+            if(generator is IncrementalGenerator incrementalGenerator)
+            {
+                incrementalGenerator.ExceptionHandler += exception =>
+                {
+                    Assert.Fail($"Failed due to unhandled exception: {exception}");
+                };
+            }
+            m_generators.Add(generator);
+        }
+
+        private void IncrementalGenerator_ExceptionHandler(Exception obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Adds a new <see cref="DiagnosticAnalyzer"/> to the list of analyzers that will run
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -98,7 +120,7 @@ namespace AutoFactories.Tests
         protected async Task Compose(
             string source,
             List<string>? notes = null,
-            Action<IEnumerable<Diagnostic>>? assertAnalyuzerResult = null,
+            Action<IEnumerable<Diagnostic>>? assertAnalyzerResult = null,
             [CallerMemberName] string callerMemberName = "")
         {
             List<MetadataReference> references = new List<MetadataReference>();
@@ -116,9 +138,9 @@ namespace AutoFactories.Tests
             }
 
             // Assert Analyzer
-            if (assertAnalyuzerResult != null)
-            {
-                assertAnalyuzerResult(compileResult.Diagnostics);
+            if (assertAnalyzerResult != null)
+            { 
+                assertAnalyzerResult(compileResult.Diagnostics);
             }
         }
 

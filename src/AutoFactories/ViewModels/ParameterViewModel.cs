@@ -7,17 +7,17 @@ using System.Diagnostics;
 namespace AutoFactories.Models
 {
     [DebuggerDisplay("{Name,nq}: {Type.Name}")]
-    internal class ParameterModel
+    internal class ParameterViewModel
     {
-        public class EqualityComparer : IEqualityComparer<ParameterModel>
+        public class EqualityComparer : IEqualityComparer<ParameterViewModel>
         {
-            bool IEqualityComparer<ParameterModel>.Equals(ParameterModel x, ParameterModel y)
+            bool IEqualityComparer<ParameterViewModel>.Equals(ParameterViewModel x, ParameterViewModel y)
             {
                 return string.Equals(x.Name, y.Name, System.StringComparison.Ordinal) &&
                     x.Type.QualifiedName.Equals(y.Type.QualifiedName);
             }
 
-            int IEqualityComparer<ParameterModel>.GetHashCode(ParameterModel parameter)
+            int IEqualityComparer<ParameterViewModel>.GetHashCode(ParameterViewModel parameter)
             {
                 return parameter.GetHashCode();
             }
@@ -42,14 +42,14 @@ namespace AutoFactories.Models
         public bool IsFirst { get; set; }
         public bool IsLast { get; set; }
 
-        public ParameterModel()
+        public ParameterViewModel()
         {
             Name = "";
         }
 
 
-        public static ParameterModel Map(ParameterSyntaxVisitor visitor)
-            => new ParameterModel()
+        public static ParameterViewModel Map(ParameterSyntaxVisitor visitor)
+            => new ParameterViewModel()
             {
                 Name = visitor.Name!.ToCamelCase(),
                 Type = visitor.Type,

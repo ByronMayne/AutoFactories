@@ -18,15 +18,10 @@ using System.Threading;
 namespace AutoFactories
 {
 
-    [SgfGenerator]
+    [IncrementalGenerator]
     public class AutoFactoriesGenerator : IncrementalGenerator
     {
         private static readonly Options s_options;
-
-        /// <summary>
-        /// Events to subscribe to do handle exceptions that are thrown
-        /// </summary>
-        public event Action<Exception>? ExceptionHandler;
 
         static AutoFactoriesGenerator()
         {
@@ -34,9 +29,7 @@ namespace AutoFactories
         }
 
         public AutoFactoriesGenerator() : base($"AutoFactories")
-        {
-            ExceptionHandler = null;
-        }
+        {}
 
         public override void OnInitialize(SgfInitializationContext context)
         {
@@ -75,17 +68,10 @@ namespace AutoFactories
             }
         }
 
-
         private static bool IsHandlebarsText(AdditionalText additionalText)
         {
             string extension = Path.GetExtension(additionalText.Path);
             return string.Equals(".hbs", extension, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override void OnException(Exception exception)
-        {
-            ExceptionHandler?.Invoke(exception);
-            base.OnException(exception);
         }
 
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
@@ -138,17 +124,17 @@ namespace AutoFactories
                 .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
 
 
-            List<FactoryView> factories = FactoryDeclaration.Create(validVisitors)
+            List<FactoryViewModel> factories = FactoryDeclaration.Create(validVisitors)
                 .Select(FactoryDeclaration.Map)
                 .ToList();
 
-            foreach (FactoryView view in factories)
+            foreach (FactoryViewModel view in factories)
             {
                 renderer.WritePage($"{view.Type.QualifiedName}.g.cs", ViewKey.Factory, view);
                 renderer.WritePage($"I{view.Type.QualifiedName}.g.cs", ViewKey.FactoryInterface, view);
             }
 
-            GenericModel genericModel = new GenericModel()
+            GenericViewModel genericModel = new GenericViewModel()
             {
                 ["Factories"] = factories
             };

@@ -3,7 +3,7 @@ using Ninject.AutoFactories;
 
 namespace AutoFactories.Models
 {
-    internal class GenericView : View
+    internal class GenericView : ViewModel
     {
         /// <summary>
         /// Gets or sets the access modifier for the class

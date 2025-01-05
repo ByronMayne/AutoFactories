@@ -6,7 +6,7 @@ using AutoFactories.Templating;
 
 namespace AutoFactories.Models
 {
-    internal abstract class View
+    internal abstract class ViewModel
     {
     }
 }

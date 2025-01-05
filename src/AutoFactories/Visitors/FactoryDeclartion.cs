@@ -48,18 +48,18 @@ namespace AutoFactories.Visitors
         }
 
 
-        public static FactoryView Map(FactoryDeclaration declartion)
-            => new FactoryView()
+        public static FactoryViewModel Map(FactoryDeclaration declartion)
+            => new FactoryViewModel()
             {
                 Type = declartion.Type,
                 ImplementationAccessModifier = declartion.ImplementationAccessModifier,
                 InterfaceAccessModifier = declartion.InterfaceAccessModifier,
                 Parameters = declartion.Parameters
-                    .Select(ParameterModel.Map)
+                    .Select(ParameterViewModel.Map)
                     .ToList(),
                 Methods = declartion.Classes
                     .SelectMany(c => c.Constructors)
-                    .Select(MethodModel.Map)
+                    .Select(FactoryMethodViewModel.Map)
                     .ToList()
             };
     }
