@@ -27,4 +27,4 @@ jobs:
         with: 
           publish: false 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: .\src\${{ matrix.project.name }}\${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
