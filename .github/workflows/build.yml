@@ -23,10 +23,10 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: List Dir 
-        run: dir ${{ github.workspace }}\src\${{ matrix.project.name }}\
+        run: dir .\src\${{ matrix.project.name }}\
       - name: Build | ${{ matrix.project.name }}
         uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
         with: 
           publish: false 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: .\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
