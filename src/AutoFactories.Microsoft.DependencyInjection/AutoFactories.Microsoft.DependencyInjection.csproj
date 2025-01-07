@@ -4,9 +4,17 @@
       $(Description)
       Ninject: Changes the factory to use a Ninject version of the project
     </Description>
+    <PackageIcon>Icon.png</PackageIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="GitVersion.MsBuild" Version="6.1.0">
