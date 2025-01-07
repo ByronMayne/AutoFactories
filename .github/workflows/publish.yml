@@ -1,40 +1,39 @@
 name: Publish
+
 on:
-  release: 
+  release:
     types: [published]
-  pull_request: {}
   workflow_dispatch: {}
 
 env:
   Configuration: Release
-  ProjectDir: src\Ninject.Extension.AutoFactories\
-  ProjectName: Ninject.Extension.AutoFactories.csproj
-  SolutionPath: ${{ github.workspace }}\src\AutoFactories.sln
-  ArtifactsDir: ${{ github.workspace }}\.artifacts
 jobs:
-  publish:
-    name: Publish NuGet Packages
+  build:
+    name: Build
     runs-on: windows-latest
+    strategy:
+      matrix:
+        project: 
+          - name: AutoFactories
+          - name: AutoFactories.Ninject
+          - name: AutoFactories.Microsoft.DependencyInjection
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}   # checkout the correct branch name
-          fetch-depth: 0                # fetch the whole repo history
+      - name: CheckOut
+        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.5
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.3
-        with:
-          versionSpec: '6.0.0'
-      - name: Determine Version
-        uses: gittools/actions/gitversion/execute@v3.0.3
-      - name: Build | Solution
-        run: dotnet build ${{env.SolutionPath}} 
-      - name: Test | Solution
-        run: dotnet test ${{env.SolutionPath}}
-      - name: Pack | Solution
-        run: dotnet pack ${{env.SolutionPath}} -p:Version=${{env.GitVersion_AssemblySemVer}}  -p:PackageVersion=${{env.GitVersion_SemVer}} --output ${{env.ArtifactsDir}}
-      - name: Push NuGet
-        run: dotnet nuget push ${{env.ArtifactsDir}}\*.nupkg --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}  --source https://api.nuget.org/v3/index.json
+      - name: Build | ${{ matrix.project.name }}
+        uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
+        with: 
+          publish: false 
+          configuration: ${{ env.configuration }}
+          solutionOrProjectPath: ${{ github.workspace }}\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
+      - name: Publish 
+        uses: ByronMayne/Shared.Actions/publish_csharp_nuget@1.0.5
+        with: 
+          publish: true 
+          configuration: ${{ env.configuration }}
+          solutionOrProjectPath: ${{ github.workspace }}\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
+          nugetApiKey: ${{ secrets.NUGET_API_KEY }}

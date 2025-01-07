@@ -5,27 +5,28 @@ on:
 
 env:
   Configuration: Release
-  ProjectDir: src\Ninject.Extension.AutoFactories\
-  ProjectName: Ninject.Extension.AutoFactories.csproj
-  SolutionPath: src\AutoFactories.sln
 jobs:
   build:
     name: Build
     runs-on: windows-latest
+    strategy:
+      matrix:
+        project: 
+          - name: AutoFactories
+          - name: AutoFactories.Ninject
+          - name: AutoFactories.Microsoft.DependencyInjection
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}   # checkout the correct branch name
-          fetch-depth: 0                # fetch the whole repo history
+      - name: CheckOut
+        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.5
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.3
-        with:
-          versionSpec: '6.0.0'
-      - name: Build | Solution
-        run: dotnet build ${{env.SolutionPath}} 
-      - name: Test | Solution
-        run: dotnet test ${{env.SolutionPath}}
+      - name: List Dir 
+        run: dir .\src\${{ matrix.project.name }}\
+      - name: Build | ${{ matrix.project.name }}
+        uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
+        with: 
+          publish: false 
+          configuration: ${{ env.configuration }}
+          solutionOrProjectPath: .\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
