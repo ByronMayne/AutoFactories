@@ -24,8 +24,6 @@ jobs:
           dotnet-version: 8.0.x
       - name: List Dir 
         run: dir ${{ github.workspace }}\src\${{ matrix.project.name }}\
-      - name: List Dir 
-        run: Root ${{ github.workspace }}
       - name: Build | ${{ matrix.project.name }}
         uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
         with: 
