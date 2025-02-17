@@ -10,6 +10,24 @@ namespace AutoFactories.Tests
         }
 
         [Fact]
+        public Task Shared_Factory_Creates_Interface()
+            => CaptureAsync(
+                notes: ["The HumanFactory should also generate a shared IHumanFactory"],
+                verifySource: ["HumanFactory", "IHumanFactory"],
+                source: ["""
+                    using AutoFactories;
+                    public interface IHuman
+                    {}
+                    [AutoFactory(FactoryType=typeof(HumanFactory))]
+                    public class Human 
+                    {}
+                    """,
+                    """
+                    public partial class HumanFactory
+                    {}
+                    """]);
+
+        [Fact]
         public Task Original_Namespaces_Are_Included_In_Generated_Class()
             => CaptureAsync(
                 notes: ["The namespace 'System.IO' should be included"],
