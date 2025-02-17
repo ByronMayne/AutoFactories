@@ -82,6 +82,6 @@ namespace AutoFactories.Tests
         private static Action<ClassDeclarationVisitor> CreatesInternalFactory => CreateFactoryThatIs(AccessModifier.Internal);
 
         private static Action<ClassDeclarationVisitor> CreateFactoryThatIs(AccessModifier modifier)
-            => c => c.FactoryAcessModifier.Should().Be(modifier);
+            => c => c.FactoryAccessModifier.Should().Be(modifier);
     }
 }

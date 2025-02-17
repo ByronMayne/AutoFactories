@@ -9,6 +9,7 @@ using Ninject.AutoFactories;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace AutoFactories.Visitors
 {
@@ -25,6 +26,7 @@ namespace AutoFactories.Visitors
         public MetadataTypeName Type { get; private set; }
         public AccessModifier TypeAccessModifier { get; private set; }
         public AccessModifier InterfaceAccessModifier { get; private set; }
+        public List<string> Usings { get; private set; }
 
         public MetadataTypeName FactoryType { get; private set; }
 
@@ -32,13 +34,12 @@ namespace AutoFactories.Visitors
         public Location? FactoryTypeLocation { get; private set; }
         public Location? ExposeAsLocation { get; private set; }
 
-        public AccessModifier FactoryAccessModifier { get; private set; }
         public IReadOnlyList<ConstructorDeclarationVisitor> Constructors => m_constructors;
 
         /// <summary>
         /// Gets the access modifier that the constructor will need to have
         /// </summary>
-        public AccessModifier FactoryAcessModifier { get; private set; }
+        public AccessModifier FactoryAccessModifier { get; private set; }
 
         private INamedTypeSymbol? m_typeSymbol;
         private INamedTypeSymbol? m_returnTypeSymbol;
@@ -49,6 +50,7 @@ namespace AutoFactories.Visitors
             SemanticModel semanticModel)
         {
             MethodName = "";
+            Usings = new List<string>();
             m_constructors = [];
             m_options = generatorOptions;
             m_isAnalyzer = isAnalyzer;
@@ -70,6 +72,15 @@ namespace AutoFactories.Visitors
 
             m_typeSymbol = typeSymbol;
             m_returnTypeSymbol = typeSymbol;
+
+ 
+            Usings = classDeclaration.SyntaxTree.GetRoot()
+             .DescendantNodes()
+             .OfType<UsingDirectiveSyntax>()
+             .Select(u => u.ToString())
+             .Select(s => s.Substring(6)) // remove 'using'
+             .Select(s => s.Trim(' ', ';', '"'))
+             .ToList();
 
             foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
             {
@@ -96,18 +107,18 @@ namespace AutoFactories.Visitors
             if (m_constructors.Count == 0)
             {
                 m_constructors.Add(new ConstructorDeclarationVisitor(
-                    m_isAnalyzer, 
-                    this, 
+                    m_isAnalyzer,
+                    this,
                     m_options,
                     m_typeSymbol,
-                    m_returnTypeSymbol, 
+                    m_returnTypeSymbol,
                     m_semanticModel));
             }
 
             AccessModifier returnTypeAccessibility = AccessModifier.FromSymbol(m_returnTypeSymbol);
             IEnumerable<AccessModifier> constructorAccessibilities = m_constructors.Select(c => c.Accessibility);
 
-            FactoryAcessModifier = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
+            FactoryAccessModifier = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
         }
 
         /// <summary>
@@ -220,11 +231,11 @@ namespace AutoFactories.Visitors
             if (m_returnTypeSymbol is not null && m_typeSymbol is not null)
             {
                 ConstructorDeclarationVisitor visitor = new(
-                    m_isAnalyzer, 
-                    this, 
+                    m_isAnalyzer,
+                    this,
                     m_options,
                     m_typeSymbol,
-                    m_returnTypeSymbol, 
+                    m_returnTypeSymbol,
                     m_semanticModel);
                 visitor.VisitConstructorDeclaration(node);
                 m_constructors.Add(visitor);

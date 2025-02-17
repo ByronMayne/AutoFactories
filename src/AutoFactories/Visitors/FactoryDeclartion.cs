@@ -14,6 +14,7 @@ namespace AutoFactories.Visitors
         public MetadataTypeName Type { get; }
         public AccessModifier ImplementationAccessModifier { get; }
         public AccessModifier InterfaceAccessModifier { get; }
+        public IReadOnlyList<string> Usings { get; }
         public IReadOnlyList<ClassDeclarationVisitor> Classes { get; }
         public IReadOnlyList<ParameterSyntaxVisitor> Parameters { get; }
 
@@ -28,6 +29,12 @@ namespace AutoFactories.Visitors
                 .Where(p => p.HasMarkerAttribute)
                 .ToList();
 
+            Usings = classes.SelectMany(c => c.Usings)
+                .Distinct()
+                .OrderBy(s => s.StartsWith("System") ? 0 : 1)
+                .ThenBy(s => s)
+                .ToList();
+
             InterfaceAccessModifier = AccessModifier.MostRestrictive(
                 Classes
                 .Select(c => c.InterfaceAccessModifier)
@@ -35,7 +42,7 @@ namespace AutoFactories.Visitors
 
             ImplementationAccessModifier = AccessModifier.MostRestrictive(
                 Classes
-                .Select(c => c.FactoryAcessModifier)
+                .Select(c => c.FactoryAccessModifier)
                 .ToArray());
         }
 
@@ -48,16 +55,17 @@ namespace AutoFactories.Visitors
         }
 
 
-        public static FactoryViewModel Map(FactoryDeclaration declartion)
+        public static FactoryViewModel Map(FactoryDeclaration declaration)
             => new FactoryViewModel()
             {
-                Type = declartion.Type,
-                ImplementationAccessModifier = declartion.ImplementationAccessModifier,
-                InterfaceAccessModifier = declartion.InterfaceAccessModifier,
-                Parameters = declartion.Parameters
+                Type = declaration.Type,
+                Usings = declaration.Usings.ToList(),
+                ImplementationAccessModifier = declaration.ImplementationAccessModifier,
+                InterfaceAccessModifier = declaration.InterfaceAccessModifier,
+                Parameters = declaration.Parameters
                     .Select(ParameterViewModel.Map)
                     .ToList(),
-                Methods = declartion.Classes
+                Methods = declaration.Classes
                     .SelectMany(c => c.Constructors)
                     .Select(FactoryMethodViewModel.Map)
                     .ToList()

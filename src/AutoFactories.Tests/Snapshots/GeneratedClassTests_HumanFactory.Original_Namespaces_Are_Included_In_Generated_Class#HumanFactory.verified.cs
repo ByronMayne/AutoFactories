@@ -1,26 +1,26 @@
 ﻿// -----------------------------| Notes |-----------------------------
-// 1. Factory should be public because the interface is public
+// 1. The namespace 'System.IO' should be included
 // -------------------------------------------------------------------
 #nullable enable
 #pragma warning disable CS8019 // Unnecessary using directive.
 
 using System;
+using System.IO;
+using AutoFactories;
 
-namespace World
-{
-    public partial class PersonFactory : IPersonFactory
+
+    public partial class HumanFactory : IHumanFactory
     {
-        public PersonFactory()
+        public HumanFactory()
         {
         }
 
         /// <summary>
-        /// Creates a new instance of  <see cref="World.IPerson"/>
+        /// Creates a new instance of  <see cref="Human"/>
         /// </summary>
-        public global::World.IPerson Create()
+        public global::Human Create()
         {
-            global::World.IPerson __result = new global::World.Person();
+            global::Human __result = new global::Human();
             return __result;
         }
     }
-}
