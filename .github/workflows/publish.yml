@@ -29,11 +29,11 @@ jobs:
         with: 
           publish: false 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ./src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
       - name: Publish 
         uses: ByronMayne/Shared.Actions/publish_csharp_nuget@1.0.7
         with: 
           publish: true 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ./src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
           nugetApiKey: ${{ secrets.NUGET_API_KEY }}
