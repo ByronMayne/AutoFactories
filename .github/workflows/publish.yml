@@ -19,21 +19,21 @@ jobs:
           - name: AutoFactories.Microsoft.DependencyInjection
     steps:
       - name: CheckOut
-        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.5
+        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.7
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
       - name: Build | ${{ matrix.project.name }}
-        uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
+        uses: ByronMayne/Shared.Actions/build_csharp@1.0.7
         with: 
           publish: false 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
       - name: Publish 
-        uses: ByronMayne/Shared.Actions/publish_csharp_nuget@1.0.5
+        uses: ByronMayne/Shared.Actions/publish_csharp_nuget@1.0.7
         with: 
           publish: true 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}\\src\\${{ matrix.project.name }}\\${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ${{ github.workspace }}/src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
           nugetApiKey: ${{ secrets.NUGET_API_KEY }}
