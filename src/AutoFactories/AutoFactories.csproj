@@ -4,11 +4,16 @@
     <LangVersion>12</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageIcon>Icon.jpg</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <EmbeddedResource Include="Views\Fixed\ClassAttribute.hbs" LogicalName="ClassAttribute.hbs" />
     <EmbeddedResource Include="Views\Fixed\ParameterAttribute.hbs" LogicalName="ParameterAttribute.hbs" />
+    <None Include="..\..\img\Icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <PackageReference Include="AutoInterface" />
     <PackageReference Include="Boxed.Mapping" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />

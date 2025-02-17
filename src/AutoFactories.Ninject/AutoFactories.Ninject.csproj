@@ -4,7 +4,14 @@
       $(Description)
       Ninject: Changes the factory to use a Ninject version of the project
     </Description>
+    <PackageIcon>Icon.jpg</PackageIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\img\Icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoFactories\AutoFactories.csproj" />
   </ItemGroup>
