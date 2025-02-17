@@ -4,7 +4,9 @@
 #nullable enable
 #pragma warning disable CS8019 // Unnecessary using directive.
 
-using System;
+using System.Collections.Generic;
+using AutoFactories;
+
 
     public interface IItemFactory
     {
