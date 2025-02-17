@@ -17,16 +17,14 @@ jobs:
           - name: AutoFactories.Microsoft.DependencyInjection
     steps:
       - name: CheckOut
-        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.5
+        uses: ByronMayne/Shared.Actions/gitversion_checkout@1.0.7
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-      - name: List Dir 
-        run: dir .\src\${{ matrix.project.name }}\
       - name: Build | ${{ matrix.project.name }}
-        uses: ByronMayne/Shared.Actions/build_csharp@1.0.5
+        uses: ByronMayne/Shared.Actions/build_csharp@1.0.7
         with: 
           publish: false 
           configuration: ${{ env.configuration }}
-          solutionOrProjectPath: ${{ github.workspace }}\src\${{ matrix.project.name }}\${{ matrix.project.name }}.csproj
+          solutionOrProjectPath: ./src/${{ matrix.project.name }}/${{ matrix.project.name }}.csproj
