@@ -1,4 +1,4 @@
-﻿using AutoFactories.CodeAnalysis;
+using AutoFactories.CodeAnalysis;
 using AutoFactories.Models;
 using AutoFactories.Templating;
 using AutoFactories.Visitors;
@@ -143,7 +143,7 @@ namespace AutoFactories
             foreach (ViewResourceText view in templateTexts.Where(t => t.Kind == ViewKind.Static))
             {
                 string fileName = Path.GetFileNameWithoutExtension(view.Path);
-                renderer.WritePage(fileName, view.Key, genericModel);
+                renderer.WritePage($"{fileName}.g.cs", view.Key, genericModel);
             }
         }
 
