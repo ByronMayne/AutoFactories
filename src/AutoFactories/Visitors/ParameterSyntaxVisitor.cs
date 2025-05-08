@@ -1,16 +1,18 @@
-﻿using AutoFactories.Types;
+﻿using AutoFactories.Diagnostics;
+using AutoFactories.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Ninject.AutoFactories;
+using System.Collections;
 
 namespace AutoFactories.Visitors
 {
-    internal class ParameterSyntaxVisitor
+
+    internal class ParameterSyntaxVisitor : SyntaxVisitor<ParameterSyntax>
     {
-        private readonly bool m_isAnalyzer;
-        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
+
 
         public string? Name { get; private set; }
         public MetadataTypeName Type { get; private set; }
@@ -22,33 +24,50 @@ namespace AutoFactories.Visitors
 
         public ConstructorDeclarationVisitor Constructor { get; }
 
+
+        /// <summary>
+        /// When we have a parameter that is generated from another source generator we can't
+        /// actually resolve it. We can't get the type name or the fully qualified name. So we have to warn the user 
+        /// </summary>
+        public bool IsTypeResolved { get; private set; }
+
         public ParameterSyntaxVisitor(
-            bool isAnalyzer, 
             ConstructorDeclarationVisitor constructor,
-            Options options, 
             SemanticModel semanticModel)
         {
-            m_isAnalyzer = isAnalyzer;
-            m_options = options;
-            m_semanticModel = semanticModel;
-
             Constructor = constructor;
+            m_semanticModel = semanticModel;
         }
 
-        public void VisitParameter(ParameterSyntax parameter)
+        protected override void Visit(ParameterSyntax syntax)
         {
+            ISymbol? typeSymbol = null;
 
-            if (parameter.Type is null || m_semanticModel.GetSymbolInfo(parameter.Type).Symbol is not ISymbol typeSymbol)
+            if (syntax.Type is not null)
             {
-                return;
+                typeSymbol = m_semanticModel.GetSymbolInfo(syntax.Type).Symbol;
             }
 
-            AttributeSyntax? markerAttribute = GetMarkerAttribute(parameter);
-            Name = parameter.Identifier.Text;
+            AttributeSyntax? markerAttribute = GetMarkerAttribute(syntax);
+            Name = syntax.Identifier.Text;
             HasMarkerAttribute = markerAttribute is not null;
             AttributeLocation = markerAttribute?.GetLocation();
-            Type = new MetadataTypeName(typeSymbol.ToDisplayString());
-            Accessibility = AccessModifier.FromSymbol(typeSymbol);
+
+            if (typeSymbol is not null)
+            {
+                IsTypeResolved = true;
+                Type = new MetadataTypeName(typeSymbol!.ToDisplayString());
+                Accessibility = AccessModifier.FromSymbol(typeSymbol);
+            }
+            else
+            {
+                IsTypeResolved = false;
+                Type = new MetadataTypeName($"{syntax.Type}");
+                Accessibility = AccessModifier.Public; // We don't know what it is 
+
+                AddDiagnostic(UnresolvedParameterTypeDiagnostic.Get(this));
+            }
+
         }
 
         private AttributeSyntax? GetMarkerAttribute(ParameterSyntax node)
@@ -64,7 +83,7 @@ namespace AutoFactories.Visitors
 
                     string displayString = typeSymbol.ToDisplayString();
 
-                    if (string.Equals(m_options.ParameterAttributeType.QualifiedName, displayString))
+                    if (string.Equals(TypeNames.ParameterAttributeType.QualifiedName, displayString))
                     {
                         return attribute;
                     }

@@ -43,24 +43,25 @@ namespace AutoFactories.Tests
         {
             Compilation compilation = CSharpCompilation.Create("UnitTests", syntaxTrees, m_references, m_cSharpCompileOptions);
 
-            ImmutableArray<Diagnostic> diagnostics = [];
+            List<Diagnostic> diagnostics = new List<Diagnostic>();
 
             // Run one at a time
             foreach (IIncrementalGenerator generator in Generators)
             {
                 _ = CSharpGeneratorDriver.Create(generator)
                  .AddAdditionalTexts(AdditionalTexts)
-                 .RunGeneratorsAndUpdateCompilation(compilation, out compilation, out diagnostics);
+                 .RunGeneratorsAndUpdateCompilation(compilation, out compilation, out ImmutableArray<Diagnostic> generatedDiagnostics);
+                diagnostics.AddRange(generatedDiagnostics);
             }
 
             if (Analyzers.Length > 0)
             {
                 CompilationWithAnalyzers analyzers = compilation.WithAnalyzers(Analyzers);
-                diagnostics = await analyzers.GetAllDiagnosticsAsync();
+                diagnostics.AddRange(await analyzers.GetAllDiagnosticsAsync());
             }
             SemanticModel semanticModel = compilation.GetSemanticModel(syntaxTrees[0]);
 
-            return new CompileResult(compilation, semanticModel, diagnostics);
+            return new CompileResult(compilation, semanticModel, [..diagnostics]);
         }
     }
 }

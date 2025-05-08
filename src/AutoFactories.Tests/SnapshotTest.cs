@@ -132,7 +132,7 @@ namespace AutoFactories.Tests
                 m_outputHelper.WriteLine($" - {a}");
             }
 
-            Assert.Fail("The test required sources be verified but they were not found");
+            Assert.Fail("The test required source(s) be verified but they were not found");
         }
 
         private static string GetTypeName(SyntaxTree syntaxTree, Compilation compilation)

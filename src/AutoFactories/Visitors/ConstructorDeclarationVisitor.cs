@@ -10,10 +10,9 @@ using System.Text;
 
 namespace AutoFactories.Visitors
 {
-    internal class ConstructorDeclarationVisitor
+    internal class ConstructorDeclarationVisitor : SyntaxVisitor<ConstructorDeclarationSyntax>
     {
         private readonly bool m_isAnalyzer;
-        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
         private readonly List<ParameterSyntaxVisitor> m_parameters;
 
@@ -55,35 +54,31 @@ namespace AutoFactories.Visitors
 
         public ConstructorDeclarationVisitor(
             bool isAnalyzer, 
-            ClassDeclarationVisitor classVistor, 
-            Options options, 
+            ClassDeclarationVisitor classVisitor, 
             INamedTypeSymbol type,
             INamedTypeSymbol returnType, 
             SemanticModel semanticModel)
         {
             m_isAnalyzer = isAnalyzer;
-            m_options = options;
             m_semanticModel = semanticModel;
             m_parameters = new List<ParameterSyntaxVisitor>();
             Type = new MetadataTypeName(type.ToDisplayString());
             ReturnType = new MetadataTypeName(returnType.ToDisplayString());
             Accessibility = AccessModifier.FromSymbol(returnType); // Default access is the return type
-            Class = classVistor;
+            Class = classVisitor;
         }
 
-        public void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+        protected override void Visit(ConstructorDeclarationSyntax syntax)
         {
-            IsStatic = node.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
-            IsPublic = node.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword));
+            IsStatic = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
+            IsPublic = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword));
 
             if ((IsStatic | !IsPublic) && !m_isAnalyzer)
             {
                 return;
             }
 
-            VisitParameters(node.ParameterList);
-
-            
+            VisitParameters(syntax.ParameterList);
 
             // Returns back the most restrictive permissions 
             // for all the parameters an return type. This should be public or internal
@@ -97,10 +92,11 @@ namespace AutoFactories.Visitors
         {
             foreach (ParameterSyntax parameter in parametersList.Parameters)
             {
-                ParameterSyntaxVisitor vistor = new ParameterSyntaxVisitor(m_isAnalyzer, this, m_options, m_semanticModel);
-                vistor.VisitParameter(parameter);
-                m_parameters.Add(vistor);
+                ParameterSyntaxVisitor visitor = new ParameterSyntaxVisitor(this, m_semanticModel);
+                visitor.Accept(parameter);
+                m_parameters.Add(visitor);
 
+                AddChild(visitor);
             }
         }
     }

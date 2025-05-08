@@ -5,9 +5,9 @@ using System.Text;
 
 namespace AutoFactories.Diagnostics
 {
-    internal class ExposedAsNotDerivedTypeDiagnosticBuilder : DiagnosticBuilder
+    internal class ExposedAsNotDerivedTypeDiagnostic : DiagnosticBuilder
     {
-        public ExposedAsNotDerivedTypeDiagnosticBuilder() : base(
+        public ExposedAsNotDerivedTypeDiagnostic() : base(
              id: DiagnosticIdentifier.ExposedAsIsNotDerivedType,
              title: "Exposed As Not Derived Type",
              category: "Code",
@@ -19,10 +19,13 @@ namespace AutoFactories.Diagnostics
             Severity = DiagnosticSeverity.Error;
         }
 
-        public Diagnostic Build(
+        public static Diagnostic Create(
             Location? location,
             INamedTypeSymbol? type,
             INamedTypeSymbol? expose)
-            => Diagnostic.Create(Descriptor, location, new object?[] { type?.ToDisplayString(), expose?.ToDisplayString() });
+        {
+            ExposedAsNotDerivedTypeDiagnostic builder = new ExposedAsNotDerivedTypeDiagnostic();
+            return Diagnostic.Create(builder.Descriptor, location, new object?[] { type?.ToDisplayString(), expose?.ToDisplayString() });
+        }
     }
 }

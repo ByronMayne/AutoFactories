@@ -14,11 +14,10 @@ using System.Text;
 namespace AutoFactories.Visitors
 {
     [DebuggerDisplay("{Type,nq}")]
-    internal class ClassDeclarationVisitor
+    internal class ClassDeclarationVisitor : SyntaxVisitor<ClassDeclarationSyntax>
     {
         private readonly List<ConstructorDeclarationVisitor> m_constructors;
         private readonly bool m_isAnalyzer;
-        private readonly Options m_options;
         private readonly SemanticModel m_semanticModel;
 
         public bool HasMarkerAttribute { get; private set; }
@@ -46,35 +45,32 @@ namespace AutoFactories.Visitors
 
         public ClassDeclarationVisitor(
             bool isAnalyzer,
-            Options generatorOptions,
             SemanticModel semanticModel)
         {
             MethodName = "";
             Usings = new List<string>();
             m_constructors = [];
-            m_options = generatorOptions;
             m_isAnalyzer = isAnalyzer;
             m_semanticModel = semanticModel;
         }
 
-        public void VisitClassDeclaration(ClassDeclarationSyntax classDeclaration)
+        protected override void Visit(ClassDeclarationSyntax syntax)
         {
-            if (m_semanticModel.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol typeSymbol)
+            if (m_semanticModel.GetDeclaredSymbol(syntax) is not INamedTypeSymbol typeSymbol)
             {
                 return;
             }
             Type = new MetadataTypeName(typeSymbol.ToDisplayString());
+            m_typeSymbol = typeSymbol;
             m_returnTypeSymbol = typeSymbol; // Default to current type 
             TypeAccessModifier = AccessModifier.FromSymbol(typeSymbol);
             InterfaceAccessModifier = TypeAccessModifier;
             FactoryAccessModifier = TypeAccessModifier;
             FactoryType = new MetadataTypeName($"{Type}Factory");
 
-            m_typeSymbol = typeSymbol;
-            m_returnTypeSymbol = typeSymbol;
 
  
-            Usings = classDeclaration.SyntaxTree.GetRoot()
+            Usings = syntax.SyntaxTree.GetRoot()
              .DescendantNodes()
              .OfType<UsingDirectiveSyntax>()
              .Select(u => u.ToString())
@@ -82,7 +78,7 @@ namespace AutoFactories.Visitors
              .Select(s => s.Trim(' ', ';', '"'))
              .ToList();
 
-            foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
+            foreach (AttributeListSyntax attributeList in syntax.AttributeLists)
             {
                 VisitAttributeList(attributeList);
             }
@@ -93,7 +89,7 @@ namespace AutoFactories.Visitors
                 return;
             }
 
-            foreach (SyntaxNode childNode in classDeclaration.ChildNodes())
+            foreach (SyntaxNode childNode in syntax.ChildNodes())
             {
                 switch (childNode)
                 {
@@ -109,7 +105,6 @@ namespace AutoFactories.Visitors
                 m_constructors.Add(new ConstructorDeclarationVisitor(
                     m_isAnalyzer,
                     this,
-                    m_options,
                     m_typeSymbol,
                     m_returnTypeSymbol,
                     m_semanticModel));
@@ -119,45 +114,39 @@ namespace AutoFactories.Visitors
             IEnumerable<AccessModifier> constructorAccessibilities = m_constructors.Select(c => c.Accessibility);
 
             FactoryAccessModifier = AccessModifier.MostRestrictive([returnTypeAccessibility, .. constructorAccessibilities]);
+
+            PopulateDiagnostics();
         }
 
-        /// <summary>
-        /// Gets all the diagnostics that this class has produced
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<Diagnostic> GetDiagnostics()
+        private void PopulateDiagnostics()
         {
-            Options options = new Options();
-            UnmarkedFactoryDiagnosticBuilder unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
-            InconsistentFactoryAcessibilityBuilder inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
             // UnmarkedFactory
             if (!HasMarkerAttribute)
             {
-                foreach (Diagnostic diagnostic in Constructors
+                foreach (ParameterSyntaxVisitor parameter in Constructors
                      .SelectMany(c => c.Parameters)
-                     .Where(p => p.HasMarkerAttribute)
-                     .Select(unmarkedFactoryDiagnostic.Build))
+                     .Where(p => p.HasMarkerAttribute))
                 {
-                    yield return diagnostic;
+                    AddDiagnostic(UnmarkedFactoryDiagnostic.Create(parameter));
                 }
             }
 
             // ExposeAs is not a base type of Factory 
-            if (!ExposeAsIsDereived())
+            if (!ExposeAsIsDerived())
             {
-                ExposedAsNotDerivedTypeDiagnosticBuilder notDerivedBuilder = new ExposedAsNotDerivedTypeDiagnosticBuilder();
-                yield return notDerivedBuilder.Build(ExposeAsLocation, m_typeSymbol, m_returnTypeSymbol);
+                AddDiagnostic(ExposedAsNotDerivedTypeDiagnostic.Create(ExposeAsLocation, m_typeSymbol, m_returnTypeSymbol));
             }
 
-            // InconsistentFactoryAcessibility
+            // InconsistentFactoryAccessibility
             if (TypeAccessModifier == AccessModifier.Internal &&
                 FactoryAccessModifier == AccessModifier.Public)
             {
-                yield return inconsistentFactoryAcessibility.Build(this);
+                AddDiagnostic(InconsistentFactoryAccessibilityBuilder.Create(this));
             }
+
         }
 
-        private bool ExposeAsIsDereived()
+        private bool ExposeAsIsDerived()
         {
             SymbolEqualityComparer comparer = SymbolEqualityComparer.Default;
             INamedTypeSymbol? typeSymbol = m_typeSymbol;
@@ -190,7 +179,7 @@ namespace AutoFactories.Visitors
 
                 string displayString = typeSymbol.ToDisplayString();
 
-                if (string.Equals(m_options.ClassAttributeType.QualifiedName, displayString))
+                if (string.Equals(TypeNames.ClassAttributeType.QualifiedName, displayString))
                 {
                     HasMarkerAttribute = true;
 
@@ -218,6 +207,7 @@ namespace AutoFactories.Visitors
                         if (SyntaxHelpers.GetValue(exposeAsArg, m_semanticModel) is INamedTypeSymbol exposeAsTypeSymbol)
                         {
                             ExposeAsLocation = exposeAsArg.GetLocation();
+                            TypeAccessModifier = AccessModifier.FromSymbol(exposeAsTypeSymbol);
                             m_returnTypeSymbol = exposeAsTypeSymbol;
                         }
                     }
@@ -233,12 +223,12 @@ namespace AutoFactories.Visitors
                 ConstructorDeclarationVisitor visitor = new(
                     m_isAnalyzer,
                     this,
-                    m_options,
                     m_typeSymbol,
                     m_returnTypeSymbol,
                     m_semanticModel);
-                visitor.VisitConstructorDeclaration(node);
+                visitor.Accept(node);
                 m_constructors.Add(visitor);
+                AddChild(visitor);
             }
         }
     }

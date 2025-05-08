@@ -64,9 +64,9 @@ namespace AutoFactories.Tests
                 Assert.Fail($"There were compiler errors\n - {string.Join("\n -", errors.Select(e => e.GetMessage()))}");
             }
 
-            ClassDeclarationVisitor visitor = new ClassDeclarationVisitor(true, new Options(), compileResult.SemanticModel);
+            ClassDeclarationVisitor visitor = new ClassDeclarationVisitor(true, compileResult.SemanticModel);
 
-            visitor.VisitClassDeclaration(syntaxTree
+            visitor.Accept(syntaxTree
                 .GetRoot()
                 .ChildNodes()
                 .OfType<ClassDeclarationSyntax>()

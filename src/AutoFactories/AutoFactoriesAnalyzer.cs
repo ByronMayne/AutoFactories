@@ -14,24 +14,15 @@ namespace AutoFactories
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AutoFactoriesAnalyzer : DiagnosticAnalyzer
     {
-        private UnmarkedFactoryDiagnosticBuilder m_unmarkedFactoryDiagnostic;
-        private InconsistentFactoryAcessibilityBuilder m_inconsistentFactoryAcessibility;
-        private ExposedAsNotDerivedTypeDiagnosticBuilder m_exposedAs;
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         public AutoFactoriesAnalyzer()
         {
-            Options options = new Options();
-
-            m_unmarkedFactoryDiagnostic = new UnmarkedFactoryDiagnosticBuilder(options);
-            m_inconsistentFactoryAcessibility = new InconsistentFactoryAcessibilityBuilder();
-            m_exposedAs = new ExposedAsNotDerivedTypeDiagnosticBuilder();
-
             SupportedDiagnostics = [
-                m_unmarkedFactoryDiagnostic.Descriptor,
-                m_inconsistentFactoryAcessibility.Descriptor,
-                m_exposedAs.Descriptor,
+                new UnmarkedFactoryDiagnostic().Descriptor,
+                new InconsistentFactoryAccessibilityBuilder().Descriptor,
+                new ExposedAsNotDerivedTypeDiagnostic().Descriptor,
+                new UnresolvedParameterTypeDiagnostic().Descriptor,
              ];
         }
 
@@ -43,16 +34,15 @@ namespace AutoFactories
             context.RegisterSyntaxNodeAction((context) =>
             {
                 ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
-                Options options = new(context.Options.AnalyzerConfigOptionsProvider);
-                ClassDeclarationVisitor visitor = new(true, options, context.SemanticModel);
-                visitor.VisitClassDeclaration(classDeclarationSyntax);
+                ClassDeclarationVisitor visitor = new(true, context.SemanticModel);
+                visitor.Accept(classDeclarationSyntax);
                 Analyze(visitor, context);
             }, SyntaxKind.ClassDeclaration);
         }
 
-        private void Analyze(ClassDeclarationVisitor vistor, SyntaxNodeAnalysisContext context)
+        private void Analyze(ClassDeclarationVisitor visitor, SyntaxNodeAnalysisContext context)
         {
-            foreach(Diagnostic diagnostic in vistor.GetDiagnostics())
+            foreach(Diagnostic diagnostic in visitor.GetDiagnostics())
             {
                 context.ReportDiagnostic(diagnostic);
             }

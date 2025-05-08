@@ -1,4 +1,5 @@
-﻿using AutoFactories.Tests.Generators;
+﻿using AutoFactories.Diagnostics;
+using AutoFactories.Tests.Generators;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using System;
@@ -21,33 +22,7 @@ namespace AutoFactories.Tests
             AddGenerator<AutoFactoriesGeneratorHoist>();
         }
 
-        [Fact]
-        public Task Do_It()
-        {
-            AddGenerator(new AddSourceIncrementalGenerator("""
-                namespace Items
-                {
-                    public interface IExternalType
-                    {}
-                }
-                """, "Input.g.cs"));
 
-            return Compose(
-                """
-                using Items;
-                using AutoFactories;
-
-                [AutoFactory]
-                public class Provider 
-                {
-                    public Provider(IExternalType externalType)
-                    {
-                    }
-                }
-                """,
-                assertAnalyzerResult: 
-                    d => d.Should().NotContain(d => d.Severity == DiagnosticSeverity.Error));
-        }
 
     }
 }

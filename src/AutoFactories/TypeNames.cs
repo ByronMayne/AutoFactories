@@ -4,22 +4,17 @@ using Ninject.AutoFactories;
 
 namespace AutoFactories
 {
-    internal class Options
+    internal static class TypeNames
     {
-        public MetadataTypeName ClassAttributeType { get; }
-        public MetadataTypeName ParameterAttributeType { get; }
-        public AccessModifier AttributeAccessModifier { get; }
+        public static MetadataTypeName ClassAttributeType { get; }
+        public static MetadataTypeName ParameterAttributeType { get; }
+        public static AccessModifier AttributeAccessModifier { get; }
 
-        public Options()
+        static TypeNames()
         {
             AttributeAccessModifier = AccessModifier.Internal;
             ClassAttributeType = new MetadataTypeName("AutoFactories.AutoFactoryAttribute");
             ParameterAttributeType = new MetadataTypeName("AutoFactories.FromFactoryAttribute");
-        }
-
-        public Options(AnalyzerConfigOptionsProvider provider) : this()
-        {
-
         }
     }
 }

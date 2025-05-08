@@ -24,7 +24,6 @@ namespace AutoFactories.Templating
         private static readonly Regex s_partialRegex;
         private static readonly Assembly s_assembly;
 
-        private Options m_options;
         private AddSourceDelegate? m_outputTo;
         private readonly HandlebarsConfiguration m_configuration;
         private readonly List<Action<IHandlebars>> m_setupActions;
@@ -39,7 +38,6 @@ namespace AutoFactories.Templating
         public ViewRendererBuilder()
         {
             m_handlebarsResourceMap = new Dictionary<ViewKey, Stream>();
-            m_options = new Options();
             m_setupActions = [
             h => h.RegisterHelper("each-if", EachIf)];
 
@@ -94,12 +92,6 @@ namespace AutoFactories.Templating
                         break;
                 }
             }
-            return this;
-        }
-
-        public ViewRendererBuilder UseOptions(Options options)
-        {
-            m_options = options;
             return this;
         }
 
