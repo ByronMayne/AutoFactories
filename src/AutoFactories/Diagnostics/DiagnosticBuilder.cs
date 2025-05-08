@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 
 namespace AutoFactories.Diagnostics
@@ -51,11 +52,10 @@ namespace AutoFactories.Diagnostics
             Category = category;
             Severity = DiagnosticSeverity.Error;
             m_descriptor = new Lazy<DiagnosticDescriptor>(CreateDescriptor);
-
         }
 
         /// <summary>
-        /// Lazy implemention that creates the descriptor
+        /// Lazy implementation that creates the descriptor
         /// </summary>
         /// <returns></returns>
         protected virtual DiagnosticDescriptor CreateDescriptor()
@@ -64,4 +64,6 @@ namespace AutoFactories.Diagnostics
         protected static string FormatId(int number)
             => $"AF{number + 100}";
     }
+
+
 }

@@ -11,6 +11,8 @@ namespace AutoFactories.Models
         public AccessModifier InterfaceAccessModifier { get; set; }
         public AccessModifier ImplementationAccessModifier { get; set; }
 
+        public bool IsValid { get; set; }
+
         public IList<string> Usings { get; set; }
 
         public IList<FactoryMethodViewModel> Methods { get; set; }
@@ -21,6 +23,7 @@ namespace AutoFactories.Models
 
         public FactoryViewModel()
         {
+            IsValid = true;
             Usings = new List<string>();
             Methods = new List<FactoryMethodViewModel>();
             Parameters = new List<ParameterViewModel>();

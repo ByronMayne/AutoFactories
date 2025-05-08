@@ -21,15 +21,8 @@ namespace AutoFactories
     [IncrementalGenerator]
     public class AutoFactoriesGenerator : IncrementalGenerator
     {
-        private static readonly Options s_options;
-
-        static AutoFactoriesGenerator()
-        {
-            s_options = new Options();
-        }
-
         public AutoFactoriesGenerator() : base($"AutoFactories")
-        {}
+        { }
 
         public override void OnInitialize(SgfInitializationContext context)
         {
@@ -38,7 +31,7 @@ namespace AutoFactories
                     .Where(IsHandlebarsText).Collect().Combine(
                         context.AnalyzerConfigOptionsProvider
                         .Combine(context.SyntaxProvider.ForAttributeWithMetadataName(
-                            s_options.ClassAttributeType.QualifiedName,
+                            TypeNames.ClassAttributeType.QualifiedName,
                             predicate: FilterNodes,
                             transform: TransformNodes)
                         .Where(t => t is not null)
@@ -59,9 +52,9 @@ namespace AutoFactories
         /// </summary>
         private static IEnumerable<ViewResourceText> ProcessTexts(IEnumerable<AdditionalText> additionalTexts)
         {
-            foreach(var item in  additionalTexts)
+            foreach (var item in additionalTexts)
             {
-                if(ViewResourceText.TryParse(item, out var text))
+                if (ViewResourceText.TryParse(item, out var text))
                 {
                     yield return text;
                 }
@@ -76,33 +69,31 @@ namespace AutoFactories
 
         private void AddSource(IncrementalGeneratorPostInitializationContext context)
         {
-            Options options = new();
-
-            IViewRenderer renderer = NewViewBuilder(options)
+            IViewRenderer renderer = NewViewBuilder()
                 .LoadEmbeddedTemplates()
                 .WriteTo(context.AddSource)
                 .Build();
 
             renderer.WritePage(
-                $"{options.ClassAttributeType.QualifiedName}.g.cs",
+                $"{TypeNames.ClassAttributeType.QualifiedName}.g.cs",
                 ViewKey.ClassAttribute, new GenericView()
                 {
-                    AccessModifier = options.AttributeAccessModifier,
-                    Type = options.ClassAttributeType
+                    AccessModifier = TypeNames.AttributeAccessModifier,
+                    Type = TypeNames.ClassAttributeType
                 });
 
 
             renderer.WritePage(
-                $"{options.ParameterAttributeType.QualifiedName}.g.cs",
+                $"{TypeNames.ParameterAttributeType.QualifiedName}.g.cs",
                 ViewKey.ParameterAttribute, new GenericView()
                 {
-                    AccessModifier = options.AttributeAccessModifier,
-                    Type = options.ParameterAttributeType
+                    AccessModifier = TypeNames.AttributeAccessModifier,
+                    Type = TypeNames.ParameterAttributeType
                 });
         }
 
         /// <summary>
-        /// Invoked once for every singlef actory model 
+        /// Invoked once for every single factory model 
         /// </summary>
         private void GenerateFactories(
             SgfSourceProductionContext context,
@@ -110,23 +101,40 @@ namespace AutoFactories
             AnalyzerConfigOptionsProvider configOptions,
             ImmutableArray<ClassDeclarationVisitor> visitors)
         {
-            Options options = new(configOptions);
             foreach (AdditionalText text in templateTexts)
             {
                 Logger.Information($"Include: {text.Path}");
             }
-            IViewRenderer renderer = NewViewBuilder(options)
+            IViewRenderer renderer = NewViewBuilder()
                 .WriteTo(context.AddSource)
                 .AddTemplateTexts(templateTexts)
                 .Build();
 
-            IEnumerable<ClassDeclarationVisitor> validVisitors = visitors
-                .Where(visitor => !visitor.GetDiagnostics().Any(v => v.Severity == DiagnosticSeverity.Error));
+            List<ClassDeclarationVisitor> validVisitors = new List<ClassDeclarationVisitor>();
 
+            foreach (ClassDeclarationVisitor visitor in visitors)
+            {
+                Diagnostic[] diagnostics = visitor.GetDiagnostics()
+                    .ToArray();
+
+                bool hasError = false;
+
+                foreach (Diagnostic diagnostic in diagnostics)
+                {
+                    hasError |= diagnostic.Severity == DiagnosticSeverity.Error;
+                    context.ReportDiagnostic(diagnostic);
+                }
+
+                if (!hasError)
+                {
+                    validVisitors.Add(visitor);
+                }
+            }
 
             List<FactoryViewModel> factories = FactoryDeclaration.Create(validVisitors)
                 .Select(FactoryDeclaration.Map)
                 .ToList();
+
 
             foreach (FactoryViewModel view in factories)
             {
@@ -136,7 +144,7 @@ namespace AutoFactories
 
             GenericViewModel genericModel = new GenericViewModel()
             {
-                ["Factories"] = factories
+                ["Factories"] = validVisitors
             };
 
             // Render out all static files 
@@ -151,14 +159,9 @@ namespace AutoFactories
         /// <summary>
         /// Creates a new view renderer builder 
         /// </summary>
-        private ViewRendererBuilder NewViewBuilder(Options? options = null)
+        private ViewRendererBuilder NewViewBuilder()
         {
             ViewRendererBuilder builder = new();
-            if (options is not null)
-            {
-                _ = builder.UseOptions(options);
-            }
-
             return builder;
         }
 
@@ -169,9 +172,9 @@ namespace AutoFactories
         {
             ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)context.TargetNode;
 
-            ClassDeclarationVisitor visitor = new(false, s_options, context.SemanticModel);
+            ClassDeclarationVisitor visitor = new(false, context.SemanticModel);
 
-            visitor.VisitClassDeclaration(classDeclarationSyntax);
+            visitor.Accept(classDeclarationSyntax);
 
             return visitor;
         }

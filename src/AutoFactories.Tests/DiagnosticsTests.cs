@@ -1,4 +1,5 @@
-﻿using AutoFactories.Diagnostics;
+using AutoFactories.Diagnostics;
+using AutoFactories.Tests.Generators;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -58,8 +59,7 @@ namespace AutoFactories.Tests
                 """,
                 assertAnalyzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory));
 
-        [Fact]
-        public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAcessibility()
+        public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAccessibility()
             => Compose($$"""
                 using AutoFactories;
 
@@ -70,6 +70,35 @@ namespace AutoFactories.Tests
                 internal class Chair 
                 {}
                 """,
-                assertAnalyzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAcessibility));
+                assertAnalyzerResult: d => d.Should()
+                .OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAccessibility));
+
+        [Fact]
+        public Task Parameter_With_Unresolved_Type_EmitsUnresolvedParameterType()
+        {
+            AddGenerator(new AddSourceIncrementalGenerator("""
+                namespace Items
+                {
+                    public interface IExternalType
+                    {}
+                }
+                """, "Input.g.cs"));
+
+            return Compose(
+                """
+                using Items;
+                using AutoFactories;
+
+                [AutoFactory]
+                public class Provider 
+                {
+                    public Provider(IExternalType externalType)
+                    {
+                    }
+                }
+                """,
+                assertAnalyzerResult:
+                    d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnresolvedParameterType));
+        }
     }
 }
