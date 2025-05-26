@@ -25,10 +25,9 @@ using System.Linq;
               new global::Ninject.Parameters.ConstructorArgument("name", name),
             };
 
-            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Item), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object>
-    results = __resolutionRoot.Resolve(request);
-    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Item>(results));
+            global::Ninject.Activation.IRequest __request = __resolutionRoot.CreateRequest(typeof(Item), null, __parameters, isOptional: false, isUnique: true);
+            global::System.Collections.Generic.IEnumerable<object> __results = __resolutionRoot.Resolve(__request);
+            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Item>(__results));
 
         }
     }
