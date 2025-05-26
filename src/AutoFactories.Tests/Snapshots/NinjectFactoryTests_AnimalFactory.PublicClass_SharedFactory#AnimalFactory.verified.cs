@@ -31,10 +31,9 @@ using System.Linq;
             global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
             };
 
-            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Cat), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object>
-    results = __resolutionRoot.Resolve(request);
-    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Cat>(results));
+            global::Ninject.Activation.IRequest __request = __resolutionRoot.CreateRequest(typeof(Cat), null, __parameters, isOptional: false, isUnique: true);
+            global::System.Collections.Generic.IEnumerable<object> __results = __resolutionRoot.Resolve(__request);
+            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Cat>(__results));
 
         }
 
@@ -48,10 +47,9 @@ using System.Linq;
               new global::Ninject.Parameters.ConstructorArgument("dogName", dogName),
             };
 
-            global::Ninject.Activation.IRequest request = __resolutionRoot.CreateRequest(typeof(Dog), null, __parameters, isOptional: false, isUnique: true);
-            global::System.Collections.Generic.IEnumerable<object>
-    results = __resolutionRoot.Resolve(request);
-    return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Dog>(results));
+            global::Ninject.Activation.IRequest __request = __resolutionRoot.CreateRequest(typeof(Dog), null, __parameters, isOptional: false, isUnique: true);
+            global::System.Collections.Generic.IEnumerable<object> __results = __resolutionRoot.Resolve(__request);
+            return System.Linq.Enumerable.Single(System.Linq.Enumerable.Cast<Dog>(__results));
 
         }
     }
