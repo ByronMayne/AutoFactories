@@ -47,7 +47,7 @@ namespace AutoFactories.Visitors
             bool isAnalyzer,
             SemanticModel semanticModel)
         {
-            MethodName = "";
+            MethodName = "Create";
             Usings = new List<string>();
             m_constructors = [];
             m_isAnalyzer = isAnalyzer;
