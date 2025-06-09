@@ -25,7 +25,7 @@ namespace AutoFactories.Models
         public static FactoryMethodViewModel Map(ConstructorDeclarationVisitor vistor)
                => new FactoryMethodViewModel()
                {
-                   Name = "Create",
+                   Name = vistor.Class.MethodName,
                    Type = vistor.Type,
                    Parameters = vistor.Parameters.Select(ParameterViewModel.Map).ToList(),
                    ReturnType = vistor.ReturnType,
