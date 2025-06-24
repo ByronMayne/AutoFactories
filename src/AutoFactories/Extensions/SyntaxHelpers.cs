@@ -88,9 +88,14 @@ namespace AutoFactories.Extensions
         {
             switch (instance.Expression)
             {
+                case InvocationExpressionSyntax invocationExpression:
+                    {
+                        Optional<object?> optional = semanticModel.GetConstantValue(invocationExpression);
+                        return optional.Value;
+                    }
+                    break;
                 case InterpolatedStringExpressionSyntax interpolatedString:
                     {
-
                         Optional<object?> optional = semanticModel.GetConstantValue(interpolatedString);
                         return optional.Value;
                     }
