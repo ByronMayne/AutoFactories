@@ -1,5 +1,5 @@
 ﻿// -----------------------------| Notes |-----------------------------
-// 1. The Factory should have a method called `Person`
+// 1. Create should have the name 'StringComparer'
 // -------------------------------------------------------------------
 using AutoFactories;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace World
     public partial class Factory 
     {}
 
-    [AutoFactory(typeof(Factory), nameof(Person))]
+    [AutoFactory(typeof(Factory), $"{nameof(System.StringComparer)}")]
     public class Person 
     {
         public Person([FromFactory] IEqualityComparer<string?> comparer)
@@ -39,7 +39,7 @@ global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         /// <summary>
         /// Creates a new instance of  <see cref="World.Person"/>
         /// </summary>
-        public global::World.Person Person()
+        public global::World.Person StringComparer()
         {
             global::World.Person __result = new global::World.Person(
              m_comparer);

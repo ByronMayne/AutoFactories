@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using AutoFactories.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -39,6 +40,7 @@ namespace AutoFactories.Extensions
             }
             return false;
         }
+
 
         public static string GetNamespace(BaseTypeDeclarationSyntax syntax)
         {
@@ -93,7 +95,6 @@ namespace AutoFactories.Extensions
                         Optional<object?> optional = semanticModel.GetConstantValue(invocationExpression);
                         return optional.Value;
                     }
-                    break;
                 case InterpolatedStringExpressionSyntax interpolatedString:
                     {
                         Optional<object?> optional = semanticModel.GetConstantValue(interpolatedString);

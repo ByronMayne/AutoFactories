@@ -1,4 +1,4 @@
-﻿            global::{{ReturnType.QualifiedName}} __result = new global::{{Type.QualifiedName}}({{#each Parameters}}
+﻿            {{> ToTypeReference ReturnType}} __result = new {{> ToTypeReference Type}}({{#each Parameters}}
             {{#unless IsRequired}} m_{{Name}}{{/unless~}}
             {{#if IsRequired}} {{Name}}{{/if~}}
             {{#unless @Last}},{{/unless~}}

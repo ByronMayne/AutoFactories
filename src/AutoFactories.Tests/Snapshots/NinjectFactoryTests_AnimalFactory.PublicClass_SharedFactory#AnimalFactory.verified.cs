@@ -41,7 +41,7 @@ using System.Linq;
         /// <summary>
         /// Creates a new instance of  <see cref="Dog"/>
         /// </summary>
-        public global::Dog Create(global::System.String dogName)
+        public global::Dog Create(string dogName)
         {
             global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
               new global::Ninject.Parameters.ConstructorArgument("dogName", dogName),

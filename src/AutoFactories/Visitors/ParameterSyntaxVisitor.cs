@@ -39,13 +39,14 @@ namespace AutoFactories.Visitors
             m_semanticModel = semanticModel;
         }
 
+
         protected override void Visit(ParameterSyntax syntax)
         {
-            ISymbol? typeSymbol = null;
+            ITypeSymbol? typeSymbol = null;
 
             if (syntax.Type is not null)
             {
-                typeSymbol = m_semanticModel.GetSymbolInfo(syntax.Type).Symbol;
+                typeSymbol = m_semanticModel.GetSymbolInfo(syntax.Type).Symbol as ITypeSymbol;
             }
 
             AttributeSyntax? markerAttribute = GetMarkerAttribute(syntax);
@@ -56,13 +57,25 @@ namespace AutoFactories.Visitors
             if (typeSymbol is not null)
             {
                 IsTypeResolved = true;
-                Type = new MetadataTypeName(typeSymbol!.ToDisplayString());
+                Type = new MetadataTypeName(typeSymbol)
+                {
+                    IsNullable = syntax.Type is NullableTypeSyntax
+                };
                 Accessibility = AccessModifier.FromSymbol(typeSymbol);
             }
             else
             {
                 IsTypeResolved = false;
-                Type = new MetadataTypeName($"{syntax.Type}");
+                string typeName = $"{syntax.Type}";
+                string @namespace = "";
+                int splitIndex = typeName.LastIndexOf('.');
+
+                if(splitIndex > 0)
+                {
+                    typeName = typeName.Substring(splitIndex + 1);
+                    @namespace = typeName.Substring(0, splitIndex);
+                }
+                Type = new MetadataTypeName(typeName, @namespace, false, false);
                 Accessibility = AccessModifier.Public; // We don't know what it is 
 
                 AddDiagnostic(UnresolvedParameterTypeDiagnostic.Get(this));

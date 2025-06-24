@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        public global::Item Create(global::System.String name)
+        public global::Item Create(string name)
         {
             return new Item(
                 name,
