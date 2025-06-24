@@ -24,7 +24,7 @@ namespace AutoFactories.Visitors
         /// <summary>
         /// Gets if the constructor is public or not
         /// </summary>
-        public bool IsPublic { get; private set; }
+        public bool IsPrivate { get; private set; }
 
         /// <summary>
         /// Gets the type that is going to be created
@@ -71,9 +71,9 @@ namespace AutoFactories.Visitors
         protected override void Visit(ConstructorDeclarationSyntax syntax)
         {
             IsStatic = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
-            IsPublic = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword));
+            IsPrivate = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword));
 
-            if ((IsStatic | !IsPublic) && !m_isAnalyzer)
+            if ((IsStatic &&!IsPrivate) && !m_isAnalyzer)
             {
                 return;
             }
