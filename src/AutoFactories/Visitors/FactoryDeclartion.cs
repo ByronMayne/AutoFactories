@@ -25,6 +25,8 @@ namespace AutoFactories.Visitors
             Classes = classes.ToList();
             Parameters = Classes
                 .SelectMany(c => c.Constructors)
+                .Where(c => !c.IsPrivate)
+                .Where(c => !c.IsStatic)
                 .SelectMany(c => c.Parameters)
                 .Where(p => p.HasMarkerAttribute)
                 .ToList();

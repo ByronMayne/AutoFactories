@@ -73,11 +73,6 @@ namespace AutoFactories.Visitors
             IsStatic = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
             IsPrivate = syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword));
 
-            if ((IsStatic &&!IsPrivate) && !m_isAnalyzer)
-            {
-                return;
-            }
-
             VisitParameters(syntax.ParameterList);
 
             // Returns back the most restrictive permissions 
