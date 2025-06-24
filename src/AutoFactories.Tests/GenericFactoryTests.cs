@@ -11,6 +11,26 @@ namespace AutoFactories.Tests
         }
 
         [Fact]
+        public Task Internal_Constructor_Is_Populated()
+            => CaptureAsync(
+                notes: ["The constructor is internal but should still generate a factory method"],
+                verifySource: ["City.HouseFactory"],
+                source: ["""
+                    using AutoFactories;
+                    using System.Collections.Generic;
+
+                    namespace City
+                    {
+                        [AutoFactory]
+                        public class House
+                        {
+                            internal House(string address, int? unitNumber)
+                            {}
+                        }
+                    }
+                """]);
+
+        [Fact]
         public Task Nullable_Arguments()
             => CaptureAsync(
                 notes: ["Create should have the name 'StringComparer'"],
