@@ -1,4 +1,4 @@
 ﻿{{#each Parameters }}
-        private readonly global::{{Type.QualifiedName}} m_{{Name}};{{#if @Last}}
+        private readonly {{> ToTypeReference Type}} m_{{Name}};{{#if @Last}}
 
 {{/if}}{{/each}}

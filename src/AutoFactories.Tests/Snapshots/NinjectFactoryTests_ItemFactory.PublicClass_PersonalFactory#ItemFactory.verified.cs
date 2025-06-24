@@ -19,7 +19,7 @@ using System.Linq;
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        public global::Item Create(global::System.String name)
+        public global::Item Create(string name)
         {
             global::Ninject.Parameters.IParameter[] __parameters = new global::Ninject.Parameters.IParameter[] {
               new global::Ninject.Parameters.ConstructorArgument("name", name),

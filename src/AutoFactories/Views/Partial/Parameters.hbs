@@ -1,1 +1,1 @@
-﻿{{#each RequiredParameters}}global::{{Type.QualifiedName}} {{Name}}{{#unless @Last}}, {{/unless}}{{/each}}
+﻿{{#each RequiredParameters}}{{> ToTypeReference Type}} {{Name}}{{#unless @Last}}, {{/unless}}{{/each}}

@@ -13,5 +13,5 @@ using Microsoft.Extensions.DependencyInjection;
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        global::Item Create(global::System.String name);
+        global::Item Create(string name);
     }

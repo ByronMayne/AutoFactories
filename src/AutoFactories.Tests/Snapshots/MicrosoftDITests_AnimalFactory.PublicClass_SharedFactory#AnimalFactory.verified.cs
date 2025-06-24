@@ -37,7 +37,7 @@ using Microsoft.Extensions.DependencyInjection;
         /// <summary>
         /// Creates a new instance of  <see cref="Dog"/>
         /// </summary>
-        public global::Dog Create(global::System.String dogName)
+        public global::Dog Create(string dogName)
         {
             return new Dog(
                 dogName            );

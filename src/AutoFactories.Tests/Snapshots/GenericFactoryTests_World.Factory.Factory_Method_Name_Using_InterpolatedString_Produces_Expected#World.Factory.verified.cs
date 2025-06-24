@@ -31,7 +31,7 @@ namespace World
         private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
 
         public Factory(
-            global::System.Collections.Generic.IEqualityComparer<string?> comparer)
+global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {
             m_comparer = comparer;
         }

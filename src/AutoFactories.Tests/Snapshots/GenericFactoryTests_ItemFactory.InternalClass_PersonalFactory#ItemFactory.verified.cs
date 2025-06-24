@@ -13,7 +13,7 @@ using AutoFactories;
         private readonly global::System.Collections.Generic.IEqualityComparer<string?> m_comparer;
 
         public ItemFactory(
-            global::System.Collections.Generic.IEqualityComparer<string?> comparer)
+global::System.Collections.Generic.IEqualityComparer<string?> comparer)
         {
             m_comparer = comparer;
         }
@@ -21,7 +21,7 @@ using AutoFactories;
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        public global::Item Create(global::System.String name)
+        public global::Item Create(string name)
         {
             global::Item __result = new global::Item(
              name,

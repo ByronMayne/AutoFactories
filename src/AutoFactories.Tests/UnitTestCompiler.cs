@@ -43,6 +43,7 @@ namespace AutoFactories.Tests
         {
             Compilation compilation = CSharpCompilation.Create("UnitTests", syntaxTrees, m_references, m_cSharpCompileOptions);
 
+
             List<Diagnostic> diagnostics = new List<Diagnostic>();
 
             // Run one at a time

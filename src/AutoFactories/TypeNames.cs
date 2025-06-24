@@ -13,8 +13,8 @@ namespace AutoFactories
         static TypeNames()
         {
             AttributeAccessModifier = AccessModifier.Internal;
-            ClassAttributeType = new MetadataTypeName("AutoFactories.AutoFactoryAttribute");
-            ParameterAttributeType = new MetadataTypeName("AutoFactories.FromFactoryAttribute");
+            ClassAttributeType = new MetadataTypeName(name: "AutoFactoryAttribute", @namespace:"AutoFactories", false, false);
+            ParameterAttributeType = new MetadataTypeName(name: "FromFactoryAttribute", @namespace: "AutoFactories", false, false);
         }
     }
 }

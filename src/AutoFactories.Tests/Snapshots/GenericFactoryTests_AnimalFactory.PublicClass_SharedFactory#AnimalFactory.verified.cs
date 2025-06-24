@@ -33,7 +33,7 @@ using AutoFactories;
         /// <summary>
         /// Creates a new instance of  <see cref="Dog"/>
         /// </summary>
-        public global::Dog Create(global::System.String dogName)
+        public global::Dog Create(string dogName)
         {
             global::Dog __result = new global::Dog(
              dogName);

@@ -62,8 +62,8 @@ namespace AutoFactories.Visitors
             m_isAnalyzer = isAnalyzer;
             m_semanticModel = semanticModel;
             m_parameters = new List<ParameterSyntaxVisitor>();
-            Type = new MetadataTypeName(type.ToDisplayString());
-            ReturnType = new MetadataTypeName(returnType.ToDisplayString());
+            Type = new MetadataTypeName(type);
+            ReturnType = new MetadataTypeName(returnType);
             Accessibility = AccessModifier.FromSymbol(returnType); // Default access is the return type
             Class = classVisitor;
         }

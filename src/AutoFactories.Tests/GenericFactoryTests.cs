@@ -11,7 +11,30 @@ namespace AutoFactories.Tests
         }
 
         [Fact]
-        public Task Type_With_Name_Of_Attribute_Genertes()
+        public Task Nullable_Arguments()
+            => CaptureAsync(
+                notes: ["Create should have the name 'StringComparer'"],
+                verifySource: ["World.PersonFactory"],
+                source: ["""
+                    using AutoFactories;
+                    using System.Collections.Generic;
+
+                    namespace World
+                    {
+               
+                        [AutoFactory]
+                        public class Person 
+                        {
+                            public Person(int? age, string? name)
+                            {}
+                        }
+                    }
+                """]);
+
+
+
+        [Fact]
+        public Task Type_With_Name_Of_Attribute_Generates()
             => CaptureAsync(
                 notes: ["Create should have the name 'StringComparer'"],
                 verifySource: ["World.Factory"],

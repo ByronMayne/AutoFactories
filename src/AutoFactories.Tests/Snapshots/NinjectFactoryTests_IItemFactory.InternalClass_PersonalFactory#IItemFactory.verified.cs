@@ -12,5 +12,5 @@ using System.Linq;
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
         /// </summary>
-        global::Item Create(global::System.String name);
+        global::Item Create(string name);
     }

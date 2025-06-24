@@ -60,13 +60,13 @@ namespace AutoFactories.Visitors
             {
                 return;
             }
-            Type = new MetadataTypeName(typeSymbol.ToDisplayString());
+            Type = new MetadataTypeName(typeSymbol);
             m_typeSymbol = typeSymbol;
             m_returnTypeSymbol = typeSymbol; // Default to current type 
             TypeAccessModifier = AccessModifier.FromSymbol(typeSymbol);
             InterfaceAccessModifier = TypeAccessModifier;
             FactoryAccessModifier = TypeAccessModifier;
-            FactoryType = new MetadataTypeName($"{Type}Factory");
+            FactoryType = new MetadataTypeName(name: $"{Type.Name}Factory", @namespace: Type.Namespace, false, false);
 
 
  
@@ -188,7 +188,7 @@ namespace AutoFactories.Visitors
                         FactoryTypeLocation = factoryTypeArg.GetLocation();
                         if (SyntaxHelpers.GetValue(factoryTypeArg, m_semanticModel) is INamedTypeSymbol factoryTypeSymbol)
                         {
-                            FactoryType = new MetadataTypeName(factoryTypeSymbol.ToDisplayString());
+                            FactoryType = new MetadataTypeName(factoryTypeSymbol);
                             FactoryAccessModifier = AccessModifier.FromSymbol(factoryTypeSymbol);
                         }
                     }
