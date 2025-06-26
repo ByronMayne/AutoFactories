@@ -9,6 +9,23 @@ namespace AutoFactories.Tests
         {
             // Not need to bind anything 
         }
+        [Fact]
+        public Task EveryAttributeApplied()
+            => CaptureAsync(
+                verifySource: ["ChairFactory"],
+                source: ["""
+                        using AutoFactories;
+
+                        public partial class ChairFactory 
+                        {}
+
+                        [AutoFactory(typeof(ChairFactory), "Chair", ExposeAs = typeof(object))]
+                        public class Chair
+                        {
+                            public Chair(string material)
+                            {}
+                        }
+                    """]);
 
         [Fact]
         public Task Internal_Constructor_Is_Populated()

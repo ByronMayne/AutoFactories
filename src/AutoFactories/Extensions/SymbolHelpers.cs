@@ -18,6 +18,7 @@ namespace AutoFactories.Extensions
             void AddAlias<T>(string alias)
                 => s_alias[typeof(T).FullName] = alias;
 
+            AddAlias<object>("object");
             AddAlias<string>("string");
             AddAlias<int>("int");
             AddAlias<long>("long");
