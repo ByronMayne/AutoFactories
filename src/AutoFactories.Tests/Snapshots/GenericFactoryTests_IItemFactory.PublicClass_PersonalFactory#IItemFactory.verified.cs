@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using AutoFactories;
 
 
-    public interface IItemFactory
+    public partial interface IItemFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>

@@ -8,7 +8,7 @@
 using System;
 using System.Linq;
 
-    internal interface IAnimalFactory
+    internal partial interface IAnimalFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Cat"/>

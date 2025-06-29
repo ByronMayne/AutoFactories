@@ -7,7 +7,7 @@
 using AutoFactories;
 
 
-    public interface IHumanFactory
+    public partial interface IHumanFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Human"/>

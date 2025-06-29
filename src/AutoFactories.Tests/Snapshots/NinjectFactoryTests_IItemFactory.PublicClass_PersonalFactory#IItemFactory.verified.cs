@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 
-    public interface IItemFactory
+    public partial interface IItemFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
