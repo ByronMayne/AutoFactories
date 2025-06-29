@@ -59,7 +59,7 @@ namespace AutoFactories.Extensions
                 return new MetadataTypeName(name, @namespace, isNullable, isAlias);
             }
 
-            return new MetadataTypeName(typeSymbol);
+            return new MetadataTypeName(typeSymbol.Name, GetFullNamespace(typeSymbol), false, false);
         }
 
         public static string ResolveTypeToString(ITypeSymbol typeSymbol)
