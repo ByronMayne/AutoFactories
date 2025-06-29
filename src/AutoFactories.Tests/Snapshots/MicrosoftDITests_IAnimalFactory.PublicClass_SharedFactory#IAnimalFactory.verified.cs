@@ -9,7 +9,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-    internal interface IAnimalFactory
+    internal partial interface IAnimalFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Cat"/>

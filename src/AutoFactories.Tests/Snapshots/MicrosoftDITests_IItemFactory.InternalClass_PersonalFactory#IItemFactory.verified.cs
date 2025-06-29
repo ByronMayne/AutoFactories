@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-    internal interface IItemFactory
+    internal partial interface IItemFactory
     {
         /// <summary>
         /// Creates a new instance of  <see cref="Item"/>
