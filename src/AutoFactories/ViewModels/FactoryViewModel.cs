@@ -7,7 +7,18 @@ namespace AutoFactories.Models
 {
     internal class FactoryViewModel : ViewModel
     {
-        public MetadataTypeName Type { get; set; }
+        private MetadataTypeName m_type;
+
+        public MetadataTypeName Type
+        {
+            get => m_type;
+            set
+            {
+                m_type = value;
+                InterfaceType = new MetadataTypeName($"I{m_type.Name}", m_type.Namespace, m_type.IsNullable, m_type.IsAlias);
+            }
+        }
+        public MetadataTypeName InterfaceType { get; set; }
         public AccessModifier InterfaceAccessModifier { get; set; }
         public AccessModifier ImplementationAccessModifier { get; set; }
 
