@@ -144,7 +144,7 @@ namespace AutoFactories
 
             GenericViewModel genericModel = new GenericViewModel()
             {
-                ["Factories"] = validVisitors
+                ["Factories"] = factories
             };
 
             // Render out all static files 

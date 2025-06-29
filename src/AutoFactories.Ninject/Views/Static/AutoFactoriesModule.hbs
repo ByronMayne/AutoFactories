@@ -11,7 +11,7 @@ public class AutoFactoriesModule : NinjectModule
     public override void Load()
     {
 {{#each Factories}}
-        Bind<{{FactoryType.Namespace}}.I{{FactoryType.Name}}>().To<{{FactoryType.QualifiedName}}>();
+        Bind<{{InterfaceType.QualifiedName}}>().To<{{Type.QualifiedName}}>();
 {{/each}}
     }
 }

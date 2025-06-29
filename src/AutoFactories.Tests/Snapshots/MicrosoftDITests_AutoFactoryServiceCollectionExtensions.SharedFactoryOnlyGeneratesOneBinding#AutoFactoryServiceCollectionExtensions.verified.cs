@@ -1,5 +1,7 @@
-{{> DiagnosticSuppressions}}
-
+﻿// -----------------------------| Notes |-----------------------------
+// 1. Two classes are sharing the same factory, we need to valdiate they only bind once
+// -------------------------------------------------------------------
+#pragma warning disable CS8019 // Unnecessary using directive.
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -16,9 +18,7 @@ public static partial class AutoFactoryServiceCollectionExtensions
     /// </summary>
     public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAutoFactories(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
     {
-{{#each Factories}}
-        services.AddTransient<{{InterfaceType.QualifiedName}}, {{Type.QualifiedName}}>();
-{{/each}}
+        services.AddTransient<IAnimalFactory, AnimalFactory>();
         return services;
     }
 }
