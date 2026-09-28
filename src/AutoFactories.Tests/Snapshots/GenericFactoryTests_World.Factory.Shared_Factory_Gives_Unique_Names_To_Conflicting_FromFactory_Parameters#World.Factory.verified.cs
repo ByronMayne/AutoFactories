@@ -7,20 +7,20 @@ using System.Collections.Generic;
 namespace World
 {
     public partial class Factory
-    { }
+    {}
 
     [AutoFactory(typeof(Factory))]
     public class Person
     {
         public Person(string name, [FromFactory] IEqualityComparer<string> service)
-        { }
+        {}
     }
 
     [AutoFactory(typeof(Factory))]
     public class Robot
     {
         public Robot(int id, [FromFactory] IComparer<string> service)
-        { }
+        {}
     }
 }
 // -------------------------------------------------------------------
@@ -62,27 +62,6 @@ global::System.Collections.Generic.IComparer<string> service1)
         /// Creates a new instance of  <see cref="World.Robot"/>
         /// </summary>
         public global::World.Robot Create(int id)
-        {
-            global::World.Robot __result = new global::World.Robot(
-             id,
-             m_service1);
-            return __result;
-        }
-    }
-}
-global::World.Robot __result = new global::World.Robot(
-                 id,
-                 m_service1);
-                return __result;
-            }
-        }
-    }
-
-
-    /// <summary>
-    /// Creates a new instance of  <see cref="World.Robot"/>
-    /// </summary>
-    public global::World.Robot Create(int id)
         {
             global::World.Robot __result = new global::World.Robot(
              id,
