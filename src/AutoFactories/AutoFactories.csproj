@@ -25,9 +25,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="CodeCasing" />
-    <PackageReference Include="Handlebars.Net.Helpers.Humanizer" />
     <PackageReference Include="Microsoft.CSharp" PrivateAssets="all" />
-    <PackageReference Include="SourceGenerator.Foundations" />
+    <PackageReference Include="SourceGenerator.Foundations" PrivateAssets="all" />
     <!-- We pin the version [4.7.0] to ensure compatibility with Visual Studio 2022 -->
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
