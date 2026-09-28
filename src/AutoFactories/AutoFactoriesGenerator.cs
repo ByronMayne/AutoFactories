@@ -40,25 +40,49 @@ namespace AutoFactories
             context.RegisterPostInitializationOutput(AddSource);
             context.RegisterSourceOutput(provider, (context, tuple) =>
             {
-                ImmutableArray<ViewResourceText> templateTexts = ProcessTexts(tuple.Left)
+                ImmutableArray<AdditionalText> additionalTexts = tuple.Left;
+                ImmutableArray<ClassDeclarationVisitor> classVisitors = tuple.Right.Right!;
+                AnalyzerConfigOptionsProvider configProvider = tuple.Right.Left;
+
+                ImmutableArray<ViewResourceText> templateTexts = ProcessTexts(configProvider, additionalTexts)
                     .ToImmutableArray();
 
-                GenerateFactories(context, templateTexts, tuple.Right.Left, tuple.Right.Right!);
+                GenerateFactories(context, templateTexts, configProvider, classVisitors);
             });
         }
 
         /// <summary>
         /// Loops over additional texts and converts them to <see cref="ViewResourceText"/> if they are valid.
         /// </summary>
-        private static IEnumerable<ViewResourceText> ProcessTexts(IEnumerable<AdditionalText> additionalTexts)
+        private static IEnumerable<ViewResourceText> ProcessTexts(
+            AnalyzerConfigOptionsProvider optionsProvider,
+            IEnumerable<AdditionalText> additionalTexts)
         {
-            foreach (var item in additionalTexts)
+            List<ViewResourceText> results = new List<ViewResourceText>();
+
+            foreach (AdditionalText item in additionalTexts)
             {
-                if (ViewResourceText.TryParse(item, out var text))
+                AnalyzerConfigOptions options = optionsProvider.GetOptions(item);
+
+                int itemPrecedence = options.TryGetValue("build_metadata.AdditionalFiles.AutoFactoriesTemplatePrecedence", out string? rawTemplatePrecedence)
+                    && int.TryParse(rawTemplatePrecedence, out int precedence)
+                        ? precedence
+                        : int.MaxValue;
+
+                string packageSource = options.TryGetValue("build_metadata.AdditionalFiles.AutoFactoriesPackage", out string? rawPackageSource)
+                    ? rawPackageSource
+                    : string.Empty;
+
+
+                if (ViewResourceText.TryParse(item, packageSource, itemPrecedence, out var text))
                 {
-                    yield return text;
+                    results.Add(text);
                 }
             }
+
+            // OrderBy is stable: equal priorities keep their original order, and the renderer uses the last view per key
+            return results
+                .OrderBy(b => b.Priority);
         }
 
         private static bool IsHandlebarsText(AdditionalText additionalText)
