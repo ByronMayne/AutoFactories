@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using Ninject.AutoFactories;
 using Seed.IO;
 using SGF;
 using System.Collections.Immutable;
@@ -21,6 +20,7 @@ namespace AutoFactories.Tests
 
         private readonly ISet<MetadataReference> m_references;
         private readonly List<AdditionalText> m_additionalTexts;
+        private readonly Dictionary<AdditionalText, string> m_viewPackageIds;
         private readonly List<DiagnosticAnalyzer> m_analyzers;
         private readonly List<IIncrementalGenerator> m_generators;
 
@@ -29,10 +29,11 @@ namespace AutoFactories.Tests
             m_outputHelper = outputHelper;
             m_references = new HashSet<MetadataReference>();
             m_additionalTexts = new List<AdditionalText>();
+            m_viewPackageIds = new Dictionary<AdditionalText, string>();
             m_generators = new List<IIncrementalGenerator>();
             m_analyzers = new List<DiagnosticAnalyzer>();
 
-            AddViews(ProjectPaths.AutoFactoriesProjectDir / "Views");
+            AddViews(ProjectPaths.AutoFactoriesProjectDir / "Views", packageId: "AutoFactories");
 
             AddAssemblyReference("System");
             AddAssemblyReference("System.Private.CoreLib");
@@ -43,17 +44,36 @@ namespace AutoFactories.Tests
         }
 
         /// <summary>
-        /// Adds the view from the given directory. This will override the default ones.
+        /// Adds the view from the given directory. When the views come from a NuGet package, <paramref name="packageId"/>
+        /// mimics the metadata the package props attach, which the generator uses to pick which view wins.
         /// </summary>
-        protected void AddViews(AbsolutePath viewDirectory)
+        /// <param name="viewDirectory">The directory to load the views from</param>
+        /// <param name="packageId">The id of the package the views ship in, or null for views defined by the project</param>
+        /// <param name="insertFirst">True to add the views before all others, simulating a different NuGet import order</param>
+        protected void AddViews(AbsolutePath viewDirectory, 
+            string packageId = "Unset", 
+            int presendence = 0,
+            bool insertFirst = false)
         {
+
             if (!Directory.Exists(viewDirectory))
             {
                 throw new DirectoryNotFoundException($"Unable to find directory '{viewDirectory}'");
             }
-                m_additionalTexts.AddRange(
-                    Directory.GetFiles(viewDirectory, "*.hbs", SearchOption.AllDirectories)
-                    .Select(path => new ViewResourceText(path, File.ReadAllText(path))));
+
+            ViewResourceText[] views = Directory.GetFiles(viewDirectory, "*.hbs", SearchOption.AllDirectories)
+                .Select(path => new ViewResourceText(path, File.ReadAllText(path), presendence, packageId))
+                .ToArray();
+
+            if (packageId is not null)
+            {
+                foreach (ViewResourceText view in views)
+                {
+                    m_viewPackageIds[view] = packageId;
+                }
+            }
+
+            m_additionalTexts.InsertRange(insertFirst ? 0 : m_additionalTexts.Count, views);
         }
 
 

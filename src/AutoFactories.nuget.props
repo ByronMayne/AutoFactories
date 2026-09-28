@@ -3,7 +3,14 @@
   published as NuGet packages.
 -->
 <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
+  <PropertyGroup>
+    <!-- AutoFactories base library is 0 and the implementions are 1. If the user define their own view they would be int.max value. -->
+    <_AutoFactoriesTemplatePrecedence>1</_AutoFactoriesTemplatePrecedence>
+    <_AutoFactoriesTemplatePrecedence Condition="'$(MSBuildThisFileName)' == 'AutoFactories'">0</_AutoFactoriesTemplatePrecedence>
+  </PropertyGroup>
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\Views\**\*.hbs" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\Views\**\*.hbs" Visible="false" AutoFactoriesPackage="$(MSBuildThisFileName)" AutoFactoriesTemplatePrecedence="$(_AutoFactoriesTemplatePrecedence)"/>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="AutoFactoriesTemplatePrecedence" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="AutoFactoriesPackage" />
   </ItemGroup>
 </Project>
