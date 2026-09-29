@@ -6,7 +6,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
   <ItemGroup>
     <!-- Auto Include Content -->
