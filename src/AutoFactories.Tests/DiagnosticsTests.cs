@@ -59,6 +59,7 @@ namespace AutoFactories.Tests
                 """,
                 assertAnalyzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory.Value));
 
+        [Fact]
         public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAccessibility()
             => Compose($$"""
                 using AutoFactories;
