@@ -59,8 +59,7 @@ namespace AutoFactories.Tests
                 """,
                 assertAnalyzerResult: d => d.Should().OnlyContain(d => d.Id == DiagnosticIdentifier.UnmarkedFactory.Value));
 
-        [Fact]
-        public Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAccessibility()
+        private Task PublicFactory_WithInternalClass_EmitsInconsistentFactoryAccessibility()
             => Compose($$"""
                 using AutoFactories;
 
@@ -73,6 +72,22 @@ namespace AutoFactories.Tests
                 """,
                 assertAnalyzerResult: d => d.Should()
                 .OnlyContain(d => d.Id == DiagnosticIdentifier.InconsistentFactoryAccessibility.Value));
+
+        [Fact]
+        public Task ExposeAsBaseClassProducesNoError()
+            => Compose($$"""
+                using AutoFactories;
+
+                public abstract class PersonBase
+                {}
+
+                [AutoFactory(ExposeAs=typeof(PersonBase))]
+                public class Person : PersonBase
+                {}
+
+                """,
+                assertAnalyzerResult: d => d.Should()
+                    .BeEmpty());
 
         [Fact]
         public Task Parameter_With_Unresolved_Type_EmitsUnresolvedParameterType()
